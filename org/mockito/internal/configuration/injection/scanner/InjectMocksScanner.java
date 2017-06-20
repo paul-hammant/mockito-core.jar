@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.exceptions.Reporter;
 
+import static org.mockito.exceptions.Reporter.unsupportedCombinationOfAnnotations;
+
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,7 +52,7 @@ public class InjectMocksScanner {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (null != field.getAnnotation(InjectMocks.class)) {
-                assertNoAnnotations(field, Mock.class, MockitoAnnotations.Mock.class, Captor.class);
+                assertNoAnnotations(field, Mock.class, Captor.class);
                 mockDependentFields.add(field);
             }
         }
@@ -61,7 +63,7 @@ public class InjectMocksScanner {
     void assertNoAnnotations(final Field field, final Class... annotations) {
         for (Class annotation : annotations) {
             if (field.isAnnotationPresent(annotation)) {
-                new Reporter().unsupportedCombinationOfAnnotations(annotation.getSimpleName(), InjectMocks.class.getSimpleName());
+                throw unsupportedCombinationOfAnnotations(annotation.getSimpleName(), InjectMocks.class.getSimpleName());
             }
         }
     }

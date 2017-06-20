@@ -5,26 +5,23 @@
 
 package org.mockito.internal.matchers;
 
+import org.mockito.ArgumentMatcher;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.mockito.ArgumentMatcher;
-
 @SuppressWarnings("unchecked")
-public class And extends ArgumentMatcher implements Serializable {
+public class And implements ArgumentMatcher, Serializable {
 
-    private static final long serialVersionUID = -4624719625691177501L;
-    private final List<Matcher> matchers;
+    private final List<ArgumentMatcher> matchers;
 
-    public And(List<Matcher> matchers) {
+    public And(List<ArgumentMatcher> matchers) {
         this.matchers = matchers;
     }
 
     public boolean matches(Object actual) {
-        for (Matcher matcher : matchers) {
+        for (ArgumentMatcher matcher : matchers) {
             if (!matcher.matches(actual)) {
                 return false;
             }
@@ -32,14 +29,16 @@ public class And extends ArgumentMatcher implements Serializable {
         return true;
     }
 
-    public void describeTo(Description description) {
-        description.appendText("and(");
-        for (Iterator<Matcher> it = matchers.iterator(); it.hasNext();) {
-            it.next().describeTo(description);
+    public String toString() {
+        StringBuilder out = new StringBuilder();
+        out.append("and(");
+        for (Iterator<ArgumentMatcher> it = matchers.iterator(); it.hasNext();) {
+            out.append(it.next().toString());
             if (it.hasNext()) {
-                description.appendText(", ");
+                out.append(", ");
             }
         }
-        description.appendText(")");
+        out.append(")");
+        return out.toString();
     }
 }

@@ -5,7 +5,9 @@
 
 package org.mockito.internal.progress;
 
-import org.mockito.exceptions.Reporter;
+import static org.mockito.exceptions.Reporter.unfinishedStubbing;
+import static org.mockito.exceptions.Reporter.unfinishedVerificationException;
+
 import org.mockito.internal.configuration.GlobalConfiguration;
 import org.mockito.internal.debugging.Localized;
 import org.mockito.internal.debugging.LocationImpl;
@@ -13,26 +15,26 @@ import org.mockito.internal.listeners.MockingProgressListener;
 import org.mockito.internal.listeners.MockingStartedListener;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
+import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.verification.VerificationMode;
 
 @SuppressWarnings("unchecked")
 public class MockingProgressImpl implements MockingProgress {
     
-    private final Reporter reporter = new Reporter();
     private final ArgumentMatcherStorage argumentMatcherStorage = new ArgumentMatcherStorageImpl();
     
-    IOngoingStubbing iOngoingStubbing;
+    OngoingStubbing ongoingStubbing;
     private Localized<VerificationMode> verificationMode;
     private Location stubbingInProgress = null;
     private MockingProgressListener listener;
 
-    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
-        this.iOngoingStubbing = iOngoingStubbing;
+    public void reportOngoingStubbing(OngoingStubbing iOngoingStubbing) {
+        this.ongoingStubbing = iOngoingStubbing;
     }
 
-    public IOngoingStubbing pullOngoingStubbing() {
-        IOngoingStubbing temp = iOngoingStubbing;
-        iOngoingStubbing = null;
+    public OngoingStubbing pullOngoingStubbing() {
+        OngoingStubbing temp = ongoingStubbing;
+        ongoingStubbing = null;
         return temp;
     }
     
@@ -46,7 +48,7 @@ public class MockingProgressImpl implements MockingProgress {
      * @see org.mockito.internal.progress.MockingProgress#resetOngoingStubbing()
      */
     public void resetOngoingStubbing() {
-        iOngoingStubbing = null;
+        ongoingStubbing = null;
     }
 
     public VerificationMode pullVerificationMode() {
@@ -71,7 +73,7 @@ public class MockingProgressImpl implements MockingProgress {
         if (stubbingInProgress != null) {
             Location temp = stubbingInProgress;
             stubbingInProgress = null;
-            reporter.unfinishedStubbing(temp);
+            throw unfinishedStubbing(temp);
         }
     }
 
@@ -83,7 +85,7 @@ public class MockingProgressImpl implements MockingProgress {
         if (verificationMode != null) {
             Location location = verificationMode.getLocation();
             verificationMode = null;
-            reporter.unfinishedVerificationException(location);
+            throw unfinishedVerificationException(location);
         }
 
         getArgumentMatcherStorage().validateState();
@@ -94,7 +96,7 @@ public class MockingProgressImpl implements MockingProgress {
     }
     
     public String toString() {
-        return  "iOngoingStubbing: " + iOngoingStubbing + 
+        return  "iOngoingStubbing: " + ongoingStubbing + 
         ", verificationMode: " + verificationMode +
         ", stubbingInProgress: " + stubbingInProgress;
     }

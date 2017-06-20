@@ -4,31 +4,31 @@
  */
 package org.mockito.internal.util;
 
+import static org.mockito.internal.handler.MockHandlerFactory.createMockHandler;
+
 import org.mockito.Mockito;
 import org.mockito.exceptions.misusing.NotAMockException;
 import org.mockito.internal.InternalMockHandler;
 import org.mockito.internal.configuration.plugins.Plugins;
 import org.mockito.internal.creation.settings.CreationSettings;
-import org.mockito.internal.handler.MockHandlerFactory;
 import org.mockito.internal.util.reflection.LenientCopyTool;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
 import org.mockito.plugins.MockMaker;
-
-import java.lang.reflect.Modifier;
+import org.mockito.plugins.MockMaker.TypeMockability;
 
 @SuppressWarnings("unchecked")
 public class MockUtil {
 
     private static final MockMaker mockMaker = Plugins.getMockMaker();
 
-    public boolean isTypeMockable(Class<?> type) {
-      return !type.isPrimitive() && !Modifier.isFinal(type.getModifiers());
+    public TypeMockability typeMockabilityOf(Class<?> type) {
+      return mockMaker.isTypeMockable(type);
     }
 
     public <T> T createMock(MockCreationSettings<T> settings) {
-        MockHandler mockHandler = new MockHandlerFactory().create(settings);
+        MockHandler mockHandler =  createMockHandler(settings);
 
         T mock = mockMaker.createMock(settings, mockHandler);
 
@@ -43,7 +43,7 @@ public class MockUtil {
     public <T> void resetMock(T mock) {
         InternalMockHandler oldHandler = (InternalMockHandler) getMockHandler(mock);
         MockCreationSettings settings = oldHandler.getMockSettings();
-        MockHandler newHandler = new MockHandlerFactory().create(settings);
+        MockHandler newHandler = createMockHandler(settings);
 
         mockMaker.resetMock(mock, newHandler, settings);
     }
@@ -71,7 +71,7 @@ public class MockUtil {
     }
 
     private <T> boolean isMockitoMock(T mock) {
-        return mockMaker.getHandler(mock) != null;
+        return mock != null && mockMaker.getHandler(mock) != null;
     }
 
     public MockName getMockName(Object mock) {
@@ -81,12 +81,15 @@ public class MockUtil {
     public void maybeRedefineMockName(Object mock, String newName) {
         MockName mockName = getMockName(mock);
         //TODO SF hacky...
-        if (mockName.isDefault() && getMockHandler(mock).getMockSettings() instanceof CreationSettings) {
-            ((CreationSettings) getMockHandler(mock).getMockSettings()).setMockName(new MockNameImpl(newName));
+        MockCreationSettings mockSettings = getMockHandler(mock).getMockSettings();
+		if (mockName.isDefault() && mockSettings instanceof CreationSettings) {
+            ((CreationSettings) mockSettings).setMockName(new MockNameImpl(newName));
         }
     }
 
     public MockCreationSettings getMockSettings(Object mock) {
         return getMockHandler(mock).getMockSettings();
     }
+    
+    
 }
