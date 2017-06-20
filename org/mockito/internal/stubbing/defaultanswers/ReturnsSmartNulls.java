@@ -5,13 +5,13 @@
 package org.mockito.internal.stubbing.defaultanswers;
 
 import static org.mockito.internal.exceptions.Reporter.smartNullPointerException;
+import static org.mockito.internal.util.ObjectMethodsGuru.isToStringMethod;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
 
 import org.mockito.Mockito;
 import org.mockito.internal.debugging.LocationImpl;
-import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.invocation.Location;
 import org.mockito.stubbing.Answer;
@@ -32,7 +32,7 @@ import org.mockito.stubbing.Answer;
  * return type is not mockable (e.g. final) then ordinary null is returned.
  * <p>
  * ReturnsSmartNulls will be probably the default return values strategy in
- * Mockito 2.0
+ * Mockito 2.1.0
  */
 public class ReturnsSmartNulls implements Answer<Object>, Serializable {
 
@@ -63,7 +63,7 @@ public class ReturnsSmartNulls implements Answer<Object>, Serializable {
         }
 
         public Object answer(InvocationOnMock currentInvocation) throws Throwable {
-            if (new ObjectMethodsGuru().isToString(currentInvocation.getMethod())) {
+            if (isToStringMethod(currentInvocation.getMethod())) {
                 return "SmartNull returned by this unstubbed method call on a mock:\n" +
                         unstubbedInvocation.toString();
             }
