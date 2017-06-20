@@ -20,7 +20,7 @@ public class Plugins {
     /**
      * Returns the implementation of the mock maker available for the current runtime.
      *
-     * <p>Returns default mock maker if no
+     * <p>Returns {@link org.mockito.internal.creation.cglib.CglibMockMaker} if no
      * {@link org.mockito.plugins.MockMaker} extension exists or is visible in the current classpath.</p>
      */
     public static MockMaker getMockMaker() {

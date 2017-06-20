@@ -8,8 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hamcrest.Matcher;
-import org.mockito.internal.matchers.ContainsTypedDescription;
-import org.mockito.internal.util.text.HamcrestPrinter;
+import org.hamcrest.StringDescription;
+import org.mockito.internal.matchers.ContainsExtraTypeInformation;
 
 @SuppressWarnings("unchecked")
 public class ArgumentMatchingTool {
@@ -25,10 +25,10 @@ public class ArgumentMatchingTool {
         List<Integer> suspicious = new LinkedList<Integer>();
         int i = 0;
         for (Matcher m : matchers) {
-            if (m instanceof ContainsTypedDescription
+            if (m instanceof ContainsExtraTypeInformation 
                     && !safelyMatches(m, arguments[i]) 
                     && toStringEquals(m, arguments[i])
-                    && !((ContainsTypedDescription) m).typeMatches(arguments[i])) {
+                    && !((ContainsExtraTypeInformation) m).typeMatches(arguments[i])) {
                 suspicious.add(i);
             }
             i++;
@@ -45,6 +45,6 @@ public class ArgumentMatchingTool {
     }
 
     private boolean toStringEquals(Matcher m, Object arg) {
-        return HamcrestPrinter.print(m).equals(arg == null? "null" : arg.toString());
+        return StringDescription.toString(m).equals(arg == null? "null" : arg.toString());
     }
 }

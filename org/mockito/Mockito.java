@@ -11,14 +11,13 @@ import org.mockito.internal.stubbing.answers.*;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsMoreEmptyValues;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.mock.SerializableMode;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.*;
 import org.mockito.verification.*;
 import org.mockito.junit.*;
 
 /**
- * <p align="left"><img src="logo.png" srcset="logo@2x.png 2x" alt="Mockito logo"/></p>
+ * <p align="left"><img src="logo.jpg"/></p>
  * Mockito library enables mocks creation, verification and stubbing.
  * <p>
  * This javadoc content is also available on the <a href="http://mockito.org">http://mockito.org</a> web page.
@@ -58,11 +57,6 @@ import org.mockito.junit.*;
  *      <a href="#28">28. <code>MockMaker</code> API (Since 1.9.5)</a><br/>
  *      <a href="#29">29. (new) BDD style verification (Since 1.10.0)</a><br/>
  *      <a href="#30">30. (new) Spying or mocking abstract classes (Since 1.10.12)</a><br/>
- *      <a href="#31">31. (new) Mockito mocks can be <em>serialized</em> / <em>deserialized</em> across classloaders (Since 1.10.0)</a></h3>
- *      <a href="#32">32. (new) Better generic support with deep stubs (Since 1.10.0)</a></h3>
- *      <a href="#32">33. (new) Mockito JUnit rule (Since 1.10.17)</a><br/>
- *      <a href="#34">34. (new) Switch <em>on</em> or <em>off</em> plugins (Since 1.10.15)</a><br/>
- *      <a href="#35">35. (new) Custom verification failure message (Since 2.0.0)</a><br/>
  * </b>
  *
  * <p>
@@ -946,18 +940,10 @@ import org.mockito.junit.*;
  * Enables Behavior Driven Development (BDD) style verification by starting verification with the BDD <b>then</b> keyword.
  *
  * <pre class="code"><code class="java">
- * given(dog.bark()).willReturn(2);
- *
- * // when
- * ...
- *
- * then(person).should(times(2)).ride(bike);
+ *   then(person).should(times(2)).ride(bike);
  * </code></pre>
  *
  * For more information and an example see {@link BDDMockito#then(Object)}}
- *
- *
- *
  *
  * <h3 id="30">30. <a class="meaningful_link" href="#spying_abstract_classes">(new) Spying or mocking abstract classes (Since 1.10.12)</a></h3>
  *
@@ -969,113 +955,19 @@ import org.mockito.junit.*;
  * At the moment, only parameter-less constructor is supported, let us know if it is not enough.
  *
  * <pre class="code"><code class="java">
- * //convenience API, new overloaded spy() method:
- * SomeAbstract spy = spy(SomeAbstract.class);
+ *   //convenience API, new overloaded spy() method:
+ *   SomeAbstract spy = spy(SomeAbstract.class);
  *
- * //Robust API, via settings builder:
- * OtherAbstract spy = mock(OtherAbstract.class, withSettings()
- *    .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
+ *   //Robust API, via settings builder:
+ *   OtherAbstract spy = mock(OtherAbstract.class, withSettings()
+ *      .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
  *
- * //Mocking a non-static inner abstract class:
- * InnerAbstract spy = mock(InnerAbstract.class, withSettings()
- *    .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
+ *   //Mocking a non-static inner abstract class:
+ *   InnerAbstract spy = mock(InnerAbstract.class, withSettings()
+ *      .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
  * </code></pre>
  *
  * For more information please see {@link MockSettings#useConstructor()}.
- *
- *
- *
- *
- * <h3 id="31">31. <a class="meaningful_link" href="#serilization_across_classloader">(new) Mockito mocks can be <em>serialized</em> / <em>deserialized</em> across classloaders (Since 1.10.0)</a></h3>
- *
- * Mockito introduces serialization across classloader.
- *
- * Like with any other form of serialization, all types in the mock hierarchy have to serializable, inclusing answers.
- * As this serialization mode require considerably more work, this is an opt-in setting.
- *
- * <pre class="code"><code class="java">
- * // use regular serialization
- * mock(Book.class, withSettings().serializable());
- *
- * // use serialization across classloaders
- * mock(Book.class, withSettings().serializable(ACROSS_CLASSLOADERS));
- * </code></pre>
- *
- * For more details see {@link MockSettings#serializable(SerializableMode)}.
- *
- *
- *
- *
- * <h3 id="32">32. <a class="meaningful_link" href="#better_generic_support_with_deep_stubs">(new) Better generic support with deep stubs (Since 1.10.0)</a></h3>
- *
- * Deep stubbing has been improved to find generic information if available in the class.
- * That means that classes like this can be used without having to mock the behavior.
- *
- * <pre class="code"><code class="java">
- * class Lines extends List&lt;Line&gt; {
- *     // ...
- * }
- *
- * lines = mock(Lines.class, RETURNS_DEEP_STUBS);
- *
- * // Now Mockito understand this is not an Object but a Line
- * Line line = lines.iterator().next();
- * </code></pre>
- *
- * Please note that in most scenarios a mock returning a mock is wrong.
- *
- *
- *
- *
- * <h3 id="33">33. <a class="meaningful_link" href="#mockito_junit_rule">(new) Mockito JUnit rule (Since 1.10.17)</a></h3>
- *
- * Mockito now offers a JUnit rule. Until now in JUnit there was two wasy to initialize fields annotated by Mockito annotations
- * such as <code>&#064;{@link Mock}</code>, <code>&#064;{@link Spy}</code>, <code>&#064;{@link InjectMocks}</code>, etc.
- *
- * <ul>
- *     <li>Annotating the JUnit test class with a <code>&#064;{@link org.junit.runner.RunWith}(&#064;{@link MockitoJUnitRunner}.class)</code></li>
- *     <li>Invoking <code>{@link MockitoAnnotations#initMocks(Object)}</code> in the <code>&#064;{@link org.junit.Before}</code> method</li>
- * </ul>
- *
- * Now you can choose to use a rule :
- *
- * <pre class="code"><code class="java">
- * &#064;RunWith(YetAnotherRunner.class)
- * public class TheTest {
- *     &#064;Rule public MockitoRule mockito = MockitoJUnit.rule();
- *     // ...
- * }
- * </code></pre>
- *
- * For more information see {@link MockitoJUnit#rule()}.
- *
- *
- *
- *
- * <h3 id="34">34. <a class="meaningful_link" href="#plugin_switch">(new) Switch <em>on</em> or <em>off</em> plugins (Since 1.10.15)</a></h3>
- *
- * An incubating feature made it's way in mockito that will allow to toggle a mockito-plugin.
- *
- * More information here {@link org.mockito.plugins.PluginSwitch}.
- *
- *
- * <h3 id="35">35. <a class="meaningful_link" href="#BDD_behavior_verification">Custom verification failure message</a> (Since 2.0.0)</h3>
- * <p>
- * Allows specifying a custom message to be printed if verification fails.
- * <p>
- * Examples:
- * <p>
- * <pre class="code"><code class="java">
- *
- * // will print a custom message on verification failure 
- * verify(mock, description("This will print on failure")).someMethod();
- * 
- * // will work with any verification mode 
- * verify(mock, times(2).description("someMethod should be called twice")).someMethod();
- * </code></pre>
- *
- *
- *
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
@@ -2227,7 +2119,7 @@ public class Mockito extends Matchers {
      * @return verification mode
      */
     public static VerificationMode only() {
-        return VerificationModeFactory.only();
+    	return VerificationModeFactory.only();
     }
 
     /**
@@ -2392,19 +2284,6 @@ public class Mockito extends Matchers {
      */
     public static MockSettings withSettings() {
         return new MockSettingsImpl().defaultAnswer(RETURNS_DEFAULTS);
-    }
-    
-    /**
-     * Adds a description to be printed if verification fails.
-     * <pre class="code"><code class="java">
-     * verify(mock, description("This will print on failure")).someMethod("some arg");
-     * </code></pre>
-     * @param description The description to print on failure.
-     * @return verification mode
-     * @since 2.0.0
-     */
-    public static VerificationMode description(String description) {
-        return times(1).description(description);
     }
 
     /**

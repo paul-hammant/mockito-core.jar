@@ -6,11 +6,12 @@
 package org.mockito.internal.matchers;
 
 import org.hamcrest.Description;
+import org.hamcrest.SelfDescribing;
 import org.mockito.ArgumentMatcher;
 
 import java.io.Serializable;
 
-public class Equals extends ArgumentMatcher<Object> implements ContainsTypedDescription, Serializable {
+public class Equals extends ArgumentMatcher<Object> implements ContainsExtraTypeInformation, Serializable {
 
     private static final long serialVersionUID = -3395637450058086891L;
     private final Object wanted;
@@ -59,8 +60,11 @@ public class Equals extends ArgumentMatcher<Object> implements ContainsTypedDesc
         return 1;
     }
 
-    public String getTypedDescription() {
-        return "("+ wanted.getClass().getSimpleName() +") " + describe(wanted);
+    public SelfDescribing withExtraTypeInfo() {
+        return new SelfDescribing() {
+            public void describeTo(Description description) {
+                description.appendText(describe("("+ wanted.getClass().getSimpleName() +") " + wanted));
+            }};
     }
 
     public boolean typeMatches(Object object) {

@@ -65,7 +65,7 @@ public class ArgumentCaptor<T> {
     HandyReturnValues handyReturnValues = new HandyReturnValues();
 
     private final CapturingMatcher<T> capturingMatcher = new CapturingMatcher<T>();
-    private final Class<? extends T> clazz;
+    private final Class<T> clazz;
 
     /**
      * @deprecated
@@ -87,7 +87,7 @@ public class ArgumentCaptor<T> {
         this.clazz = null;
     }
 
-    private ArgumentCaptor(Class<? extends T> clazz) {
+    ArgumentCaptor(Class<T> clazz) {
         this.clazz = clazz;
     }
 
@@ -163,11 +163,10 @@ public class ArgumentCaptor<T> {
      * future major release.
      *
      * @param clazz Type matching the parameter to be captured.
-     * @param <S> Type of clazz
-     * @param <U> Type of object captured by the newly built ArgumentCaptor
+     * @param <T> Type of clazz
      * @return A new ArgumentCaptor
      */
-    public static <U,S extends U> ArgumentCaptor<U> forClass(Class<S> clazz) {
-        return new ArgumentCaptor<U>(clazz);
+    public static <T> ArgumentCaptor<T> forClass(Class<T> clazz) {
+        return new ArgumentCaptor<T>(clazz);
     }
 }

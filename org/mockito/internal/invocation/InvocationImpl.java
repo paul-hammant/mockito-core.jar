@@ -105,10 +105,6 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
         return this.rawArguments;
     }
 
-    public Class<?> getRawReturnType() {
-        return method.getReturnType();
-    }
-
     public Object callRealMethod() throws Throwable {
         if (method.isAbstract()) {
             new Reporter().cannotCallAbstractRealMethod();
