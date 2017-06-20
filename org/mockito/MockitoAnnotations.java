@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 
 import org.mockito.exceptions.base.MockitoException;
+import org.mockito.runners.MockitoJUnit44Runner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * <ul>
@@ -46,23 +48,31 @@ import org.mockito.exceptions.base.MockitoException;
  * <b><code>MockitoAnnotations.initMocks(this)</code></b> method has to called to initialize annotated mocks.
  * <p>
  * In above example, <code>initMocks()</code> is called in &#064;Before (JUnit4) method of test's base class. 
- * You can also put it in your JUnit4 runner (&#064;RunWith).
  * For JUnit3 <code>initMocks()</code> can go to <code>setup()</code> method of a base class.
- * <p>
- * How to implement mockito junit runner? See examples from mockito/test/org/mockitousage/examples/junitrunner subpackage. 
- * You may want to check out the project from svn repository to easily browse Mockito's test code.
+ * You can also put initMocks() in your JUnit runner (&#064;RunWith) or use built-in runners: {@link MockitoJUnit44Runner}, {@link MockitoJUnitRunner}
  */
 public class MockitoAnnotations {
 
     /**
-     * Allows shorthand mock creation, see examples in javadoc for {@link MockitoAnnotations} class.
+     * Use top-level {@link org.mockito.Mock} annotation instead
+     * <p>
+     * When &#064;Mock annotation was implemented as an inner class then users experienced problems with autocomplete features in IDEs. 
+     * Hence &#064;Mock was made a top-level class.  
+     * <p>
+     * How to fix deprecation warnings? 
+     * Typically, you can just <b>search:</b> import org.mockito.MockitoAnnotations.Mock; <b>and replace with:</b> import org.mockito.Mock;
+     * <p>
+     * If you're an existing user then sorry for making your code littered with deprecation warnings. 
+     * This change was required to make Mockito better.
      */
     @Target( { FIELD })
     @Retention(RetentionPolicy.RUNTIME)
+    @Deprecated
     public @interface Mock {}
     
     /**
      * Initializes objects annotated with &#064;Mock for given testClass.
+     * <p>
      * See examples in javadoc for {@link MockitoAnnotations} class.
      */
     public static void initMocks(Object testClass) {
@@ -80,7 +90,7 @@ public class MockitoAnnotations {
     private static void scan(Object testClass, Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field f : fields) {
-            if (f.isAnnotationPresent(Mock.class)) {
+            if (f.isAnnotationPresent(org.mockito.Mock.class) || f.isAnnotationPresent(Mock.class)) {
                 boolean wasAccessible = f.isAccessible();
                 f.setAccessible(true);
                 try {

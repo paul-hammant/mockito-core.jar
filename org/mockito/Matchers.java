@@ -26,10 +26,10 @@ import org.mockito.internal.progress.LastArguments;
 /**
  * Allow flexible verification or stubbing. See also {@link AdditionalMatchers}.
  * <p>
- * {@link Mockito} extends Matchers so to get access to matchers just import Mockito class statically.
+ * {@link Mockito} extends Matchers so to get access to all matchers just import Mockito class statically.
  * <pre>
  *  //stubbing using anyInt() argument matcher
- *  stub(mockedList.get(anyInt())).toReturn("element");
+ *  when(mockedList.get(anyInt())).thenReturn("element");
  *  
  *  //following prints "element"
  *  System.out.println(mockedList.get(999));
@@ -62,7 +62,7 @@ import org.mockito.internal.progress.LastArguments;
  * Example:
  * 
  * <pre>
- *   class IsListOfTwoElements extends ArgumentMatcher<List> {
+ *   class IsListOfTwoElements extends ArgumentMatcher&lt;List&gt; {
  *      public boolean matches(Object list) {
  *          return ((List) list).size() == 2;
  *      }
@@ -70,7 +70,7 @@ import org.mockito.internal.progress.LastArguments;
  *   
  *   List mock = mock(List.class);
  *   
- *   stub(mock.addAll(argThat(new IsListOfTwoElements()))).toReturn(true);
+ *   when(mock.addAll(argThat(new IsListOfTwoElements()))).thenReturn(true);
  *   
  *   mock.addAll(Arrays.asList("one", "two"));
  *   
@@ -197,10 +197,10 @@ public class Matchers {
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
-     * @return <code>null</code>.
+     * @return empty String ("")
      */
     public static String anyString() {
-        return (String) anyObject();
+        return reportMatcher(Any.ANY).returnString();
     }
     
     /**
@@ -208,10 +208,10 @@ public class Matchers {
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
-     * @return <code>null</code>.
+     * @return empty List.
      */
     public static List anyList() {
-        return (List) anyObject();
+        return reportMatcher(Any.ANY).returnList();
     }    
     
     /**
@@ -219,10 +219,10 @@ public class Matchers {
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
-     * @return <code>null</code>.
+     * @return empty Map.
      */
     public static Map anyMap() {
-        return (Map) anyObject();
+        return reportMatcher(Any.ANY).returnMap();
     }    
     
     /**
@@ -230,10 +230,10 @@ public class Matchers {
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
-     * @return <code>null</code>.
+     * @return empty Collection.
      */
     public static Collection anyCollection() {
-        return (Collection) anyObject();
+        return reportMatcher(Any.ANY).returnList();
     }    
 
     /**
@@ -445,10 +445,10 @@ public class Matchers {
      * 
      * @param substring
      *            the substring.
-     * @return <code>null</code>.
+     * @return empty String ("").
      */
     public static String contains(String substring) {
-        return reportMatcher(new Contains(substring)).<String>returnNull();
+        return reportMatcher(new Contains(substring)).returnString();
     }
 
     /**
@@ -458,10 +458,10 @@ public class Matchers {
      * 
      * @param regex
      *            the regular expression.
-     * @return <code>null</code>.
+     * @return empty String ("").
      */
     public static String matches(String regex) {
-        return reportMatcher(new Matches(regex)).<String>returnNull();
+        return reportMatcher(new Matches(regex)).returnString();
     }
 
     /**
@@ -471,10 +471,10 @@ public class Matchers {
      * 
      * @param suffix
      *            the suffix.
-     * @return <code>null</code>.
+     * @return empty String ("").
      */
     public static String endsWith(String suffix) {
-        return reportMatcher(new EndsWith(suffix)).<String>returnNull();
+        return reportMatcher(new EndsWith(suffix)).returnString();
     }
 
     /**
@@ -484,16 +484,16 @@ public class Matchers {
      * 
      * @param prefix
      *            the prefix.
-     * @return <code>null</code>.
+     * @return empty String ("").
      */
     public static String startsWith(String prefix) {
-        return reportMatcher(new StartsWith(prefix)).<String>returnNull();
+        return reportMatcher(new StartsWith(prefix)).returnString();
     }
 
     /**
      * Allows creating custom argument matchers.
      * <p>
-     * See examples in javadoc for {@link Matchers} class
+     * See examples in javadoc for {@link ArgumentMatcher} class
      * 
      * @param matcher decides whether argument matches
      * @return <code>null</code>.

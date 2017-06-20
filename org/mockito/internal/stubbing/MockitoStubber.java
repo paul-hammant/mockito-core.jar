@@ -50,15 +50,11 @@ public class MockitoStubber {
         }
     } 
     
-    public boolean hasResultFor(Invocation invocation) {
-        return findMatch(invocation) != null;
-    }
-    
-    public Object getResultFor(Invocation invocation) throws Throwable {
-        return findMatch(invocation).answer(invocation);
+    Object answerTo(Invocation invocation) throws Throwable {
+        return findAnswerFor(invocation).answer(invocation);
     }
 
-    private StubbedInvocationMatcher findMatch(Invocation invocation) {
+    public Answer findAnswerFor(Invocation invocation) {
         for (StubbedInvocationMatcher s : stubbed) {
             if (s.matches(invocation)) {
                 return s;

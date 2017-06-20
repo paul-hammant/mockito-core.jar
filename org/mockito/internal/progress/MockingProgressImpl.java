@@ -5,6 +5,7 @@
 package org.mockito.internal.progress;
 
 import org.mockito.exceptions.Reporter;
+import org.mockito.internal.verification.api.VerificationMode;
 
 @SuppressWarnings("unchecked")
 public class MockingProgressImpl implements MockingProgress {
@@ -12,7 +13,7 @@ public class MockingProgressImpl implements MockingProgress {
     private final Reporter reporter = new Reporter();
     
     private OngoingStubbing ongoingStubbing;
-    private VerificationModeImpl verificationMode;
+    private VerificationMode verificationMode;
     private int invocationSequenceNumber = 1;
     private boolean stubbingInProgress = false;
 
@@ -28,11 +29,11 @@ public class MockingProgressImpl implements MockingProgress {
     
     public void verificationStarted(VerificationMode verify) {
         validateState();
-        verificationMode = (VerificationModeImpl) verify;
+        verificationMode = (VerificationMode) verify;
     }
 
-    public VerificationModeImpl pullVerificationMode() {
-        VerificationModeImpl temp = verificationMode;
+    public VerificationMode pullVerificationMode() {
+        VerificationMode temp = verificationMode;
         verificationMode = null;
         return temp;
     }

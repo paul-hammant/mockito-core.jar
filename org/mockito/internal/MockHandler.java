@@ -5,33 +5,28 @@
 package org.mockito.internal;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.mockito.internal.configuration.Configuration;
 import org.mockito.internal.creation.MockAwareInterceptor;
-import org.mockito.internal.invocation.AllInvocationsFinder;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.MatchersBinder;
+import org.mockito.internal.progress.DeprecatedOngoingStubbing;
 import org.mockito.internal.progress.MockingProgress;
-import org.mockito.internal.progress.OngoingStubbing;
-import org.mockito.internal.progress.VerificationModeImpl;
+import org.mockito.internal.progress.NewOngoingStubbing;
+import org.mockito.internal.stubbing.DoesNothing;
 import org.mockito.internal.stubbing.MockitoStubber;
 import org.mockito.internal.stubbing.Returns;
-import org.mockito.internal.stubbing.DoesNothing;
 import org.mockito.internal.stubbing.ThrowsException;
 import org.mockito.internal.stubbing.VoidMethodStubbable;
 import org.mockito.internal.util.MockUtil;
-import org.mockito.internal.verification.MissingInvocationInOrderVerifier;
-import org.mockito.internal.verification.MissingInvocationVerifier;
-import org.mockito.internal.verification.NoMoreInvocationsVerifier;
-import org.mockito.internal.verification.NumberOfInvocationsInOrderVerifier;
-import org.mockito.internal.verification.NumberOfInvocationsVerifier;
-import org.mockito.internal.verification.Verifier;
-import org.mockito.internal.verification.VerifyingRecorder;
+import org.mockito.internal.verification.RegisteredInvocations;
+import org.mockito.internal.verification.VerificationDataImpl;
+import org.mockito.internal.verification.VerificationModeFactory;
+import org.mockito.internal.verification.api.VerificationMode;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -41,7 +36,7 @@ import org.mockito.stubbing.Answer;
  */
 public class MockHandler<T> implements MockAwareInterceptor<T> {
 
-    private final VerifyingRecorder verifyingRecorder;
+    private final RegisteredInvocations registeredInvocations;
     private final MockitoStubber mockitoStubber;
     private final MatchersBinder matchersBinder;
     private final MockingProgress mockingProgress;
@@ -54,38 +49,38 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
         this.mockingProgress = mockingProgress;
         this.matchersBinder = matchersBinder;
         this.mockitoStubber = new MockitoStubber(mockingProgress);
-
-        verifyingRecorder = createRecorder();
+        this.registeredInvocations = new RegisteredInvocations();
     }
     
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         if (mockitoStubber.hasAnswersForStubbing()) {
-            //stubbing voids in the old-school way: stubVoid()
+            //stubbing voids with stubVoid() or doAnswer() style
             Invocation invocation = new Invocation(proxy, method, args, mockingProgress.nextSequenceNumber());
             InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(invocation);
             mockitoStubber.setMethodForStubbing(invocationMatcher);
             return null;
         }
         
-        VerificationModeImpl verificationMode = mockingProgress.pullVerificationMode();
+        VerificationMode verificationMode = mockingProgress.pullVerificationMode();
         mockingProgress.validateState();
 
         Invocation invocation = new Invocation(proxy, method, args, mockingProgress.nextSequenceNumber());
         InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(invocation);
 
         if (verificationMode != null) {
-            //verifying
-            verifyingRecorder.verify(invocationMatcher, verificationMode);
+            VerificationDataImpl data = new VerificationDataImpl(registeredInvocations.getAll(), invocationMatcher);
+            verificationMode.verify(data);
             return null;
         }
 
         mockitoStubber.setInvocationForPotentialStubbing(invocationMatcher);
-        verifyingRecorder.recordInvocation(invocationMatcher.getInvocation());
+        registeredInvocations.add(invocationMatcher.getInvocation());
 
         mockingProgress.reportOngoingStubbing(new OngoingStubbingImpl());
 
-        if (mockitoStubber.hasResultFor(invocation)) {
-            return mockitoStubber.getResultFor(invocation);
+        Answer<?> answer = mockitoStubber.findAnswerFor(invocation);
+        if (answer != null) {
+            return answer.answer(invocation);
         } else if (MockUtil.isMock(instance)) {
             return Configuration.instance().getReturnValues().valueFor(invocation);
         } else {
@@ -94,7 +89,8 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
     }
 
     public void verifyNoMoreInteractions() {
-        verifyingRecorder.verify(VerificationModeImpl.noMoreInteractions());
+        VerificationDataImpl data = new VerificationDataImpl(registeredInvocations.getAll(), null);
+        VerificationModeFactory.noMoreInteractions().verify(data);
     }
 
     public VoidMethodStubbable<T> voidMethodStubbable(T mock) {
@@ -106,21 +102,11 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
     }
 
     public List<Invocation> getRegisteredInvocations() {
-        return verifyingRecorder.getRegisteredInvocations();
+        return registeredInvocations.getAll();
     }
 
     public String getMockName() {
         return mockName;
-    }
-
-    private VerifyingRecorder createRecorder() {
-        List<Verifier> verifiers = Arrays.asList(
-                new MissingInvocationInOrderVerifier(),
-                new NumberOfInvocationsInOrderVerifier(),
-                new MissingInvocationVerifier(),
-                new NumberOfInvocationsVerifier(),
-                new NoMoreInvocationsVerifier());
-        return new VerifyingRecorder(new AllInvocationsFinder(), verifiers);
     }
 
     private final class VoidMethodStubbableImpl implements VoidMethodStubbable<T> {
@@ -150,43 +136,64 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
         }
     }
 
-    private class OngoingStubbingImpl implements OngoingStubbing<T> {
-        public OngoingStubbing<T> toReturn(Object value) {
-            verifyingRecorder.eraseLastInvocation();
-            mockitoStubber.addAnswer(new Returns(value));
+    private class OngoingStubbingImpl implements NewOngoingStubbing<T>, DeprecatedOngoingStubbing<T> {
+        public NewOngoingStubbing<T> thenReturn(Object value) {
+            return thenAnswer(new Returns(value));
+        }
+
+        public NewOngoingStubbing<T> thenThrow(Throwable throwable) {
+            return thenAnswer(new ThrowsException(throwable));
+        }
+
+        public NewOngoingStubbing<T> thenAnswer(Answer<?> answer) {
+            registeredInvocations.removeLast();
+            mockitoStubber.addAnswer(answer);
             return new ConsecutiveStubbing();
         }
 
-        public OngoingStubbing<T> toThrow(Throwable throwable) {
-            verifyingRecorder.eraseLastInvocation();
-            mockitoStubber.addAnswer(new ThrowsException(throwable));
-            return new ConsecutiveStubbing();
+        public DeprecatedOngoingStubbing<T> toReturn(Object value) {
+            return toAnswer(new Returns(value));
         }
 
-        public OngoingStubbing<T> toAnswer(Answer<?> answer) {
-            verifyingRecorder.eraseLastInvocation();
+        public DeprecatedOngoingStubbing<T> toThrow(Throwable throwable) {
+            return toAnswer(new ThrowsException(throwable));
+        }
+
+        public DeprecatedOngoingStubbing<T> toAnswer(Answer<?> answer) {
+            registeredInvocations.removeLast();
             mockitoStubber.addAnswer(answer);
             return new ConsecutiveStubbing();
         }
     }
 
-    private class ConsecutiveStubbing implements OngoingStubbing<T> {
-        public OngoingStubbing<T> toReturn(Object value) {
-            mockitoStubber.addConsecutiveAnswer(new Returns(value));
-            return this;
+    private class ConsecutiveStubbing implements NewOngoingStubbing<T>, DeprecatedOngoingStubbing<T> {
+        public NewOngoingStubbing<T> thenReturn(Object value) {
+            return thenAnswer(new Returns(value));
         }
 
-        public OngoingStubbing<T> toThrow(Throwable throwable) {
-            mockitoStubber.addConsecutiveAnswer(new ThrowsException(throwable));
-            return this;
+        public NewOngoingStubbing<T> thenThrow(Throwable throwable) {
+            return thenAnswer(new ThrowsException(throwable));
         }
 
-        public OngoingStubbing<T> toAnswer(Answer<?> answer) {
+        public NewOngoingStubbing<T> thenAnswer(Answer<?> answer) {
             mockitoStubber.addConsecutiveAnswer(answer);
             return this;
         }
-    }
+        
+        public DeprecatedOngoingStubbing<T> toReturn(Object value) {
+            return toAnswer(new Returns(value));
+        }
 
+        public DeprecatedOngoingStubbing<T> toThrow(Throwable throwable) {
+            return toAnswer(new ThrowsException(throwable));
+        }
+
+        public DeprecatedOngoingStubbing<T> toAnswer(Answer<?> answer) {
+            mockitoStubber.addConsecutiveAnswer(answer);
+            return this;
+        }
+    }    
+    
     @SuppressWarnings("unchecked")
     public void setAnswersForStubbing(List<Answer> answers) {
         mockitoStubber.setAnswersForStubbing(answers);

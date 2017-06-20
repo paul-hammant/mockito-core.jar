@@ -20,7 +20,7 @@ import org.mockito.internal.util.Decamelizer;
  * Use {@link Matchers#argThat} method and pass an instance of hamcrest {@link Matcher}, e.g:
  * 
  * <pre>
- * class IsListOfTwoElements extends ArgumentMatcher<List> {
+ * class IsListOfTwoElements extends ArgumentMatcher&lt;List&gt; {
  *     public boolean matches(Object list) {
  *         return ((List) list).size() == 2;
  *     }
@@ -28,7 +28,7 @@ import org.mockito.internal.util.Decamelizer;
  * 
  * List mock = mock(List.class);
  * 
- * stub(mock.addAll(argThat(new IsListOfTwoElements()))).toReturn(true);
+ * when(mock.addAll(argThat(new IsListOfTwoElements()))).thenReturn(true);
  * 
  * mock.addAll(Arrays.asList(&quot;one&quot;, &quot;two&quot;));
  * 

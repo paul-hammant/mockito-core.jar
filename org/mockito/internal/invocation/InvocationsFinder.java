@@ -8,13 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.mockito.exceptions.base.HasStackTrace;
-import org.mockito.internal.progress.VerificationModeImpl;
 import org.mockito.internal.util.ListUtil;
 import org.mockito.internal.util.ListUtil.Filter;
 
 public class InvocationsFinder {
 
-    public List<Invocation> findInvocations(List<Invocation> invocations, InvocationMatcher wanted, VerificationModeImpl mode) {
+    public List<Invocation> findInvocations(List<Invocation> invocations, InvocationMatcher wanted) {
         return ListUtil.filter(invocations, new RemoveNotMatching(wanted));
     }
 
@@ -32,17 +31,17 @@ public class InvocationsFinder {
      * if wanted is 1 and mode is times(2) then returns
      * 1,1  
      * 
-     * if wanted is 1 and mode is atLeastOnce() then returns
+     * if wanted is 1 and mode is atLeast() then returns
      * 1,1,1
      * 
      * if wanted is 1 and mode is times(x), where x != 2 then returns
      * 1,1,1
      */
-    public List<Invocation> findMatchingChunk(List<Invocation> invocations, InvocationMatcher wanted, VerificationModeImpl mode) {
+    public List<Invocation> findMatchingChunk(List<Invocation> invocations, InvocationMatcher wanted, int wantedCount) {
         List<Invocation> unverified = removeVerifiedInOrder(invocations);
         List<Invocation> firstChunk = getFirstMatchingChunk(wanted, unverified);
         
-        if (mode.atLeastOnceMode() || !mode.matchesActualCount(firstChunk.size())) {
+        if (wantedCount != firstChunk.size()) {
             return this.findAllMatchingUnverifiedChunks(invocations, wanted);
         } else {
             return firstChunk;
@@ -61,7 +60,7 @@ public class InvocationsFinder {
         return firstChunk;
     }
     
-    public Invocation findSimilarInvocation(List<Invocation> invocations, InvocationMatcher wanted, VerificationModeImpl mode) {
+    public Invocation findSimilarInvocation(List<Invocation> invocations, InvocationMatcher wanted) {
         Invocation firstSimilar = null;
         for (Invocation invocation : invocations) {
             if (!wanted.hasSimilarMethod(invocation)) {

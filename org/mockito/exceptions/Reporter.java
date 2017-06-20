@@ -7,17 +7,19 @@ package org.mockito.exceptions;
 import static org.mockito.exceptions.StringJoiner.*;
 
 import org.mockito.exceptions.base.HasStackTrace;
+import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.exceptions.base.MockitoException;
+import org.mockito.exceptions.cause.ActualArgumentsAreDifferent;
 import org.mockito.exceptions.cause.TooLittleInvocations;
 import org.mockito.exceptions.cause.UndesiredInvocation;
 import org.mockito.exceptions.cause.WantedAnywhereAfterFollowingInteraction;
-import org.mockito.exceptions.cause.ActualArgumentsAreDifferent;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.exceptions.misusing.MissingMethodInvocationException;
 import org.mockito.exceptions.misusing.NotAMockException;
 import org.mockito.exceptions.misusing.NullInsteadOfMockException;
 import org.mockito.exceptions.misusing.UnfinishedStubbingException;
 import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+import org.mockito.exceptions.misusing.WrongTypeOfReturnValue;
 import org.mockito.exceptions.verification.ArgumentsAreDifferent;
 import org.mockito.exceptions.verification.NeverWantedButInvoked;
 import org.mockito.exceptions.verification.NoInteractionsWanted;
@@ -25,6 +27,7 @@ import org.mockito.exceptions.verification.TooLittleActualInvocations;
 import org.mockito.exceptions.verification.TooManyActualInvocations;
 import org.mockito.exceptions.verification.VerifcationInOrderFailure;
 import org.mockito.exceptions.verification.WantedButNotInvoked;
+import org.mockito.exceptions.verification.junit.JUnitTool;
 
 /**
  * Reports verification and misusing errors.
@@ -62,17 +65,17 @@ public class Reporter {
                 "Unifinished stubbing detected!",
                 "E.g. toReturn() may be missing.",
                 "Examples of correct stubbing:",
-                "    stub(mock.isOk()).toReturn(true);",
-                "    stub(mock.isOk()).toThrow(exception);",
+                "    when(mock.isOk()).thenReturn(true);",
+                "    when(mock.isOk()).thenThrow(exception);",
                 "    doThrow(exception).when(mock).someVoidMethod();"
         ));
     }
 
     public void missingMethodInvocation() {
         throw new MissingMethodInvocationException(join(
-                "stub() requires an argument which has to be a method call on a mock.",
+                "when() requires an argument which has to be a method call on a mock.",
                 "For example:",
-                "    stub(mock.getArticles()).toReturn(articles);"
+                "    when(mock.getArticles()).thenReturn(articles);"
         ));
     }
 
@@ -209,10 +212,18 @@ public class Reporter {
         
         cause.setStackTrace(actualStackTrace.getStackTrace());
         
-        throw new ArgumentsAreDifferent(join(
-                "Argument(s) are different! Wanted:",
-                wanted.toString()
-            ), cause);
+        if (JUnitTool.hasJUnit()) {
+            throw JUnitTool.createArgumentsAreDifferentException(
+                    join("Argument(s) are different! Wanted:", wanted.toString()),
+                    cause,
+                    wanted.toString(),
+                    actual.toString());
+        } else {
+            throw new ArgumentsAreDifferent(join(
+                    "Argument(s) are different! Wanted:",
+                    wanted.toString()
+                ), cause);
+        }
     }
     
     public void wantedButNotInvoked(PrintableInvocation wanted) {
@@ -310,8 +321,11 @@ public class Reporter {
     
     public void cannotMockFinalClass(Class<?> clazz) {
         throw new MockitoException(join(
-                "Mockito cannot mock final classes like: ",
-                clazz.toString()
+                "Cannot mock/spy " + clazz.toString(),
+                "Mockito cannot mock/spy following:",
+                "  - final classes",
+                "  - anonymous classes",
+                "  - primitive types"
         ));
     }
 
@@ -333,5 +347,35 @@ public class Reporter {
                 "Above means:",
                 "someVoidMethod() does nothing the 1st time but throws an exception the 2nd time is called"
              ));
+    }
+
+    public void tooLittleActualInvocationsInAtLeastMode(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace lastActualInvocationStackTrace) {        
+        TooLittleInvocations cause = createTooLittleInvocationsCause(lastActualInvocationStackTrace);
+
+        throw new TooLittleActualInvocations(join(
+            wanted.toString(),
+            "Wanted at least " + pluralize(wantedCount) + " but was " + actualCount
+        ), cause);
+    }
+    
+    public void tooLittleActualInvocationsInOrderInAtLeastMode(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace lastActualStackTrace) {
+        TooLittleInvocations cause = createTooLittleInvocationsCause(lastActualStackTrace);
+
+        throw new VerifcationInOrderFailure(join(
+                "Verification in order failure",
+                wanted.toString(),
+                "Wanted at least " + pluralize(wantedCount) + " but was " + actualCount
+        ), cause);
+    }
+
+    public void wrongTypeOfReturnValue(String expectedType, String actualType, String method) {
+        throw new WrongTypeOfReturnValue(join(
+                actualType + " cannot be returned by " + method,
+                method + " should return " + expectedType
+                ));
+    }
+
+    public void wantedAtMostX(int maxNumberOfInvocations, int foundSize) {
+        throw new MockitoAssertionError(join("Wanted at most " + pluralize(maxNumberOfInvocations) + " but was " + foundSize));
     }
 }
