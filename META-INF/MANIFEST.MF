@@ -1,29 +1,29 @@
 Manifest-Version: 1.0
-Export-Package: org.mockito;version="2.2.16";uses:="org.mockito.invoca
+Export-Package: org.mockito;version="2.2.17";uses:="org.mockito.invoca
  tion,org.mockito.listeners,org.mockito.mock,org.mockito.stubbing,org.
- mockito.verification",org.mockito.configuration;version="2.2.16";uses
- :="org.mockito.stubbing",org.mockito.exceptions.base;version="2.2.16"
- ,org.mockito.exceptions.misusing;version="2.2.16";uses:="org.mockito.
- exceptions.base",org.mockito.exceptions.stacktrace;version="2.2.16",o
- rg.mockito.exceptions.verification;version="2.2.16";uses:="org.mockit
+ mockito.verification",org.mockito.configuration;version="2.2.17";uses
+ :="org.mockito.stubbing",org.mockito.exceptions.base;version="2.2.17"
+ ,org.mockito.exceptions.misusing;version="2.2.17";uses:="org.mockito.
+ exceptions.base",org.mockito.exceptions.stacktrace;version="2.2.17",o
+ rg.mockito.exceptions.verification;version="2.2.17";uses:="org.mockit
  o.exceptions.base",org.mockito.exceptions.verification.junit;version=
- "2.2.16";uses:="junit.framework",org.mockito.hamcrest;version="2.2.16
- ";uses:="org.hamcrest",org.mockito.invocation;version="2.2.16";uses:=
- "org.mockito",org.mockito.junit;version="2.2.16";uses:="org.junit.rul
+ "2.2.17";uses:="junit.framework",org.mockito.hamcrest;version="2.2.17
+ ";uses:="org.hamcrest",org.mockito.invocation;version="2.2.17";uses:=
+ "org.mockito",org.mockito.junit;version="2.2.17";uses:="org.junit.rul
  es,org.mockito,org.mockito.exceptions.base",org.mockito.listeners;ver
- sion="2.2.16";uses:="org.mockito.invocation,org.mockito.mock",org.moc
- kito.mock;version="2.2.16";uses:="org.mockito,org.mockito.listeners,o
- rg.mockito.stubbing",org.mockito.plugins;version="2.2.16";uses:="org.
+ sion="2.2.17";uses:="org.mockito.invocation,org.mockito.mock",org.moc
+ kito.mock;version="2.2.17";uses:="org.mockito,org.mockito.listeners,o
+ rg.mockito.stubbing",org.mockito.plugins;version="2.2.17";uses:="org.
  mockito,org.mockito.exceptions.stacktrace,org.mockito.invocation,org.
- mockito.mock",org.mockito.quality;version="2.2.16",org.mockito.runner
- s;version="2.2.16";uses:="org.junit.runner,org.junit.runner.manipulat
+ mockito.mock",org.mockito.quality;version="2.2.17",org.mockito.runner
+ s;version="2.2.17";uses:="org.junit.runner,org.junit.runner.manipulat
  ion,org.junit.runner.notification",org.mockito.stubbing;version="2.2.
- 16";uses:="org.mockito,org.mockito.invocation",org.mockito.verificati
- on;version="2.2.16"
+ 17";uses:="org.mockito,org.mockito.invocation",org.mockito.verificati
+ on;version="2.2.17"
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
-Bundle-Version: 2.2.16
+Bundle-Version: 2.2.17
 Tool: Bnd-2.4.0.201411031534
-Bnd-LastModified: 1479121879000
+Bnd-LastModified: 1479236584000
 Bundle-Name: Mockito Mock Library for Java. Core bundle requires Byte 
  Buddy and Objenesis.
 Bundle-ManifestVersion: 2
@@ -31,12 +31,14 @@ Created-By: 1.6.0_39 (Sun Microsystems Inc.)
 Import-Package: net.bytebuddy;version="[1.5.3,2.0)",net.bytebuddy.agen
  t;version="[1.5.3,2.0)",net.bytebuddy.asm;version="[1.5.3,2.0)",net.b
  ytebuddy.description.method;version="[1.5.3,2.0)",net.bytebuddy.descr
- iption.modifier;version="[1.5.3,2.0)",net.bytebuddy.dynamic;version="
- [1.5.3,2.0)",net.bytebuddy.dynamic.loading;version="[1.5.3,2.0)",net.
- bytebuddy.dynamic.scaffold;version="[1.5.3,2.0)",net.bytebuddy.implem
- entation;version="[1.5.3,2.0)",net.bytebuddy.implementation.attribute
- ;version="[1.5.3,2.0)",net.bytebuddy.implementation.bind.annotation;v
- ersion="[1.5.3,2.0)",net.bytebuddy.matcher;version="[1.5.3,2.0)",net.
+ iption.modifier;version="[1.5.3,2.0)",net.bytebuddy.description.type;
+ version="[1.5.3,2.0)",net.bytebuddy.dynamic;version="[1.5.3,2.0)",net
+ .bytebuddy.dynamic.loading;version="[1.5.3,2.0)",net.bytebuddy.dynami
+ c.scaffold;version="[1.5.3,2.0)",net.bytebuddy.implementation;version
+ ="[1.5.3,2.0)",net.bytebuddy.implementation.attribute;version="[1.5.3
+ ,2.0)",net.bytebuddy.implementation.bind.annotation;version="[1.5.3,2
+ .0)",net.bytebuddy.jar.asm;version="[1.5.3,2.0)",net.bytebuddy.matche
+ r;version="[1.5.3,2.0)",net.bytebuddy.pool;version="[1.5.3,2.0)",net.
  bytebuddy.utility;version="[1.5.3,2.0)",junit.framework;resolution:=o
  ptional,org.junit;resolution:=optional,org.junit.rules;resolution:=op
  tional,org.junit.runner;resolution:=optional,org.junit.runner.manipul
