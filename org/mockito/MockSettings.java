@@ -5,7 +5,7 @@
 package org.mockito;
 
 import org.mockito.listeners.InvocationListener;
-import org.mockito.mock.MockCreationSettings;
+import org.mockito.mock.SerializableMode;
 import org.mockito.stubbing.Answer;
 
 import java.io.Serializable;
@@ -162,6 +162,25 @@ public interface MockSettings extends Serializable {
     MockSettings serializable();
 
     /**
+     * Configures the mock to be serializable with a specific serializable mode.
+     * With this feature you can use a mock in a place that requires dependencies to be serializable.
+     * <p>
+     * WARNING: This should be rarely used in unit testing.
+     * <p>
+     * The behaviour was implemented for a specific use case of a BDD spec that had an unreliable external dependency.  This
+     * was in a web environment and the objects from the external dependency were being serialized to pass between layers.
+     *
+     * <pre class="code"><code class="java">
+     *   List serializableMock = mock(List.class, withSettings().serializable(SerializableMode.ACROSS_CLASSLOADERS));
+     * </code></pre>
+     *
+     * @param mode serialization mode
+     * @return settings instance so that you can fluently specify other settings
+     * @since 1.10.0
+     */
+    MockSettings serializable(SerializableMode mode);
+
+    /**
      * Enables real-time logging of method invocations on this mock. Can be used
      * during test debugging in order to find wrong interactions with this mock.
      * <p>
@@ -197,4 +216,54 @@ public interface MockSettings extends Serializable {
      * @return settings instance so that you can fluently specify other settings
      */
     MockSettings invocationListeners(InvocationListener... listeners);
+
+    /**
+     * A stub-only mock does not record method
+     * invocations, thus saving memory but
+     * disallowing verification of invocations.
+     * <p>
+     * Example:
+     * <pre class="code"><code class="java">
+     * List stubOnly = mock(List.class, withSettings().stubOnly());
+     * </code></pre>
+     *
+     * @return settings instance so that you can fluently specify other settings
+     */
+    MockSettings stubOnly();
+
+    /**
+     * Mockito attempts to use constructor when creating instance of the mock.
+     * This is particularly useful for spying on abstract classes. See also {@link Mockito#spy(Class)}.
+     * <p>
+     * Example:
+     * <pre class="code"><code class="java">
+     * //Robust API, via settings builder:
+     * OtherAbstract spy = mock(OtherAbstract.class, withSettings()
+     *   .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
+     *
+     * //Mocking a non-static inner abstract class:
+     * InnerAbstract spy = mock(InnerAbstract.class, withSettings()
+     *   .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
+     * </code></pre>
+     *
+     * @return settings instance so that you can fluently specify other settings
+     * @since 1.10.12
+     */
+    @Incubating
+    MockSettings useConstructor();
+
+    /**
+     * Makes it possible to mock non-static inner classes in conjunction with {@link #useConstructor()}.
+     * <p>
+     * Example:
+     * <pre class="code"><code class="java">
+     * InnerClass mock = mock(InnerClass.class, withSettings()
+     *   .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
+     * </code></pre>
+     *
+     * @return settings instance so that you can fluently specify other settings
+     * @since 1.10.12
+     */
+    @Incubating
+    MockSettings outerInstance(Object outerClassInstance);
 }

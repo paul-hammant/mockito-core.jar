@@ -5,18 +5,21 @@
 
 package org.mockito.internal.invocation;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.hamcrest.Matcher;
 import org.mockito.internal.matchers.CapturesArguments;
+import org.mockito.internal.matchers.MatcherDecorator;
+import org.mockito.internal.matchers.VarargMatcher;
 import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
+
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class InvocationMatcher implements DescribedInvocation, CapturesArgumensFromInvocation, Serializable {
@@ -115,14 +118,38 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArgumensF
         return invocation.getLocation();
     }
 
-    public void captureArgumentsFrom(Invocation i) {
-        int k = 0;
-        for (Matcher m : matchers) {
-            if (m instanceof CapturesArguments && i.getArguments().length > k) {
-                ((CapturesArguments) m).captureFrom(i.getArguments()[k]);
+    public void captureArgumentsFrom(Invocation invocation) {
+        for (int position = 0; position < matchers.size(); position++) {
+            Matcher m = matchers.get(position);
+            if (m instanceof CapturesArguments && invocation.getRawArguments().length > position) {
+                //TODO SF - this whole lot can be moved captureFrom implementation
+                if(isVariableArgument(invocation, position) && isVarargMatcher(m)) {
+                    Object array = invocation.getRawArguments()[position];
+                    for (int i = 0; i < Array.getLength(array); i++) {
+                        ((CapturesArguments) m).captureFrom(Array.get(array, i));
+                    }
+                    //since we've captured all varargs already, it does not make sense to process other matchers.
+                    return;
+                } else {
+                    ((CapturesArguments) m).captureFrom(invocation.getRawArguments()[position]);
+                }
             }
-            k++;
         }
+    }
+
+    private boolean isVarargMatcher(Matcher matcher) {
+        Matcher actualMatcher = matcher;
+        if (actualMatcher instanceof MatcherDecorator) {
+            actualMatcher = ((MatcherDecorator) actualMatcher).getActualMatcher();
+        }
+        return actualMatcher instanceof VarargMatcher;
+    }
+
+    private boolean isVariableArgument(Invocation invocation, int position) {
+        return invocation.getRawArguments().length - 1 == position
+                && invocation.getRawArguments()[position] != null
+                && invocation.getRawArguments()[position].getClass().isArray()
+                && invocation.getMethod().isVarArgs();
     }
 
     public static List<InvocationMatcher> createFrom(List<Invocation> invocations) {

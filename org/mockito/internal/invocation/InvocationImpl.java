@@ -62,6 +62,10 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
         return arguments;
     }
 
+    public <T> T getArgumentAt(int index, Class<T> clazz) {
+        return (T) arguments[index];
+    }
+
     public boolean isVerified() {
         return verified || isIgnoredForVerification;
     }
@@ -102,8 +106,8 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
     }
 
     public Object callRealMethod() throws Throwable {
-        if (this.getMethod().getDeclaringClass().isInterface()) {
-            new Reporter().cannotCallRealMethodOnInterface();
+        if (method.isAbstract()) {
+            new Reporter().cannotCallAbstractRealMethod();
         }
         return realMethod.invoke(mock, rawArguments);
     }

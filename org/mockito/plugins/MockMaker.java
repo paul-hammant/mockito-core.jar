@@ -4,7 +4,6 @@
  */
 package org.mockito.plugins;
 
-import org.mockito.Incubating;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
 
@@ -35,7 +34,6 @@ import org.mockito.mock.MockCreationSettings;
  * @see org.mockito.invocation.MockHandler
  * @since 1.9.5
  */
-@Incubating
 public interface MockMaker {
 
     /**
@@ -43,7 +41,7 @@ public interface MockMaker {
      * <ul>
      *     <li>Create a proxy object that implements {@code settings.typeToMock} and potentially also {@code settings.extraInterfaces}.</li>
      *     <li>You may use the information from {@code settings} to create/configure your proxy object.</li>
-     *     <li>Your proxy object should carry the {@code hander} with it. For example, if you generate byte code
+     *     <li>Your proxy object should carry the {@code handler} with it. For example, if you generate byte code
      *     to create the proxy you could generate an extra field to keep the {@code handler} with the generated object.
      *     Your implementation of {@code MockMaker} is required to provide this instance of {@code handler} when
      *     {@link #getHandler(Object)} is called.

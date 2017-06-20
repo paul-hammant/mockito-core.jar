@@ -4,17 +4,19 @@
  */
 package org.mockito.internal.stubbing.answers;
 
+import org.mockito.internal.invocation.AbstractAwareMethod;
 import org.mockito.internal.util.Primitives;
 import org.mockito.invocation.Invocation;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * by Szczepan Faber, created at: 3/31/12
  */
-public class MethodInfo {
+public class MethodInfo implements AbstractAwareMethod {
 
-    private Method method;
+    private final Method method;
 
     public MethodInfo(Invocation theInvocation) {
         this.method = theInvocation.getMethod();
@@ -62,5 +64,9 @@ public class MethodInfo {
 
     public boolean isDeclaredOnInterface() {
         return method.getDeclaringClass().isInterface();
+    }
+
+    public boolean isAbstract() {
+        return (method.getModifiers() & Modifier.ABSTRACT) != 0;
     }
 }

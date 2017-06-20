@@ -36,7 +36,7 @@ public class AdditionalAnswers {
      * </p>
      *
      * <pre class="code"><code class="java">given(carKeyFob.authenticate(carKey)).will(returnsFirstArg());
-     * daAnswer(returnsFirstArg()).when(carKeyFob).authenticate(carKey)</code></pre>
+     * doAnswer(returnsFirstArg()).when(carKeyFob).authenticate(carKey)</code></pre>
      *
      * @param <T> Return type of the invocation.
      * @return Answer that will return the first argument of the invocation.
@@ -56,7 +56,7 @@ public class AdditionalAnswers {
      * </p>
      *
      * <pre class="code"><code class="java">given(trader.apply(leesFormula, onCreditDefaultSwap)).will(returnsSecondArg());
-     * daAnswer(returnsSecondArg()).when(trader).apply(leesFormula, onCreditDefaultSwap)</code></pre>
+     * doAnswer(returnsSecondArg()).when(trader).apply(leesFormula, onCreditDefaultSwap)</code></pre>
      *
      * @param <T> Return type of the invocation.
      * @return Answer that will return the second argument of the invocation.
@@ -76,7 +76,7 @@ public class AdditionalAnswers {
      * </p>
      *
      * <pre class="code"><code class="java">given(person.remember(dream1, dream2, dream3, dream4)).will(returnsLastArg());
-     * daAnswer(returnsLastArg()).when(person).remember(dream1, dream2, dream3, dream4)</code></pre>
+     * doAnswer(returnsLastArg()).when(person).remember(dream1, dream2, dream3, dream4)</code></pre>
      *
      * @param <T> Return type of the invocation.
      * @return Answer that will return the last argument of the invocation.
@@ -96,10 +96,11 @@ public class AdditionalAnswers {
      * </p>
      *
      * <pre class="code"><code class="java">given(person.remember(dream1, dream2, dream3, dream4)).will(returnsArgAt(3));
-     * daAnswer(returnsArgAt(3)).when(person).remember(dream1, dream2, dream3, dream4)</code></pre>
+     * doAnswer(returnsArgAt(3)).when(person).remember(dream1, dream2, dream3, dream4)</code></pre>
      *
      * @param <T> Return type of the invocation.
-     * @return Answer that will return the second argument of the invocation.
+     * @param position index of the argument from the list of arguments.
+     * @return Answer that will return the argument from the given position in the argument's list
      *
      * @since 1.9.5
      */
@@ -108,7 +109,8 @@ public class AdditionalAnswers {
     }
 
     /**
-     * An answer that directly forwards the calls to the delegate.
+     * An answer that directly forwards the calls to the delegate. The delegate may or may not be of the same type as the mock.
+     * If the type is different, a matching method needs to be found on delegate type otherwise an exception is thrown.
      * <p>
      * Useful for spies or partial mocks of objects that are difficult to mock
      * or spy using the usual spy API. Possible use cases:
@@ -162,7 +164,9 @@ public class AdditionalAnswers {
      *   doReturn("foo").when(listWithDelegate).get(0);
      * </code></pre>
      *
-     * @param delegate The delegate to forward calls to.
+     * @param delegate The delegate to forward calls to. It does not have to be of the same type as the mock (although it usually is).
+     *                 The only requirement is that the instance should have compatible method signatures including the return values.
+     *                 Only the methods that were actually executed on the mock need to be present on the delegate type.
      * @return the answer
      *
      * @since 1.9.5
@@ -180,7 +184,7 @@ public class AdditionalAnswers {
      *   when(mock.foo()).thenReturn(1, 2, 3);
      *
      *   //is equivalent to:
-     *   when(mock.foo()).thenReturn(new ReturnsElementsOf(Arrays.asList(1, 2, 3)));
+     *   when(mock.foo()).thenAnswer(new ReturnsElementsOf(Arrays.asList(1, 2, 3)));
      * </code></pre>
      *
      * @param elements The collection of elements to return.

@@ -5,85 +5,53 @@
 package org.mockito.verification;
 
 import org.mockito.exceptions.Reporter;
-import org.mockito.exceptions.misusing.FriendlyReminderException;
-import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.internal.verification.VerificationWithTimeoutImpl;
-import org.mockito.internal.verification.api.VerificationData;
-
+import org.mockito.internal.util.Timer;
+import org.mockito.internal.verification.VerificationOverTimeImpl;
 /**
  * See the javadoc for {@link VerificationWithTimeout}
  * <p>
  * Typically, you won't use this class explicitly. Instead use timeout() method on Mockito class.
  * See javadoc for {@link VerificationWithTimeout}
  */
-public class Timeout implements VerificationWithTimeout {
-
-    VerificationWithTimeoutImpl impl;
-
+public class Timeout extends VerificationWrapper<VerificationOverTimeImpl> implements VerificationWithTimeout {
+    
     /**
      * See the javadoc for {@link VerificationWithTimeout}
      * <p>
      * Typically, you won't use this class explicitly. Instead use timeout() method on Mockito class.
      * See javadoc for {@link VerificationWithTimeout}
      */
-    public Timeout(int millis, VerificationMode delegate) {
+    public Timeout(long millis, VerificationMode delegate) {
         this(10, millis, delegate);
     }
 
     /**
      * See the javadoc for {@link VerificationWithTimeout}
      */
-    Timeout(int treshhold, int millis, VerificationMode delegate) {
-        this.impl = new VerificationWithTimeoutImpl(treshhold, millis, delegate);
+    Timeout(long pollingPeriodMillis, long millis, VerificationMode delegate) {
+        super(new VerificationOverTimeImpl(pollingPeriodMillis, millis, delegate, true));
     }
 
     /**
      * See the javadoc for {@link VerificationWithTimeout}
      */
-    public void verify(VerificationData data) {
-        impl.verify(data);
+    Timeout(long pollingPeriodMillis, long millis, VerificationMode delegate, Timer timer) {
+        super(new VerificationOverTimeImpl(pollingPeriodMillis, millis, delegate, true, timer));
     }
-
-    /**
-     * See the javadoc for {@link VerificationWithTimeout}
-     */
-    public VerificationMode atLeast(int minNumberOfInvocations) {
-        return new Timeout(impl.getTreshhold(), impl.getTimeout(), VerificationModeFactory.atLeast(minNumberOfInvocations));
+    
+    @Override
+    protected VerificationMode copySelfWithNewVerificationMode(VerificationMode newVerificationMode) {
+        return new Timeout(wrappedVerification.getPollingPeriod(), wrappedVerification.getDuration(), newVerificationMode);
     }
-
-    /**
-     * See the javadoc for {@link VerificationWithTimeout}
-     */
-    public VerificationMode atLeastOnce() {
-        return new Timeout(impl.getTreshhold(), impl.getTimeout(), VerificationModeFactory.atLeastOnce());
-    }
-
-    /**
-     * See the javadoc for {@link VerificationWithTimeout}
-     */
+    
     public VerificationMode atMost(int maxNumberOfInvocations) {
-        new Reporter().atMostShouldNotBeUsedWithTimeout();
+        new Reporter().atMostAndNeverShouldNotBeUsedWithTimeout();
         return null;
     }
 
-    /**
-     * See the javadoc for {@link VerificationWithTimeout}
-     */
     public VerificationMode never() {
-        return new Timeout(impl.getTreshhold(), impl.getTimeout(), VerificationModeFactory.times(0));
+        new Reporter().atMostAndNeverShouldNotBeUsedWithTimeout();
+        return null;
     }
 
-    /**
-     * See the javadoc for {@link VerificationWithTimeout}
-     */
-    public VerificationMode only() {
-        return new Timeout(impl.getTreshhold(), impl.getTimeout(), VerificationModeFactory.only());
-    }
-
-    /**
-     * See the javadoc for {@link VerificationWithTimeout}
-     */
-    public VerificationMode times(int wantedNumberOfInvocations) {
-        return new Timeout(impl.getTreshhold(), impl.getTimeout(), VerificationModeFactory.times(wantedNumberOfInvocations));
-    }
 }

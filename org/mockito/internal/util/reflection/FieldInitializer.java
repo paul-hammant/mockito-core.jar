@@ -5,6 +5,7 @@
 package org.mockito.internal.util.reflection;
 
 import org.mockito.exceptions.base.MockitoException;
+import org.mockito.internal.util.MockUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -26,9 +27,9 @@ import java.util.List;
  */
 public class FieldInitializer {
 
-    private Object fieldOwner;
-    private Field field;
-    private ConstructorInstantiator instantiator;
+    private final Object fieldOwner;
+    private final Field field;
+    private final ConstructorInstantiator instantiator;
 
 
     /**
@@ -158,8 +159,8 @@ public class FieldInitializer {
      * </p>
      */
     static class NoArgConstructorInstantiator implements ConstructorInstantiator {
-        private Object testClass;
-        private Field field;
+        private final Object testClass;
+        private final Field field;
 
         /**
          * Internal, checks are done by FieldInitializer.
@@ -209,13 +210,30 @@ public class FieldInitializer {
      * </p>
      */
     static class ParameterizedConstructorInstantiator implements ConstructorInstantiator {
-        private Object testClass;
-        private Field field;
-        private ConstructorArgumentResolver argResolver;
-        private Comparator<Constructor<?>> byParameterNumber = new Comparator<Constructor<?>>() {
+        private final Object testClass;
+        private final Field field;
+        private final ConstructorArgumentResolver argResolver;
+	      private final MockUtil mockUtil = new MockUtil();
+        private final Comparator<Constructor<?>> byParameterNumber = new Comparator<Constructor<?>>() {
             public int compare(Constructor<?> constructorA, Constructor<?> constructorB) {
-                return constructorB.getParameterTypes().length - constructorA.getParameterTypes().length;
+	            int argLengths = constructorB.getParameterTypes().length - constructorA.getParameterTypes().length;
+	            if (argLengths == 0) {
+		            int constructorAMockableParamsSize = countMockableParams(constructorA);
+		            int constructorBMockableParamsSize = countMockableParams(constructorB);
+		            return constructorBMockableParamsSize - constructorAMockableParamsSize;
+	            }
+	            return argLengths;
             }
+	        
+	        private int countMockableParams(Constructor<?> constructor) {
+		        int constructorMockableParamsSize = 0;
+		        for (Class<?> aClass : constructor.getParameterTypes()) {
+			        if(mockUtil.isTypeMockable(aClass)){
+				        constructorMockableParamsSize++;
+			        }
+		        }
+		        return constructorMockableParamsSize;
+	        }
         };
 
         /**
@@ -264,7 +282,7 @@ public class FieldInitializer {
         private Constructor<?> biggestConstructor(Class<?> clazz) {
             final List<Constructor<?>> constructors = Arrays.asList(clazz.getDeclaredConstructors());
             Collections.sort(constructors, byParameterNumber);
-
+			
             Constructor<?> constructor = constructors.get(0);
             checkParameterized(constructor, field);
             return constructor;

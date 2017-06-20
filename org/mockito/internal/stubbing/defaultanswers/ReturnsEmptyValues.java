@@ -5,6 +5,13 @@
 
 package org.mockito.internal.stubbing.defaultanswers;
 
+import org.mockito.internal.util.MockUtil;
+import org.mockito.internal.util.ObjectMethodsGuru;
+import org.mockito.internal.util.Primitives;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.mock.MockName;
+import org.mockito.stubbing.Answer;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,14 +27,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import org.mockito.internal.creation.ClassNameFinder;
-import org.mockito.internal.util.MockUtil;
-import org.mockito.internal.util.ObjectMethodsGuru;
-import org.mockito.internal.util.Primitives;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.mock.MockName;
-import org.mockito.stubbing.Answer;
 
 /**
  * Default answer of every Mockito mock.
@@ -45,7 +44,7 @@ import org.mockito.stubbing.Answer;
  *  Returns description of mock for toString() method
  * </li>
  * <li>
- *  Returns non-zero for Comparable#compareTo(T other) method (see issue 184)
+ *  Returns zero if references are equals otherwise non-zero for Comparable#compareTo(T other) method (see issue 184)
  * </li>
  * <li>
  *  Returns null for everything else
@@ -56,6 +55,7 @@ public class ReturnsEmptyValues implements Answer<Object>, Serializable {
     
     private static final long serialVersionUID = 1998191268711234347L;
     ObjectMethodsGuru methodsGuru = new ObjectMethodsGuru();
+    MockUtil mockUtil = new MockUtil();
 
     /* (non-Javadoc)
      * @see org.mockito.stubbing.Answer#answer(org.mockito.invocation.InvocationOnMock)
@@ -63,17 +63,17 @@ public class ReturnsEmptyValues implements Answer<Object>, Serializable {
     public Object answer(InvocationOnMock invocation) {
         if (methodsGuru.isToString(invocation.getMethod())) {
             Object mock = invocation.getMock();
-            MockName name = new MockUtil().getMockName(mock);
+            MockName name = mockUtil.getMockName(mock);
             if (name.isDefault()) {
-                return "Mock for " + ClassNameFinder.classNameForMock(mock) + ", hashCode: " + mock.hashCode();
+                return "Mock for " + mockUtil.getMockSettings(mock).getTypeToMock().getSimpleName() + ", hashCode: " + mock.hashCode();
             } else {
                 return name.toString();
             }
         } else if (methodsGuru.isCompareToMethod(invocation.getMethod())) {
             //see issue 184.
-            //mocks by default should not return 0 for compareTo because they are not the same. Hence we return 1 (anything but 0 is good).
+            //mocks by default should return 0 if references are the same, otherwise some other value because they are not the same. Hence we return 1 (anything but 0 is good).
             //Only for compareTo() method by the Comparable interface
-            return 1;
+            return invocation.getMock() == invocation.getArguments()[0] ? 0 : 1;
         }
         
         Class<?> returnType = invocation.getMethod().getReturnType();
@@ -81,10 +81,8 @@ public class ReturnsEmptyValues implements Answer<Object>, Serializable {
     }
     
     Object returnValueFor(Class<?> type) {
-        if (type.isPrimitive()) {
-            return primitiveOf(type);
-        } else if (Primitives.isPrimitiveWrapper(type)) {
-            return Primitives.primitiveWrapperOf(type);
+        if (Primitives.isPrimitiveOrWrapper(type)) {
+            return Primitives.defaultValueForPrimitiveOrWrapper(type);
         //new instances are used instead of Collections.emptyList(), etc.
         //to avoid UnsupportedOperationException if code under test modifies returned collection
         } else if (type == Collection.class) {
@@ -115,18 +113,11 @@ public class ReturnsEmptyValues implements Answer<Object>, Serializable {
             return new TreeMap<Object, Object>();
         } else if (type == LinkedHashMap.class) {
             return new LinkedHashMap<Object, Object>();
-        }       
+        }
+        // TODO return empty Iterable ; see issue 175
+
         //Let's not care about the rest of collections.
         return null;
     }
 
-    private Object primitiveOf(Class<?> type) {
-        if (type == Boolean.TYPE) {
-            return false;
-        } else if (type == Character.TYPE) {
-            return (char) 0;
-        } else {
-            return 0;
-        } 
-    }
 }

@@ -10,7 +10,7 @@ import org.mockito.stubbing.Answer;
 
 public class AnswersValidator {
 
-    private Reporter reporter = new Reporter();
+    private final Reporter reporter = new Reporter();
     
     public void validate(Answer<?> answer, Invocation invocation) {
         MethodInfo methodInfo = new MethodInfo(invocation);
@@ -49,8 +49,8 @@ public class AnswersValidator {
     }
 
     private void validateMockingConcreteClass(CallsRealMethods answer, MethodInfo methodInfo) {
-        if (methodInfo.isDeclaredOnInterface()) {
-            reporter.cannotCallRealMethodOnInterface();
+        if (methodInfo.isAbstract()) {
+            reporter.cannotCallAbstractRealMethod();
         }
     }
 

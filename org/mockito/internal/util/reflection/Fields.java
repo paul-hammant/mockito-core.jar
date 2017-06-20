@@ -4,10 +4,9 @@
  */
 package org.mockito.internal.util.reflection;
 
-import org.mockito.Incubating;
 import org.mockito.internal.util.Checks;
-import org.mockito.internal.util.collections.ListUtil.Filter;
 import org.mockito.internal.util.collections.ListUtil;
+import org.mockito.internal.util.collections.ListUtil.Filter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -19,11 +18,10 @@ import java.util.List;
  *
  * Code is very new and might need rework.
  */
-@Incubating
 public abstract class Fields {
 
     /**
-     * Instance fields declared in thes class and superclasses of the given instance.
+     * Instance fields declared in the class and superclasses of the given instance.
      *
      * @param instance Instance from which declared fields will be retrieved.
      * @return InstanceFields of this object instance.
@@ -37,7 +35,7 @@ public abstract class Fields {
     }
 
     /**
-     * Instance fields declared in the of the given instance.
+     * Instance fields declared in the class of the given instance.
      *
      * @param instance Instance from which declared fields will be retrieved.
      * @return InstanceFields of this object instance.

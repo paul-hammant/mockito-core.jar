@@ -9,60 +9,79 @@ import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class Primitives {
-    
+
+    private static final Map<Class<?>, Class<?>> PRIMITIVE_TYPES = new HashMap<Class<?>, Class<?>>();
+    private static final Map<Class<?>, Object> PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES = new HashMap<Class<?>, Object>();
+
+
+    /**
+     * Returns the primitive type of the given class.
+     * <p/>
+     * The passed class can be any class : <code>boolean.class</code>, <code>Integer.class</code>
+     * in witch case this method will return <code>boolean.class</code>, even <code>SomeObject.class</code>
+     * in which case <code>null</code> will be returned.
+     *
+     * @param clazz The class from which primitive type has to be retrieved
+     * @param <T>   The type
+     * @return The primitive type if relevant, otherwise <code>null</code>
+     */
     public static <T> Class<T> primitiveTypeOf(Class<T> clazz) {
-        if(clazz.isPrimitive()) {
+        if (clazz.isPrimitive()) {
             return clazz;
         }
-        return (Class<T>) primitiveTypes.get(clazz);
+        return (Class<T>) PRIMITIVE_TYPES.get(clazz);
     }
 
-    public static boolean isPrimitiveWrapper(Class<?> type) {
-        return wrapperReturnValues.containsKey(type);
+    /**
+     * Indicates if the given class is primitive type or a primitive wrapper.
+     *
+     * @param type The type to check
+     * @return <code>true</code> if primitive or wrapper, <code>false</code> otherwise.
+     */
+    public static boolean isPrimitiveOrWrapper(Class<?> type) {
+        return PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.containsKey(type);
     }
 
-    public static <T> T primitiveWrapperOf(Class<T> type) {
-        return (T) wrapperReturnValues.get(type);
+    /**
+     * Returns the boxed default value for a primitive or a primitive wrapper.
+     *
+     * @param primitiveOrWrapperType The type to lookup the default value
+     * @return The boxed default values as defined in Java Language Specification,
+     *         <code>null</code> if the type is neither a primitive nor a wrapper
+     */
+    public static <T> T defaultValueForPrimitiveOrWrapper(Class<T> primitiveOrWrapperType) {
+        return (T) PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.get(primitiveOrWrapperType);
     }
 
-    public static <T> T primitiveValueOrNullFor(Class<T> primitiveType) {
-        return (T) primitiveValues.get(primitiveType);
-    }
-    private static Map<Class<?>, Class<?>> wrapperTypes = new HashMap<Class<?>, Class<?>>();
-    private static Map<Class<?>, Class<?>> primitiveTypes = new HashMap<Class<?>, Class<?>>();
-    private static Map<Class<?>, Object> wrapperReturnValues = new HashMap<Class<?>, Object>();
-    private static Map<Class<?>, Object> primitiveValues = new HashMap<Class<?>, Object>();
-
-    static {
-        primitiveTypes.put(Boolean.class, Boolean.TYPE);
-        primitiveTypes.put(Character.class, Character.TYPE);
-        primitiveTypes.put(Byte.class, Byte.TYPE);
-        primitiveTypes.put(Short.class, Short.TYPE);
-        primitiveTypes.put(Integer.class, Integer.TYPE);
-        primitiveTypes.put(Long.class, Long.TYPE);
-        primitiveTypes.put(Float.class, Float.TYPE);
-        primitiveTypes.put(Double.class, Double.TYPE);
-    }
 
     static {
-        wrapperReturnValues.put(Boolean.class, Boolean.FALSE);
-        wrapperReturnValues.put(Character.class, new Character((char) 0));
-        wrapperReturnValues.put(Byte.class, new Byte((byte) 0));
-        wrapperReturnValues.put(Short.class, new Short((short) 0));
-        wrapperReturnValues.put(Integer.class, new Integer(0));
-        wrapperReturnValues.put(Long.class, new Long(0));
-        wrapperReturnValues.put(Float.class, new Float(0));
-        wrapperReturnValues.put(Double.class, new Double(0));
+        PRIMITIVE_TYPES.put(Boolean.class, Boolean.TYPE);
+        PRIMITIVE_TYPES.put(Character.class, Character.TYPE);
+        PRIMITIVE_TYPES.put(Byte.class, Byte.TYPE);
+        PRIMITIVE_TYPES.put(Short.class, Short.TYPE);
+        PRIMITIVE_TYPES.put(Integer.class, Integer.TYPE);
+        PRIMITIVE_TYPES.put(Long.class, Long.TYPE);
+        PRIMITIVE_TYPES.put(Float.class, Float.TYPE);
+        PRIMITIVE_TYPES.put(Double.class, Double.TYPE);
     }
 
     static {
-        primitiveValues.put(boolean.class, false);
-        primitiveValues.put(char.class, 0);
-        primitiveValues.put(byte.class, 0);
-        primitiveValues.put(short.class, 0);
-        primitiveValues.put(int.class, 0);
-        primitiveValues.put(long.class, 0);
-        primitiveValues.put(float.class, 0);
-        primitiveValues.put(double.class, 0);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Boolean.class, false);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Character.class, '\u0000');
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Byte.class, (byte) 0);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Short.class, (short) 0);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Integer.class, 0);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Long.class, 0L);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Float.class, 0F);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(Double.class, 0D);
+
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(boolean.class, false);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(char.class, '\u0000');
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(byte.class, (byte) 0);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(short.class, (short) 0);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(int.class, 0);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(long.class, 0L);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(float.class, 0F);
+        PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.put(double.class, 0D);
     }
 }

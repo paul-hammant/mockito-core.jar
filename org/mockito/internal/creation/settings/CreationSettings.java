@@ -7,6 +7,7 @@ package org.mockito.internal.creation.settings;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
+import org.mockito.mock.SerializableMode;
 import org.mockito.stubbing.Answer;
 
 import java.io.Serializable;
@@ -19,6 +20,7 @@ import java.util.Set;
  * by Szczepan Faber, created at: 4/9/12
  */
 public class CreationSettings<T> implements MockCreationSettings<T>, Serializable {
+    private static final long serialVersionUID = -6789800638070123629L;
 
     protected Class<T> typeToMock;
     protected Set<Class> extraInterfaces = new LinkedHashSet<Class>();
@@ -26,11 +28,15 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
     protected Object spiedInstance;
     protected Answer<Object> defaultAnswer;
     protected MockName mockName;
-    protected boolean serializable;
+    protected SerializableMode serializableMode = SerializableMode.NONE;
     protected List<InvocationListener> invocationListeners = new ArrayList<InvocationListener>();
+    protected boolean stubOnly;
+    private boolean useConstructor;
+    private Object outerClassInstance;
 
     public CreationSettings() {}
 
+    @SuppressWarnings("unchecked")
     public CreationSettings(CreationSettings copy) {
         this.typeToMock = copy.typeToMock;
         this.extraInterfaces = copy.extraInterfaces;
@@ -38,8 +44,11 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         this.spiedInstance = copy.spiedInstance;
         this.defaultAnswer = copy.defaultAnswer;
         this.mockName = copy.mockName;
-        this.serializable = copy.serializable;
+        this.serializableMode = copy.serializableMode;
         this.invocationListeners = copy.invocationListeners;
+        this.stubOnly = copy.stubOnly;
+        this.useConstructor = copy.isUsingConstructor();
+        this.outerClassInstance = copy.getOuterClassInstance();
     }
 
     public Class<T> getTypeToMock() {
@@ -82,10 +91,27 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
     }
 
     public boolean isSerializable() {
-        return serializable;
+        return serializableMode != SerializableMode.NONE;
+    }
+
+    public SerializableMode getSerializableMode() {
+        return serializableMode;
     }
 
     public List<InvocationListener> getInvocationListeners() {
         return invocationListeners;
     }
+
+    public boolean isUsingConstructor() {
+        return useConstructor;
+    }
+
+    public Object getOuterClassInstance() {
+        return outerClassInstance;
+    }
+
+    public boolean isStubOnly() {
+        return stubOnly;
+    }
+
 }

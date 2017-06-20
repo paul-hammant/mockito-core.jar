@@ -6,8 +6,7 @@
 package org.mockito.exceptions.verification.junit;
 
 import junit.framework.ComparisonFailure;
-
-import org.mockito.internal.exceptions.base.ConditionalStackTraceFilter;
+import org.mockito.internal.exceptions.stacktrace.ConditionalStackTraceFilter;
 import org.mockito.internal.util.RemoveFirstLine;
 
 
@@ -15,7 +14,7 @@ public class ArgumentsAreDifferent extends ComparisonFailure {
     
     private static final long serialVersionUID = 1L;
     private final String message;
-    private StackTraceElement[] unfilteredStackTrace;
+    private final StackTraceElement[] unfilteredStackTrace;
 
     public ArgumentsAreDifferent(String message, String wanted, String actual) {
         super(message, wanted, actual);

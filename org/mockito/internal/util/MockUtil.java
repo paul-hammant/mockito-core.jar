@@ -4,9 +4,10 @@
  */
 package org.mockito.internal.util;
 
+import org.mockito.Mockito;
 import org.mockito.exceptions.misusing.NotAMockException;
 import org.mockito.internal.InternalMockHandler;
-import org.mockito.internal.configuration.ClassPathLoader;
+import org.mockito.internal.configuration.plugins.Plugins;
 import org.mockito.internal.creation.settings.CreationSettings;
 import org.mockito.internal.handler.MockHandlerFactory;
 import org.mockito.internal.util.reflection.LenientCopyTool;
@@ -15,10 +16,16 @@ import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
 import org.mockito.plugins.MockMaker;
 
+import java.lang.reflect.Modifier;
+
 @SuppressWarnings("unchecked")
 public class MockUtil {
 
-    private static final MockMaker mockMaker = ClassPathLoader.getMockMaker();
+    private static final MockMaker mockMaker = Plugins.getMockMaker();
+
+    public boolean isTypeMockable(Class<?> type) {
+      return !type.isPrimitive() && !Modifier.isFinal(type.getModifiers());
+    }
 
     public <T> T createMock(MockCreationSettings<T> settings) {
         MockHandler mockHandler = new MockHandlerFactory().create(settings);
@@ -47,18 +54,20 @@ public class MockUtil {
         }
 
         if (isMockitoMock(mock)) {
-            return (InternalMockHandler) mockMaker.getHandler(mock);
+            MockHandler handler = mockMaker.getHandler(mock);
+            return (InternalMockHandler) handler;
         } else {
             throw new NotAMockException("Argument should be a mock, but is: " + mock.getClass());
         }
     }
 
     public boolean isMock(Object mock) {
-        return mock != null && isMockitoMock(mock);
+        // double check to avoid classes that have the same interfaces, could be great to have a custom mockito field in the proxy instead of relying on instance fields
+        return isMockitoMock(mock);
     }
 
     public boolean isSpy(Object mock) {
-        return mock instanceof MockitoSpy && isMock(mock);
+        return isMockitoMock(mock) && getMockSettings(mock).getDefaultAnswer() == Mockito.CALLS_REAL_METHODS;
     }
 
     private <T> boolean isMockitoMock(T mock) {
@@ -75,5 +84,9 @@ public class MockUtil {
         if (mockName.isDefault() && getMockHandler(mock).getMockSettings() instanceof CreationSettings) {
             ((CreationSettings) getMockHandler(mock).getMockSettings()).setMockName(new MockNameImpl(newName));
         }
+    }
+
+    public MockCreationSettings getMockSettings(Object mock) {
+        return getMockHandler(mock).getMockSettings();
     }
 }

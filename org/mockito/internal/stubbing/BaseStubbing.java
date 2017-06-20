@@ -12,6 +12,8 @@ import org.mockito.stubbing.DeprecatedOngoingStubbing;
 import org.mockito.stubbing.OngoingStubbing;
 
 public abstract class BaseStubbing<T> implements OngoingStubbing<T>, DeprecatedOngoingStubbing<T> {
+
+    //TODO why we need this method? The other thenReturn covers it.
     public OngoingStubbing<T> thenReturn(T value) {
         return thenAnswer(new Returns(value));
     }
@@ -19,6 +21,7 @@ public abstract class BaseStubbing<T> implements OngoingStubbing<T>, DeprecatedO
     public OngoingStubbing<T> thenReturn(T value, T... values) {
         OngoingStubbing<T> stubbing = thenReturn(value);            
         if (values == null) {
+            //TODO below does not seem right
             return stubbing.thenReturn(null);
         }
         for (T v: values) {

@@ -10,24 +10,32 @@ import org.mockito.internal.creation.settings.CreationSettings;
 import org.mockito.internal.debugging.VerboseMockInvocationLogger;
 import org.mockito.internal.util.MockCreationValidator;
 import org.mockito.internal.util.MockNameImpl;
-import org.mockito.internal.util.MockitoSpy;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
+import org.mockito.mock.SerializableMode;
 import org.mockito.stubbing.Answer;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.mockito.internal.util.collections.Sets.newSet;
 
 @SuppressWarnings("unchecked")
 public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSettings, MockCreationSettings<T> {
 
-    private static final long serialVersionUID = 4475297236197939568L;
+    private static final long serialVersionUID = 4475297236197939569L;
+    private boolean useConstructor;
+    private Object outerClassInstance;
 
     public MockSettings serializable() {
-        this.serializable = true;
+        return serializable(SerializableMode.BASIC);
+    }
+
+    public MockSettings serializable(SerializableMode mode) {
+        this.serializableMode = mode;
         return this;
     }
 
@@ -71,6 +79,9 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
 
     public MockSettings defaultAnswer(Answer defaultAnswer) {
         this.defaultAnswer = defaultAnswer;
+        if (defaultAnswer == null) {
+            new Reporter().defaultAnswerDoesNotAcceptNullParameter();
+        }
         return this;
     }
 
@@ -78,16 +89,39 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
         return defaultAnswer;
     }
 
-    public boolean isSerializable() {
-        return serializable;
+    public MockSettingsImpl stubOnly() {
+        this.stubOnly = true;
+        return this;
     }
 
-	public MockSettings verboseLogging() {
+    public MockSettings useConstructor() {
+        this.useConstructor = true;
+        return this;
+    }
+
+    public MockSettings outerInstance(Object outerClassInstance) {
+        this.outerClassInstance = outerClassInstance;
+        return this;
+    }
+
+    public boolean isUsingConstructor() {
+        return useConstructor;
+    }
+
+    public Object getOuterClassInstance() {
+        return outerClassInstance;
+    }
+
+    public boolean isStubOnly() {
+        return this.stubOnly;
+    }
+
+    public MockSettings verboseLogging() {
         if (!invocationListenersContainsType(VerboseMockInvocationLogger.class)) {
             invocationListeners(new VerboseMockInvocationLogger());
         }
         return this;
-	}
+    }
 
     public MockSettings invocationListeners(InvocationListener... listeners) {
         if (listeners == null || listeners.length == 0) {
@@ -99,17 +133,17 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
             }
             this.invocationListeners.add(listener);
         }
-		return this;
-	}
+        return this;
+    }
 
-	private boolean invocationListenersContainsType(Class<?> clazz) {
-		for (InvocationListener listener : invocationListeners) {
-			if (listener.getClass().equals(clazz)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private boolean invocationListenersContainsType(Class<?> clazz) {
+        for (InvocationListener listener : invocationListeners) {
+            if (listener.getClass().equals(clazz)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public List<InvocationListener> getInvocationListeners() {
         return this.invocationListeners;
@@ -137,6 +171,10 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
         //TODO SF - add this validation and also add missing coverage
 //        validator.validateDelegatedInstance(classToMock, settings.getDelegatedInstance());
 
+        validator.validateSerializable(typeToMock, source.isSerializable());
+        validator.validateConstructorUse(source.isUsingConstructor(), source.getSerializableMode());
+
+        //TODO SF - I don't think we really need CreationSettings type
         CreationSettings<T> settings = new CreationSettings<T>(source);
         settings.setMockName(new MockNameImpl(source.getName(), typeToMock));
         settings.setTypeToMock(typeToMock);
@@ -149,10 +187,8 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
         if(settings.isSerializable()) {
             interfaces.add(Serializable.class);
         }
-        if (settings.getSpiedInstance() != null) {
-            interfaces.add(MockitoSpy.class);
-        }
         return interfaces;
     }
+
 }
 
