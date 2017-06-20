@@ -4,10 +4,10 @@
  */
 package org.mockito.internal.invocation.realmethod;
 
-import org.mockito.internal.creation.MockitoMethodProxy;
-import org.mockito.internal.exceptions.stacktrace.ConditionalStackTraceFilter;
-
 import java.io.Serializable;
+
+import org.mockito.internal.creation.MockitoMethodProxy;
+import org.mockito.internal.exceptions.base.ConditionalStackTraceFilter;
 
 public class FilteredCGLIBProxyRealMethod implements RealMethod, HasCGLIBMethodProxy, Serializable {
 

@@ -37,11 +37,10 @@ public class HandyReturnValues {
     }
 
     public <T> T returnFor(Class<T> clazz) {
-        // explicitly return null if type is not a primitive or a wrapper
-        if (isPrimitiveOrWrapper(clazz)) {
-            return defaultValueForPrimitiveOrWrapper(clazz);
+        if (isPrimitiveWrapper(clazz)) {
+            return primitiveWrapperOf(clazz);
         } 
-        return null;
+        return primitiveValueOrNullFor(clazz);
     }
 
     public Map returnMap() {

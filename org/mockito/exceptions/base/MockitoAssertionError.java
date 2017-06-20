@@ -5,7 +5,7 @@
 
 package org.mockito.exceptions.base;
 
-import org.mockito.internal.exceptions.stacktrace.ConditionalStackTraceFilter;
+import org.mockito.internal.exceptions.base.ConditionalStackTraceFilter;
 
 
 

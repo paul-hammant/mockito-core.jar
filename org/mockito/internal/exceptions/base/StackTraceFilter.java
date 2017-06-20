@@ -3,10 +3,7 @@
  * This program is made available under the terms of the MIT License.
  */
 
-package org.mockito.internal.exceptions.stacktrace;
-
-import org.mockito.exceptions.stacktrace.StackTraceCleaner;
-import org.mockito.internal.configuration.ClassPathLoader;
+package org.mockito.internal.exceptions.base;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,12 +12,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class StackTraceFilter implements Serializable {
-
     static final long serialVersionUID = -5499819791513105700L;
-
-    private static StackTraceCleaner cleaner =
-            ClassPathLoader.getStackTraceCleanerProvider().getStackTraceCleaner(new DefaultStackTraceCleaner());
     
+    public boolean isBad(StackTraceElement e) {
+        boolean fromMockObject = e.getClassName().contains("$$EnhancerByMockitoWithCGLIB$$");
+        boolean fromOrgMockito = e.getClassName().startsWith("org.mockito.");
+        boolean isRunner = e.getClassName().startsWith("org.mockito.runners.");
+        boolean isInternalRunner = e.getClassName().startsWith("org.mockito.internal.runners.");
+        return (fromMockObject || fromOrgMockito) && !isRunner && !isInternalRunner;
+    }
+
     /**
      * Example how the filter works (+/- means good/bad):
      * [a+, b+, c-, d+, e+, f-, g+] -> [a+, b+, g+]
@@ -33,7 +34,7 @@ public class StackTraceFilter implements Serializable {
         int lastBad = -1;
         int firstBad = -1;
         for (int i = 0; i < unfilteredStackTrace.size(); i++) {
-            if (!cleaner.isOut(unfilteredStackTrace.get(i))) {
+            if (!this.isBad(unfilteredStackTrace.get(i))) {
                 continue;
             }
             lastBad = i;
