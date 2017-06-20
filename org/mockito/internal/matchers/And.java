@@ -4,7 +4,6 @@
  */
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import org.hamcrest.Matcher;
 import org.mockito.ArgumentMatcher;
 
 @SuppressWarnings("unchecked")
-public class And extends ArgumentMatcher implements Serializable {
+public class And extends ArgumentMatcher {
 
     private static final long serialVersionUID = -4624719625691177501L;
     private final List<Matcher> matchers;

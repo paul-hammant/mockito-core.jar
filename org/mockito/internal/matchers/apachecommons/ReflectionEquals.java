@@ -4,12 +4,10 @@
  */
 package org.mockito.internal.matchers.apachecommons;
 
-import java.io.Serializable;
-
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-public class ReflectionEquals extends ArgumentMatcher<Object> implements Serializable {
+public class ReflectionEquals extends ArgumentMatcher<Object> {
     private static final long serialVersionUID = 2022780425116330014L;
     private final Object wanted;
     private final String[] excludeFields;

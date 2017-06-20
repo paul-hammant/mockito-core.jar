@@ -4,12 +4,10 @@
  */
 package org.mockito.internal.stubbing.answers;
 
-import java.io.Serializable;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class Returns implements Answer<Object>, Serializable {
+public class Returns implements Answer<Object> {
 
     private static final long serialVersionUID = -6245608253574215396L;
     private final Object value;

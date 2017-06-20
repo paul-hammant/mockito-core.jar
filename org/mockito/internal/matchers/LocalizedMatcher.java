@@ -4,13 +4,11 @@
  */
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
-
 import org.hamcrest.*;
 import org.mockito.internal.debugging.Location;
 
 @SuppressWarnings("unchecked")
-public class LocalizedMatcher implements Matcher, ContainsExtraTypeInformation, CapturesArguments, MatcherDecorator, Serializable {
+public class LocalizedMatcher implements Matcher, ContainsExtraTypeInformation, CapturesArguments, MatcherDecorator {
 
     private static final long serialVersionUID = 6748641229659825725L;
     private final Matcher actualMatcher;

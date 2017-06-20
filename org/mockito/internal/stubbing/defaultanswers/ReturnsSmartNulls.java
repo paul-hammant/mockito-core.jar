@@ -14,7 +14,6 @@ import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
 /**
@@ -35,7 +34,7 @@ import java.lang.reflect.Method;
  * ReturnsSmartNulls will be probably the default return values strategy in
  * Mockito 2.0
  */
-public class ReturnsSmartNulls implements Answer<Object>, Serializable {
+public class ReturnsSmartNulls implements Answer<Object> {
 
     private static final long serialVersionUID = 7618312406617949441L;
 

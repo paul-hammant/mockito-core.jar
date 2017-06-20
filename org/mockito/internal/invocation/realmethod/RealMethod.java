@@ -4,8 +4,9 @@
  */
 package org.mockito.internal.invocation.realmethod;
 
+import java.io.Serializable;
 
-public interface RealMethod {
+public interface RealMethod extends Serializable {
 
     Object invoke(Object target, Object[] arguments) throws Throwable;
 

@@ -4,13 +4,11 @@
  */
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
-
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
 
-public class NotNull extends ArgumentMatcher<Object> implements Serializable {
+public class NotNull extends ArgumentMatcher<Object> {
 
     private static final long serialVersionUID = 7278261081285153228L;
     public static final NotNull NOT_NULL = new NotNull();

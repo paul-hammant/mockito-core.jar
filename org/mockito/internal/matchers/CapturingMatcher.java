@@ -4,7 +4,6 @@
  */
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.Reporter;
 
 @SuppressWarnings("unchecked")
-public class CapturingMatcher<T> extends ArgumentMatcher<T> implements CapturesArguments, Serializable {
+public class CapturingMatcher<T> extends ArgumentMatcher<T> implements CapturesArguments {
     
     private static final long serialVersionUID = 4274067078639307295L;
     private LinkedList<Object> arguments = new LinkedList<Object>();

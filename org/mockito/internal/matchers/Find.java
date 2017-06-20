@@ -4,13 +4,12 @@
  */
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-public class Find extends ArgumentMatcher<String> implements Serializable {
+public class Find extends ArgumentMatcher<String> {
 
     private static final long serialVersionUID = 8895781429480404872L;
     private final String regex;

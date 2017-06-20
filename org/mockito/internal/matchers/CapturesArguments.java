@@ -4,8 +4,9 @@
  */
 package org.mockito.internal.matchers;
 
+import java.io.Serializable;
 
-public interface CapturesArguments {
+public interface CapturesArguments extends Serializable {
 
     void captureFrom(Object argument);
 
