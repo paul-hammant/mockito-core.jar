@@ -9,20 +9,20 @@ import org.mockito.ArgumentMatcher;
 
 import java.io.Serializable;
 
-@SuppressWarnings({ "unchecked", "serial","rawtypes" })
-public class Not implements ArgumentMatcher<Object>, Serializable {
+@SuppressWarnings("unchecked")
+public class Not implements ArgumentMatcher, Serializable {
 
-    private final ArgumentMatcher matcher;
+    private final ArgumentMatcher first;
 
-    public Not(ArgumentMatcher<?> matcher) {
-        this.matcher = matcher;
+    public Not(ArgumentMatcher first) {
+        this.first = first;
     }
 
     public boolean matches(Object actual) {
-        return !matcher.matches(actual);
+        return !first.matches(actual);
     }
 
     public String toString() {
-        return "not(" + matcher + ")";
+        return "not(" + first.toString() + ")";
     }
 }

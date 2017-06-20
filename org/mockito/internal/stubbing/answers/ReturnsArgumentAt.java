@@ -4,14 +4,13 @@
  */
 package org.mockito.internal.stubbing.answers;
 
-import java.io.Serializable;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.ValidableAnswer;
 
 import static org.mockito.internal.exceptions.Reporter.invalidArgumentPositionRangeAtInvocationTime;
 import static org.mockito.internal.exceptions.Reporter.invalidArgumentRangeAtIdentityAnswerCreationTime;
-import static org.mockito.internal.exceptions.Reporter.wrongTypeOfArgumentToReturn;
+
+import java.io.Serializable;
 
 /**
  * Returns the passed parameter identity at specified index.
@@ -22,7 +21,7 @@ import static org.mockito.internal.exceptions.Reporter.wrongTypeOfArgumentToRetu
  * @see org.mockito.AdditionalAnswers
  * @since 1.9.5
  */
-public class ReturnsArgumentAt implements Answer<Object>, ValidableAnswer, Serializable {
+public class ReturnsArgumentAt implements Answer<Object>, Serializable {
 
     private static final long serialVersionUID = -589315085166295101L;
 
@@ -45,17 +44,6 @@ public class ReturnsArgumentAt implements Answer<Object>, ValidableAnswer, Seria
         return invocation.getArgument(actualArgumentPosition(invocation));
     }
 
-    @Override
-    public void validateFor(InvocationOnMock invocation) {
-        validateIndexWithinInvocationRange(invocation);
-
-        InvocationInfo invocationInfo = new InvocationInfo(invocation);
-        if (!invocationInfo.isValidReturnType(returnedTypeOnSignature(invocation))) {
-            throw wrongTypeOfArgumentToReturn(invocation, invocationInfo.printMethodReturnType(),
-                                              returnedTypeOnSignature(invocation),
-                                              wantedArgumentPosition());
-        }
-    }
 
     private int actualArgumentPosition(InvocationOnMock invocation) {
         return returningLastArg() ?
@@ -82,11 +70,11 @@ public class ReturnsArgumentAt implements Answer<Object>, ValidableAnswer, Seria
         return argumentPosition;
     }
 
-    private int wantedArgumentPosition() {
+    public int wantedArgumentPosition() {
         return wantedArgumentPosition;
     }
 
-    private void validateIndexWithinInvocationRange(InvocationOnMock invocation) {
+    public void validateIndexWithinInvocationRange(InvocationOnMock invocation) {
         if (!argumentPositionInRange(invocation)) {
             throw invalidArgumentPositionRangeAtInvocationTime(invocation,
                                                                returningLastArg(),
@@ -106,7 +94,7 @@ public class ReturnsArgumentAt implements Answer<Object>, ValidableAnswer, Seria
         return true;
     }
 
-    private Class<?> returnedTypeOnSignature(InvocationOnMock invocation) {
+    public Class<?> returnedTypeOnSignature(InvocationOnMock invocation) {
         int actualArgumentPosition = actualArgumentPosition(invocation);
 
         if(!invocation.getMethod().isVarArgs()) {

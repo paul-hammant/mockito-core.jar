@@ -5,21 +5,17 @@
 
 package org.mockito.internal.progress;
 
-import java.util.Set;
 import org.mockito.listeners.MockitoListener;
-import org.mockito.listeners.VerificationListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.verification.VerificationMode;
 import org.mockito.verification.VerificationStrategy;
 
 public interface MockingProgress {
-
+    
     void reportOngoingStubbing(OngoingStubbing<?> ongoingStubbing);
 
     OngoingStubbing<?> pullOngoingStubbing();
-
-    Set<VerificationListener> verificationListeners();
 
     void verificationStarted(VerificationMode verificationMode);
 
@@ -28,7 +24,7 @@ public interface MockingProgress {
     void stubbingStarted();
 
     void stubbingCompleted();
-
+    
     void validateState();
 
     void reset();
@@ -40,7 +36,7 @@ public interface MockingProgress {
     void resetOngoingStubbing();
 
     ArgumentMatcherStorage getArgumentMatcherStorage();
-
+    
     void mockingStarted(Object mock, MockCreationSettings settings);
 
     void addListener(MockitoListener listener);

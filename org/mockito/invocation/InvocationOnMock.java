@@ -9,8 +9,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 /**
- * An invocation on a mock.
- *
+ * An invocation on a mock
  * <p>
  * A placeholder for mock, the method that was called and the arguments that were passed.
  */
@@ -31,24 +30,20 @@ public interface InvocationOnMock extends Serializable {
     Method getMethod();
 
     /**
-     * Returns arguments passed to the method.
-     *
-     * Vararg are expanded in this array.
+     * returns arguments passed to the method
      * 
      * @return arguments
      */
     Object[] getArguments();
     
     /**
-     * Returns casted argument at the given index.
-     *
-     * Can lookup in expanded arguments form {@link #getArguments()}.
-     *
+     * Returns casted argument at the given index
      * @param index argument index
      * @return casted argument at the given index
      * @since 2.1.0
      */
     <T> T getArgument(int index);
+
 
     /**
      * calls real method

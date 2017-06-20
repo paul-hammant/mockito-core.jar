@@ -4,17 +4,14 @@
  */
 package org.mockito.internal.stubbing.answers;
 
-import java.io.Serializable;
 import org.mockito.internal.exceptions.stacktrace.ConditionalStackTraceFilter;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.ValidableAnswer;
 
-import static org.mockito.internal.exceptions.Reporter.cannotStubWithNullThrowable;
-import static org.mockito.internal.exceptions.Reporter.checkedExceptionInvalid;
+import java.io.Serializable;
 
-public class ThrowsException implements Answer<Object>, ValidableAnswer, Serializable {
+public class ThrowsException implements Answer<Object>, Serializable {
 
     private static final long serialVersionUID = 1128820328555183980L;
     private final Throwable throwable;
@@ -33,18 +30,7 @@ public class ThrowsException implements Answer<Object>, ValidableAnswer, Seriali
         throw t;
     }
 
-    @Override
-    public void validateFor(InvocationOnMock invocation) {
-        if (throwable == null) {
-            throw cannotStubWithNullThrowable();
-        }
-
-        if (throwable instanceof RuntimeException || throwable instanceof Error) {
-            return;
-        }
-
-        if (!new InvocationInfo(invocation).isValidException(throwable)) {
-            throw checkedExceptionInvalid(throwable);
-        }
+    public Throwable getThrowable() {
+        return throwable;
     }
 }

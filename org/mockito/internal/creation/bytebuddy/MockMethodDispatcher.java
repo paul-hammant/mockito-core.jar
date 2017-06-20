@@ -29,7 +29,5 @@ public abstract class MockMethodDispatcher {
 
     public abstract boolean isMock(Object instance);
 
-    public abstract boolean isMocked(Object instance);
-
-    public abstract boolean isOverridden(Object instance, Method origin);
+    public abstract boolean isMocked(Object instance, Method origin);
 }
