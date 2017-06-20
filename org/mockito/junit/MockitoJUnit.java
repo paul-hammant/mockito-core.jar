@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2016 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
 package org.mockito.junit;
 
 import org.mockito.Incubating;
+import org.mockito.quality.Strictness;
 import org.mockito.internal.junit.JUnitRule;
 import org.mockito.internal.junit.VerificationCollectorImpl;
 import org.mockito.internal.util.ConsoleMockitoLogger;
 
 /**
- * The JUnit rule can be used instead of {@link org.mockito.runners.MockitoJUnitRunner}. See {@link MockitoRule}.
+ * The JUnit rule can be used instead of {@link MockitoJUnitRunner}. See {@link MockitoRule}.
  *
  * @since 1.10.17
  */
@@ -20,7 +25,7 @@ public class MockitoJUnit {
      * @since 1.10.17
      */
     public static MockitoRule rule() {
-        return new JUnitRule(new ConsoleMockitoLogger(), false);
+        return new JUnitRule(new ConsoleMockitoLogger(), Strictness.WARN);
     }
 
     /**

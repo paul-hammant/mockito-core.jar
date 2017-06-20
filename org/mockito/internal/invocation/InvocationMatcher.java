@@ -11,6 +11,7 @@ import static org.mockito.internal.invocation.TypeSafeMatching.matchesTypeSafe;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,12 +21,13 @@ import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
+import org.mockito.invocation.MatchableInvocation;
 
 /**
  * In addition to all content of the invocation, the invocation matcher contains the argument matchers. Invocation matcher is used during verification and stubbing. In those cases, the user can provide argument matchers instead of 'raw' arguments. Raw arguments are converted to 'equals' matchers anyway.
  */
 @SuppressWarnings("serial")
-public class InvocationMatcher implements DescribedInvocation, CapturesArgumentsFromInvocation, Serializable {
+public class InvocationMatcher implements MatchableInvocation, DescribedInvocation, Serializable {
 
     private final Invocation invocation;
     private final List<ArgumentMatcher<?>> matchers;
@@ -57,10 +59,12 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArguments
         return invocation.getMethod();
     }
 
+    @Override
     public Invocation getInvocation() {
         return invocation;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<ArgumentMatcher> getMatchers() {
         return (List) matchers;
@@ -72,13 +76,15 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArguments
         return new PrintSettings().print((List) matchers, invocation);
     }
 
-    public boolean matches(Invocation actual) {
-        return invocation.getMock().equals(actual.getMock()) && hasSameMethod(actual) && argumentsMatch(actual);
+    @Override
+    public boolean matches(Invocation candidate) {
+        return invocation.getMock().equals(candidate.getMock()) && hasSameMethod(candidate) && argumentsMatch(candidate);
     }
 
     /**
      * similar means the same method name, same mock, unverified and: if arguments are the same cannot be overloaded
      */
+    @Override
     public boolean hasSimilarMethod(Invocation candidate) {
         String wantedMethodName = getMethod().getName();
         String candidateMethodName = candidate.getMethod().getName();
@@ -99,6 +105,7 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArguments
         return !argumentsMatch(candidate);
     }
 
+    @Override
     public boolean hasSameMethod(Invocation candidate) {
         // not using method.equals() for 1 good reason:
         // sometimes java generates forwarding methods when generics are in play see JavaGenericsForwardingMethodsTest
@@ -109,13 +116,7 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArguments
             /* Avoid unnecessary cloning */
             Class<?>[] params1 = m1.getParameterTypes();
             Class<?>[] params2 = m2.getParameterTypes();
-            if (params1.length == params2.length) {
-                for (int i = 0; i < params1.length; i++) {
-                    if (params1[i] != params2[i])
-                        return false;
-                }
-                return true;
-            }
+            return Arrays.equals(params1, params2);
         }
         return false;
     }

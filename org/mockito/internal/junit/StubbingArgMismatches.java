@@ -1,9 +1,16 @@
+/*
+ * Copyright (c) 2016 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
 package org.mockito.internal.junit;
 
 import org.mockito.internal.util.MockitoLogger;
 import org.mockito.invocation.Invocation;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Contains stubbing arg mismatches, knows how to format them

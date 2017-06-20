@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2016 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
 package org.mockito.internal.junit;
 
+import org.mockito.internal.exceptions.Reporter;
 import org.mockito.internal.util.MockitoLogger;
+import org.mockito.internal.util.collections.ListUtil;
+import org.mockito.invocation.Invocation;
 import org.mockito.stubbing.Stubbing;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Contains unused stubbings, knows how to format them
@@ -37,5 +45,18 @@ public class UnusedStubbings {
 
     public String toString() {
         return unused.toString();
+    }
+
+    public void reportUnused() {
+        if (unused.size() > 0) {
+            List<Invocation> invocations = ListUtil.convert(unused, (ListUtil.Converter) new ListUtil.Converter<Stubbing, Invocation>() {
+                public Invocation convert(Stubbing s) {
+                    return s.getInvocation();
+                }
+            });
+
+
+            Reporter.unncessaryStubbingException(invocations);
+        }
     }
 }

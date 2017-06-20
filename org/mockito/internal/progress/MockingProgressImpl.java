@@ -108,7 +108,7 @@ public class MockingProgressImpl implements MockingProgress {
         getArgumentMatcherStorage().validateState();
     }
 
-    public void stubbingCompleted(Invocation invocation) {
+    public void stubbingCompleted() {
         stubbingInProgress = null;
     }
 
@@ -151,6 +151,10 @@ public class MockingProgressImpl implements MockingProgress {
 
     public VerificationMode maybeVerifyLazily(VerificationMode mode) {
         return this.verificationStrategy.maybeVerifyLazily(mode);
+    }
+
+    public void clearListeners() {
+        listeners.clear();
     }
 
      /*

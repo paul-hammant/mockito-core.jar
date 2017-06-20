@@ -4,21 +4,26 @@
  */
 package org.mockito;
 
+import org.mockito.quality.Strictness;
 import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.debugging.MockitoDebuggerImpl;
 import org.mockito.internal.framework.DefaultMockitoFramework;
-import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
-import org.mockito.internal.stubbing.defaultanswers.ReturnsMoreEmptyValues;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 import org.mockito.mock.SerializableMode;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.Answer1;
 import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.stubbing.Stubber;
-import org.mockito.verification.*;
+import org.mockito.stubbing.VoidAnswer1;
+import org.mockito.verification.After;
+import org.mockito.verification.Timeout;
+import org.mockito.verification.VerificationAfterDelay;
+import org.mockito.verification.VerificationMode;
+import org.mockito.verification.VerificationWithTimeout;
 
 /**
  * <p align="left"><img src="logo.png" srcset="logo@2x.png 2x" alt="Mockito logo"/></p>
@@ -73,6 +78,7 @@ import org.mockito.verification.*;
  *      <a href="#37">37. Java 8 Custom Answer Support (Since 2.1.0)</a><br/>
  *      <a href="#38">38. Meta data and generic type retention (Since 2.1.0)</a><br/>
  *      <a href="#39">39. Mocking final types, enums and final methods (Since 2.1.0)</a><br/>
+ *      <a href="#40">40. (**new**) Improved productivity and cleaner tests with "stricter" Mockito (Since 2.+)</a><br/>
  * </b>
  *
  * <h3 id="0">0. <a class="meaningful_link" href="#mockito2">Migrating to Mockito 2</a></h3>
@@ -179,7 +185,7 @@ import org.mockito.verification.*;
  * verify(mockedList).get(anyInt());
  *
  * //<b>argument matchers can also be written as Java 8 Lambdas</b>
- * verify(mockedList).add(someString -> someString.length() > 5);
+ * verify(mockedList).add(argThat(someString -> someString.length() > 5));
  *
  * </code></pre>
  *
@@ -1154,9 +1160,9 @@ import org.mockito.verification.*;
  * as Java 8 lambdas. Even in Java 7 and lower these custom answers based on a typed interface can reduce boilerplate.
  * In particular, this approach will make it easier to test functions which use callbacks.
  *
- * The functions answer and answerVoid can be found in {@link AdditionalAnswers} to create the answer object
- * using the interfaces in {@link org.mockito.internal.stubbing.answers.AnswerFunctionalInterfaces} support is provided
- * for functions with up to 5 parameters
+ * The methods {@link AdditionalAnswers#answer(Answer1) answer} and {@link AdditionalAnswers#answerVoid(VoidAnswer1) answerVoid}
+ * can be used to create the answer. They rely on the related answer interfaces in {@link org.mockito.stubbing} that
+ * support answers up to 5 parameters.
  *
  * <p>
  * Examples:
@@ -1187,7 +1193,7 @@ import org.mockito.verification.*;
  *     .when(mock).execute(anyString(), any(Callback.class));
  *
  * // Java 7
- * doAnswer(answerVoid(new AnswerFunctionalInterfaces.VoidAnswer2<String, Callback>() {
+ * doAnswer(answerVoid(new VoidAnswer2<String, Callback>() {
  *     public void answer(String operation, Callback callback) {
  *         callback.receive("dummy");
  *     }})).when(mock).execute(anyString(), any(Callback.class));
@@ -1203,7 +1209,7 @@ import org.mockito.verification.*;
  *     .when(mock).execute(anyString(), anyString());
  *
  * // Java 7
- * doAnswer(answer(new AnswerFunctionalInterfaces.Answer2<String, String, String>() {
+ * doAnswer(answer(new Answer2<String, String, String>() {
  *     public String answer(String input1, String input2) {
  *         return input1 + input2;
  *     }})).when(mock).execute(anyString(), anyString());
@@ -1279,6 +1285,32 @@ import org.mockito.verification.*;
  * <p>
  * If you are interested in more details of this feature please read the javadoc of
  * <code>org.mockito.internal.creation.bytebuddy.InlineByteBuddyMockMaker</code>
+ *
+ * <h3 id="40">40. <a class="meaningful_link" href="#strict_mockito">
+ *     (**new**) Improved productivity and cleaner tests with "stricter" Mockito</a> (Since 2.+)</h3>
+ *
+ * To quickly find out how "stricter" Mockito can make you more productive and get your tests cleaner, see:
+ * <ul>
+ *     <li>New "strict stubs" behavior of JUnit rules - {@link MockitoRule#strictness(Strictness)} with {@link Strictness#STRICT_STUBS}</li>
+ *     <li>Unnecessary stubbing detection in {@link MockitoJUnitRunner}</li>
+ *     <li>Stubbing argument mismatch reporting by JUnit rules, documented in {@link org.mockito.quality.MockitoHint}</li>
+ * </ul>
+ *
+ * Mockito is a "loose" mocking framework by default.
+ * Mocks can be interacted with without setting any expectations beforehand.
+ * This is intentional and it improves the quality of tests by forcing users to be explicit about what they want to stub / verify.
+ * It is also very intuitive, easy to use and blends nicely with "given", "when", "then" template of clean test code.
+ * This is also different from the classic mocking frameworks of the past, they were "strict" by default.
+ * <p>
+ * Being "loose" by default makes Mockito tests harder to debug at times.
+ * There are scenarios where misconfigured stubbing (like using a wrong argument) forces the user to run the test with a debugger.
+ * Ideally, tests failures are immediately obvious and don't require debugger to identify the root cause.
+ * Starting with version 2.1 Mockito has been getting new features that nudge the framework towards "strictness".
+ * We want Mockito to offer fantastic debuggability while not losing its core mocking style, optimized for
+ * intuitiveness, explicitness and clean test code.
+ * <p>
+ * Help Mockito! Try the new features, give us feedback, join the discussion about Mockito strictness at GitHub
+ * <a href="https://github.com/mockito/mockito/issues/769">issue 769</a>.
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends ArgumentMatchers {
@@ -1287,12 +1319,13 @@ public class Mockito extends ArgumentMatchers {
 
     /**
      * The default <code>Answer</code> of every mock <b>if</b> the mock was not stubbed.
+     *
      * Typically it just returns some empty value.
      * <p>
      * {@link Answer} can be used to define the return values of unstubbed invocations.
      * <p>
-     * This implementation first tries the global configuration.
-     * If there is no global configuration then it uses {@link ReturnsEmptyValues} (returns zeros, empty collections, nulls, etc.)
+     * This implementation first tries the global configuration and if there is no global configuration then
+     * it will use a default answer that returns zeros, empty collections, nulls, etc.
      */
     public static final Answer<Object> RETURNS_DEFAULTS = Answers.RETURNS_DEFAULTS;
 
@@ -1306,8 +1339,8 @@ public class Mockito extends ArgumentMatchers {
      * This implementation of Answer <b>returns SmartNull instead of null</b>.
      * <code>SmartNull</code> gives nicer exception message than NPE because it points out the line where unstubbed method was called. You just click on the stack trace.
      * <p>
-     * <code>ReturnsSmartNulls</code> first tries to return ordinary return values (see {@link ReturnsMoreEmptyValues})
-     * then it tries to return SmartNull. If the return type is final then plain null is returned.
+     * <code>ReturnsSmartNulls</code> first tries to return ordinary values (zeros, empty collections, empty string, etc.)
+     * then it tries to return SmartNull. If the return type is final then plain <code>null</code> is returned.
      * <p>
      * <code>ReturnsSmartNulls</code> will be probably the default return values strategy in Mockito 3.0.0
      * <p>
@@ -1335,8 +1368,8 @@ public class Mockito extends ArgumentMatchers {
      * <p>
      * This implementation can be helpful when working with legacy code.
      * <p>
-     * ReturnsMocks first tries to return ordinary return values (see {@link ReturnsMoreEmptyValues})
-     * then it tries to return mocks. If the return type cannot be mocked (e.g. is final) then plain null is returned.
+     * ReturnsMocks first tries to return ordinary values (zeros, empty collections, empty string, etc.)
+     * then it tries to return mocks. If the return type cannot be mocked (e.g. is final) then plain <code>null</code> is returned.
      * <p>
      */
     public static final Answer<Object> RETURNS_MOCKS = Answers.RETURNS_MOCKS;
