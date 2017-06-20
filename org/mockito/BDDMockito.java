@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
 
 import org.mockito.stubbing.Answer;
@@ -20,7 +21,7 @@ import org.mockito.stubbing.Stubber;
  * Now it really nicely integrates with the <b>given</b> component of a BDD style test!    
  * <p>
  * Here is how the test might look like: 
- * <pre class="code"><code class="java">
+ * <pre>
  * import static org.mockito.BDDMockito.*;
  * 
  * Seller seller = mock(Seller.class);
@@ -36,10 +37,10 @@ import org.mockito.stubbing.Stubber;
  *   //then
  *   assertThat(goods, containBread());
  * }  
- * </code></pre>
+ * </pre>
  * 
  * Stubbing voids with throwables:
- * <pre class="code"><code class="java">
+ * <pre>
  *   //given
  *   willThrow(new RuntimeException("boo")).given(mock).foo();
  *   
@@ -48,7 +49,7 @@ import org.mockito.stubbing.Stubber;
  *   
  *   //then
  *   assertEquals(failure, result);
- * </code></pre>
+ * </pre>
  * <p>
  * One of the purposes of BDDMockito is also to show how to tailor the mocking syntax to a different programming style. 
  */

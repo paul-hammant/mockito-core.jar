@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.stubbing;
 
 import org.mockito.Mockito;
@@ -10,7 +11,7 @@ import org.mockito.internal.progress.IOngoingStubbing;
 /**
  * Stubs a method call with return value or an exception. E.g:
  *
- * <pre class="code"><code class="java">
+ * <pre>
  * stub(mock.someMethod()).toReturn(10);
  *
  * //you can use flexible argument matchers, e.g:
@@ -25,7 +26,7 @@ import org.mockito.internal.progress.IOngoingStubbing;
  *  .toThrow(new RuntimeException())
  *  .toReturn("foo");
  *
- * </code></pre>
+ * </pre>
  *
  * See examples in javadoc for {@link Mockito#stub}
  */
@@ -33,9 +34,9 @@ public interface DeprecatedOngoingStubbing<T> extends IOngoingStubbing {
 
     /**
      * Set a return value for the stubbed method. E.g:
-     * <pre class="code"><code class="java">
+     * <pre>
      * stub(mock.someMethod()).toReturn(10);
-     * </code></pre>
+     * </pre>
      *
      * See examples in javadoc for {@link Mockito#stub}
      *
@@ -47,9 +48,9 @@ public interface DeprecatedOngoingStubbing<T> extends IOngoingStubbing {
 
     /**
      * Set a Throwable to be thrown when the stubbed method is called. E.g:
-     * <pre class="code"><code class="java">
+     * <pre>
      * stub(mock.someMethod()).toThrow(new RuntimeException());
-     * </code></pre>
+     * </pre>
      *
      * If throwable is a checked exception then it has to
      * match one of the checked exceptions of method signature.
@@ -64,13 +65,13 @@ public interface DeprecatedOngoingStubbing<T> extends IOngoingStubbing {
 
     /**
      * Set a generic Answer for the stubbed method. E.g:
-     * <pre class="code"><code class="java">
+     * <pre>
      * stub(mock.someMethod(10)).toAnswer(new Answer&lt;Integer&gt;() {
      *     public Integer answer(InvocationOnMock invocation) throws Throwable {
      *         return (Integer) invocation.getArguments()[0];
      *     }
      * }
-     * </code></pre>
+     * </pre>
      *
      * @param answer the custom answer to execute.
      *

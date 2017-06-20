@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.util;
 
 import org.mockito.cglib.proxy.Callback;
@@ -16,6 +17,9 @@ import org.mockito.internal.creation.jmock.ClassImposterizer;
 import org.mockito.internal.util.reflection.LenientCopyTool;
 
 import java.io.Serializable;
+
+import static org.mockito.Mockito.RETURNS_DEFAULTS;
+import static org.mockito.Mockito.withSettings;
 
 @SuppressWarnings("unchecked")
 public class MockUtil {
@@ -37,7 +41,9 @@ public class MockUtil {
 
         settings.initiateMockName(classToMock);
 
-        MethodInterceptorFilter filter = newMethodInterceptorFilter(settings);
+        MockHandler<T> mockHandler = new MockHandler<T>(settings);
+        InvocationNotifierHandler<T> invocationNotifierHandler = new InvocationNotifierHandler<T>(mockHandler, settings);
+        MethodInterceptorFilter filter = new MethodInterceptorFilter(invocationNotifierHandler, settings);
         Class<?>[] interfaces = settings.getExtraInterfaces();
 
         Class<?>[] ancillaryTypes;
@@ -60,14 +66,10 @@ public class MockUtil {
 
     public <T> void resetMock(T mock) {
         MockHandlerInterface<T> oldMockHandler = getMockHandler(mock);
-        MethodInterceptorFilter newFilter = newMethodInterceptorFilter(oldMockHandler.getMockSettings());
+        MockHandler<T> newMockHandler = new MockHandler<T>(oldMockHandler);
+        MethodInterceptorFilter newFilter = new MethodInterceptorFilter(newMockHandler, 
+                        (MockSettingsImpl) withSettings().defaultAnswer(RETURNS_DEFAULTS));
         ((Factory) mock).setCallback(0, newFilter);
-    }
-
-    private <T> MethodInterceptorFilter newMethodInterceptorFilter(MockSettingsImpl settings) {
-        MockHandler<T> mockHandler = new MockHandler<T>(settings);
-        InvocationNotifierHandler<T> invocationNotifierHandler = new InvocationNotifierHandler<T>(mockHandler, settings);
-        return new MethodInterceptorFilter(invocationNotifierHandler, settings);
     }
 
     public <T> MockHandlerInterface<T> getMockHandler(T mock) {

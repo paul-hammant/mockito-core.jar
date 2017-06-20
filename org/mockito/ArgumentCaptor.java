@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
 
 import java.util.List;
@@ -16,11 +17,11 @@ import org.mockito.internal.progress.HandyReturnValues;
  * This is also the recommended way of matching arguments because it makes tests clean & simple.
  * In some situations though, it is helpful to assert on certain arguments after the actual verification.
  * For example:
- * <pre class="code"><code class="java">
+ * <pre>
  *   ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class);
  *   verify(mock).doSomething(argument.capture());
  *   assertEquals("John", argument.getValue().getName());
- * </code></pre>
+ * </pre>
  *
  * <p>
  * <b>Warning:</b> it is recommended to use ArgumentCaptor with verification <b>but not</b> with stubbing.
@@ -35,11 +36,6 @@ import org.mockito.internal.progress.HandyReturnValues;
  * <li>you just need it to assert on argument values to complete verification</li>
  * </ul>
  * Custom argument matchers via {@link ArgumentMatcher} are usually better for stubbing.
- * <p>
- * This utility class <b>*don't do any type checks*</b>, the generic signatures are only there to avoid casting
- * in your code. If you want specific types, then you should do that the captured values.
- * This behavior might change (type checks could be added) in a
- * future major release.
  * <p>
  * There is an <b>annotation</b> that you might find useful: &#64;{@link Captor}
  * <p>
@@ -61,11 +57,11 @@ public class ArgumentCaptor<T> {
      * See issue 99.
      * <p>
      * Example:
-     * <pre class="code"><code class="java">
+     * <pre>
      *   ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class);
      *   verify(mock).doSomething(argument.capture());
      *   assertEquals("John", argument.getValue().getName());
-     * </code></pre>
+     * </pre>
      */
     @Deprecated
     public ArgumentCaptor() {
@@ -108,14 +104,14 @@ public class ArgumentCaptor<T> {
      * Returns all captured values. Use it in case the verified method was called multiple times.
      * <p>
      * Example: 
-     * <pre class="code"><code class="java">
+     * <pre>
      *   ArgumentCaptor&lt;Person&gt; peopleCaptor = ArgumentCaptor.forClass(Person.class);
      *   verify(mock, times(2)).doSomething(peopleCaptor.capture());
      *   
      *   List&lt;Person&gt; capturedPeople = peopleCaptor.getAllValues();
      *   assertEquals("John", capturedPeople.get(0).getName());
      *   assertEquals("Jane", capturedPeople.get(1).getName());
-     * </code></pre>
+     * </pre>
      * See more examples in javadoc for {@link ArgumentCaptor} class.
      * 
      * @return captured argument value
@@ -124,17 +120,6 @@ public class ArgumentCaptor<T> {
         return this.capturingMatcher.getAllValues();
     }
 
-    /**
-     * Build a new <code>ArgumentCaptor</code>.
-     * <p>
-     * Note that an <code>ArgumentCaptor</code> <b>*don't do any type checks*</b>, it is only there to avoid casting
-     * in your code. This might however change (type checks could be added) in a
-     * future major release.
-     *
-     * @param clazz Type matching the parameter to be captured.
-     * @param <T> Type of clazz
-     * @return A new ArgumentCaptor
-     */
     public static <T> ArgumentCaptor<T> forClass(Class<T> clazz) {
         return new ArgumentCaptor<T>(clazz);
     }

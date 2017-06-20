@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.stubbing;
 
 import org.mockito.Mockito;
@@ -10,20 +11,20 @@ import org.mockito.Mockito;
  * Allows to choose a method when stubbing in doThrow()|doAnswer()|doNothing()|doReturn() style
  * <p> 
  * Example:
- * <pre class="code"><code class="java">
+ * <pre>
  *   doThrow(new RuntimeException()).when(mockedList).clear();
  *   
  *   //following throws RuntimeException:
  *   mockedList.clear();
- * </code></pre>
+ * </pre>
  * 
  * Also useful when stubbing consecutive calls:
  * 
- * <pre class="code"><code class="java">
+ * <pre>
  *   doThrow(new RuntimeException("one")).
  *   doThrow(new RuntimeException("two"))
  *   .when(mock).someVoidMethod();
- * </code></pre>
+ * </pre>
  * 
  * Read more about those methods:
  * <p>
@@ -45,13 +46,13 @@ public interface Stubber {
      * Allows to choose a method when stubbing in doThrow()|doAnswer()|doNothing()|doReturn() style
      * <p> 
      * Example:
-     * <pre class="code"><code class="java">
+     * <pre>
      *   doThrow(new RuntimeException())
      *   .when(mockedList).clear();
      *   
      *   //following throws RuntimeException:
      *   mockedList.clear();
-     * </code></pre>
+     * </pre>
      * 
      * Read more about those methods:
      * <p>
@@ -73,11 +74,11 @@ public interface Stubber {
 
     /**
      * Use it for stubbing consecutive calls in {@link Mockito#doThrow(Throwable)} style:
-     * <pre class="code"><code class="java">
+     * <pre>
      *   doThrow(new RuntimeException("one")).
      *   doThrow(new RuntimeException("two"))
      *   .when(mock).someVoidMethod();
-     * </code></pre>
+     * </pre>
      * See javadoc for {@link Mockito#doThrow(Throwable)}
      * 
      * @param toBeThrown to be thrown when the stubbed method is called
@@ -87,11 +88,11 @@ public interface Stubber {
 
     /**
      * Use it for stubbing consecutive calls in {@link Mockito#doThrow(Class<? extends Throwable>)} style:
-     * <pre class="code"><code class="java">
+     * <pre>
      *   doThrow(RuntimeException.class).
      *   doThrow(IllegalArgumentException.class)
      *   .when(mock).someVoidMethod();
-     * </code></pre>
+     * </pre>
      * See javadoc for {@link Mockito#doThrow(Class)}
      *
      * @param toBeThrown exception class to be thrown when the stubbed method is called
@@ -101,11 +102,11 @@ public interface Stubber {
 
     /**
      * Use it for stubbing consecutive calls in {@link Mockito#doAnswer(Answer)} style:
-     * <pre class="code"><code class="java">
+     * <pre>
      *   doAnswer(answerOne).
      *   doAnswer(answerTwo)
      *   .when(mock).someVoidMethod();
-     * </code></pre>
+     * </pre>
      * See javadoc for {@link Mockito#doAnswer(Answer)}
      * 
      * @param answer to answer when the stubbed method is called
@@ -115,11 +116,11 @@ public interface Stubber {
     
     /**
      * Use it for stubbing consecutive calls in {@link Mockito#doNothing()} style:
-     * <pre class="code"><code class="java">
+     * <pre>
      *   doNothing().
      *   doThrow(new RuntimeException("two"))
      *   .when(mock).someVoidMethod();
-     * </code></pre>
+     * </pre>
      * See javadoc for {@link Mockito#doNothing()}
      * 
      * @return stubber - to select a method for stubbing

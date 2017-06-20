@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
 
 import java.lang.annotation.*;
@@ -12,7 +13,7 @@ import java.lang.annotation.*;
  * <p>
  * Example:
  * 
- * <pre class="code"><code class="java">
+ * <pre>
  * public class Test{
  *    //Instance for spying is created by calling constructor explicitly:
  *    &#64;Spy Foo spyOnFoo = new Foo("argument");
@@ -24,14 +25,14 @@ import java.lang.annotation.*;
  *    }
  *    ...
  * }
- * </code></pre>
+ * </pre>
  * <p>
  * Same as doing:
  * 
- * <pre class="code"><code class="java">
+ * <pre>
  * Foo spyOnFoo = Mockito.spy(new Foo("argument"));
  * Bar spyOnFoo = Mockito.spy(new Bar());
- * </code></pre>
+ * </pre>
  *
  * <b>The field annotated with &#064;Spy can be initialized by Mockito if a zero argument constructor
  * can be found in the type (even private). <u>But Mockito cannot instantiate inner classes, local classes,
@@ -42,10 +43,10 @@ import java.lang.annotation.*;
  * <u>But Mockito cannot instantiate inner classes, local classes, abstract classes and interfaces.</u></b>
  *
  * For example this class can be instantiated by Mockito :
- * <pre class="code"><code class="java">public class Bar {
+ * <pre>public class Bar {
  *    private Bar() {}
  *    public Bar(String publicConstructorWithOneArg) {}
- * }</code></pre>
+ * }</pre>
  * </p>
  * 
  * <p>

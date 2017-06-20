@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
 
 import java.lang.annotation.Documented;
@@ -42,7 +43,7 @@ import static java.lang.annotation.ElementType.FIELD;
  *
  * <p>
  * Example:
- * <pre class="code"><code class="java">
+ * <pre>
  *   public class ArticleManagerTest extends SampleBaseTestCase {
  *
  *       &#064;Mock private ArticleCalculator calculator;
@@ -63,7 +64,7 @@ import static java.lang.annotation.ElementType.FIELD;
  *           MockitoAnnotations.initMocks(this);
  *       }
  *   }
- * </code></pre>
+ * </pre>
  * </p>
  *
  * <p>
@@ -77,16 +78,16 @@ import static java.lang.annotation.ElementType.FIELD;
  * However fields that are static or final will be ignored.</p>
  *
  * <p>So on the field that needs injection, for example constructor injection will happen here :</p>
- * <pre class="code"><code class="java">
+ * <pre>
  *   public class ArticleManager {
  *       ArticleManager(ArticleCalculator calculator, ArticleDatabase database) {
  *           // parameterized constructor
  *       }
  *   }
- * </code></pre>
+ * </pre>
  *
  * <p>Property setter injection will happen here :</p>
- * <pre class="code"><code class="java">
+ * <pre>
  *   public class ArticleManager {
  *       ArticleManager() {
  *           // no-arg constructor
@@ -96,19 +97,19 @@ import static java.lang.annotation.ElementType.FIELD;
  *           // setter
  *       }
  *   }
- * </code></pre>
+ * </pre>
  *
  * <p>Field injection will be used here :</p>
- * <pre class="code"><code class="java">
+ * <pre>
  *   public class ArticleManager {
  *       private ArticleDatabase database;
  *       private ArticleCalculator calculator;
  *   }
- * </code></pre>
+ * </pre>
  * </p>
  *
  * <p>And finally, no injection will happen on the type in this case:</p>
- * <pre class="code"><code class="java">
+ * <pre>
  *   public class ArticleManager {
  *       private ArticleDatabase database;
  *       private ArticleCalculator calculator;
@@ -118,7 +119,7 @@ import static java.lang.annotation.ElementType.FIELD;
  *           // flag is not mockable anyway
  *       }
  *   }
- * </code></pre>
+ * </pre>
  * </p>
  *
  *

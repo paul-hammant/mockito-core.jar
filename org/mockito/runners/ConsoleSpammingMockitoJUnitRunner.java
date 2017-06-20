@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.runners;
 
 import java.lang.reflect.InvocationTargetException;
@@ -47,7 +48,7 @@ import org.mockito.internal.util.MockitoLogger;
  * <p> 
  * Let's say your test fails on assertion. 
  * Let's say the underlying reason is a stubbed method that was called with different arguments:
- * <pre class="code"><code class="java">
+ * <pre>
  * //test:
  * Dictionary dictionary = new Dictionary(translator);
  * when(translator.translate("Mockito")).thenReturn("cool framework");
@@ -59,9 +60,9 @@ import org.mockito.internal.util.MockitoLogger;
  *     ...
  *     return translator.translate("oups");
  *
- * </code></pre>
+ * </pre>
  * On standard output you'll see something like that:
- * <pre class="code"><code class="java">
+ * <pre>
  * [Mockito] Warning - stubbed method called with different arguments.
  * Stubbed this way:
  * translator.translate("Mockito");
@@ -70,7 +71,7 @@ import org.mockito.internal.util.MockitoLogger;
  * But called with different arguments:
  * translator.translate("oups");
  * org.dictionary.SmartDictionary.search(SmartDictionary.java:15)
- * </code></pre>
+ * </pre>
  * <p>
  * Note that it is just a warning, not an assertion. 
  * The test fails on assertion because it's the assertion's duty to document what the test stands for and what behavior it proves. 

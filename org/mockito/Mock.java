@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
 
 import org.mockito.runners.MockitoJUnitRunner;
@@ -21,7 +22,7 @@ import static java.lang.annotation.ElementType.FIELD;
  * <li>Makes the verification error easier to read because the <b>field name</b> is used to identify the mock.</li>
  * </ul>
  *
- * <pre class="code"><code class="java">
+ * <pre>
  *   public class ArticleManagerTest extends SampleBaseTestCase {
  *
  *       &#064;Mock private ArticleCalculator calculator;
@@ -42,7 +43,7 @@ import static java.lang.annotation.ElementType.FIELD;
  *           MockitoAnnotations.initMocks(this);
  *       }
  *   }
- * </code></pre>
+ * </pre>
  *
  * <b><code>MockitoAnnotations.initMocks(this)</code></b> method has to called to initialize annotated mocks.
  * <p>

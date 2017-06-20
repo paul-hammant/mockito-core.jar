@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.stubbing;
 
 import org.mockito.invocation.InvocationOnMock;
@@ -12,7 +13,7 @@ import org.mockito.invocation.InvocationOnMock;
  * <p>
  * Example of stubbing a mock with custom answer: 
  * 
- * <pre class="code"><code class="java">
+ * <pre>
  * when(mock.someMethod(anyString())).thenAnswer(new Answer() {
  *     Object answer(InvocationOnMock invocation) {
  *         Object[] args = invocation.getArguments();
@@ -23,7 +24,7 @@ import org.mockito.invocation.InvocationOnMock;
  * 
  * //Following prints "called with arguments: foo"
  * System.out.println(mock.someMethod("foo"));
- * </code></pre>
+ * </pre>
  * 
  * @param <T> the type to return.
  */
