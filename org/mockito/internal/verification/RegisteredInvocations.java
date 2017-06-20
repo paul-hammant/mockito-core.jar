@@ -5,9 +5,7 @@
 package org.mockito.internal.verification;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.util.ListUtil;
@@ -24,13 +22,14 @@ public class RegisteredInvocations implements Serializable {
     }
 
     public void removeLast() {
-        invocations.remove(invocations.size()-1);
+        int last = invocations.size() - 1;
+        invocations.remove(last);
     }
 
     public List<Invocation> getAll() {
         return ListUtil.filter(new LinkedList<Invocation>(invocations), new RemoveToString());
     }
-    
+
     private static class RemoveToString implements Filter<Invocation> {
         public boolean isOut(Invocation invocation) {
             return Invocation.isToString(invocation);

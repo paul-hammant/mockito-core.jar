@@ -48,6 +48,7 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
     private boolean verifiedInOrder;
 
     final RealMethod realMethod;
+    private StubInfo stubInfo;
 
     public Invocation(Object mock, MockitoMethod mockitoMethod, Object[] args, int sequenceNumber, RealMethod realMethod) {
         this.method = mockitoMethod;
@@ -228,5 +229,13 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
     void markVerifiedInOrder() {
         markVerified();
         this.verifiedInOrder = true;
+    }
+
+    public StubInfo stubInfo() {
+        return stubInfo;
+    }
+
+    public void markStubbed(StubInfo stubInfo) {
+        this.stubInfo = stubInfo;
     }
 }

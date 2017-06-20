@@ -79,7 +79,7 @@ public class Reporter {
                 "For example:",
                 "    when(mock.getArticles()).thenReturn(articles);",
                 "",
-                "Also, this error might show up because you stub final/private/equals() or hashCode() method.",
+                "Also, this error might show up because you stub either of: final/private/equals()/hashCode() methods.",
                 "Those methods *cannot* be stubbed/verified.",
                 ""
         ));
@@ -93,7 +93,7 @@ public class Reporter {
                 "Example of correct verification:",
                 "    verify(mock).doSomething()",
                 "",
-                "Also, this error might show up because you verify final/private/equals() or hashCode() method.",
+                "Also, this error might show up because you verify either of: final/private/equals()/hashCode() methods.",
                 "Those methods *cannot* be stubbed/verified.",
                 ""
         ));
@@ -405,7 +405,7 @@ public class Reporter {
                 "    verify(mock).someMethod(contains(\"foo\"))",
                 "",
                 "Also, this error might show up because you use argument matchers with methods that cannot be mocked.",
-                "Following methods *cannot* be stubbed/verified: final/private/equals()/hashCode() methods.",                
+                "Following methods *cannot* be stubbed/verified: final/private/equals()/hashCode().",
                 ""
                 ));
     }
@@ -480,5 +480,38 @@ public class Reporter {
                 "  //correct example:",
                 "  when(mockOfConcreteClass.doStuff()).thenCallRealMethod();"
         ));
+    }
+
+    public void cannotVerifyToString() {
+        throw new MockitoException(join(
+                "Mockito cannot verify toString()",
+                "toString() is too often used behind of scenes  (i.e. during String concatenation, in IDE debugging views). " +
+                        "Verifying it may give inconsistent or hard to understand results. " +
+                        "Not to mention that verifying toString() most likely hints awkward design (hard to explain in a short exception message. Trust me...)",
+                "However, it is possible to stub toString(). Stubbing toString() smells a bit funny but there are rare, legitimate use cases."
+        ));
+    }
+
+    public void moreThanOneAnnotationNotAllowed(String fieldName) {
+        throw new MockitoException("You cannot have more than one Mockito annotation on a field!\n" +
+                "The field '" + fieldName + "' has multiple Mockito annotations.\n" +
+                "For info how to use annotations see examples in javadoc for MockitoAnnotations class.");
+    }
+
+    public void unsupportedCombinationOfAnnotations(String undesiredAnnotationOne, String undesiredAnnotationTwo) {
+        throw new MockitoException("This combination of annotations is not permitted on a single field:\n" +
+                "@" + undesiredAnnotationOne + " and @" + undesiredAnnotationTwo);   
+    }
+
+    public void injectMockAnnotationFieldIsNull(String field) {
+        throw new MockitoException("Field '" + field + "' annotated with @InjectMocks is null.\n" +
+                "Please make sure the instance is created *before* MockitoAnnotations.initMocks();\n" +
+                "Example of correct usage:\n" +
+                "   class SomeTest {\n" +
+                "      @InjectMocks private Foo foo = new Foo();\n" +
+                "      \n" +
+                "      @Before public void setUp() {\n" +
+                "         MockitoAnnotations.initMock(this);\n"
+                );   
     }
 }

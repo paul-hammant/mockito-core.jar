@@ -6,12 +6,13 @@ package org.mockito;
 
 import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
+import org.mockito.internal.debugging.MockitoDebuggerImpl;
 import org.mockito.internal.stubbing.answers.*;
 import org.mockito.internal.stubbing.defaultanswers.*;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.internal.verification.api.VerificationMode;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.*;
+import org.mockito.verification.VerificationMode;
 
 /**
  * <p align="left"><img src="logo.jpg"/></p>
@@ -43,7 +44,8 @@ import org.mockito.stubbing.*;
  *      <a href="#17">17. Resetting mocks (Since 1.8.0) </a><br/>
  *      <a href="#18">18. Troubleshooting & validating framework usage (Since 1.8.0) </a><br/>
  *      <a href="#19">19. Aliases for behavior driven development (Since 1.8.0) </a><br/>
- *      <a href="#20">20. (**New**) Serializable mocks (Since 1.8.1) </a><br/>
+ *      <a href="#20">20. Serializable mocks (Since 1.8.1) </a><br/>
+ *      <a href="#21">21. (**New**) New annotations: &#064;Captor, &#064;Spy, &#064;InjectMocks (Since 1.8.3) </a><br/>
  * </b>
  * 
  * <p>
@@ -613,11 +615,24 @@ import org.mockito.stubbing.*;
  *                 .defaultAnswer(CALLS_REAL_METHODS)
  *                 .serializable());
  * </pre>
+ * 
+ * <h3 id="21">21. (**New**) New annotations: &#064;Captor, &#064;Spy, &#064;InjectMocks (Since 1.8.3) </h3>
+ * <p>
+ * Release 1.8.3 brings new annotations that may be helpful on occasion:
+ * 
+ * <ul>
+ * <li>&#064;{@link Captor} simplifies creation of {@link ArgumentCaptor} 
+ * - useful when the argument to capture is a nasty generic class and you want to avoid compiler warnings
+ * <li>&#064;{@link Spy} - you can use it instead {@link Mockito#spy(Object)}. 
+ * <li>&#064;{@link InjectMocks} - injects mocks into tested object automatically.
+ * </ul>
+ * <p>
+ * All new annotations are *only* processed on {@link MockitoAnnotations#initMocks(Object)}  
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
     
-    private static final MockitoCore MOCKITO_CORE = new MockitoCore();
+    static final MockitoCore MOCKITO_CORE = new MockitoCore();
     
     /**
      * The default Answer of every mock <b>if</b> the mock was not stubbed. 
@@ -628,7 +643,7 @@ public class Mockito extends Matchers {
      * This implementation first tries the global configuration. 
      * If there is no global configuration then it uses {@link ReturnsEmptyValues} (returns zeros, empty collections, nulls, etc.)
      */
-    public static final Answer<Object> RETURNS_DEFAULTS = new GloballyConfiguredAnswer();
+    public static final Answer<Object> RETURNS_DEFAULTS = Answers.RETURNS_DEFAULTS.get();
     
     /**
      * Optional Answer to be used with {@link Mockito#mock(Class, Answer)}
@@ -660,7 +675,7 @@ public class Mockito extends Matchers {
      *   //Exception's cause links to unstubbed <i>mock.getStuff()</i> - just click on the stack trace.  
      * </pre>
      */
-    public static final Answer<Object> RETURNS_SMART_NULLS = new ReturnsSmartNulls();
+    public static final Answer<Object> RETURNS_SMART_NULLS = Answers.RETURNS_SMART_NULLS.get();
     
     /**
      * Optional Answer to be used with {@link Mockito#mock(Class, Answer)}
@@ -673,7 +688,48 @@ public class Mockito extends Matchers {
      * then it tries to return mocks. If the return type cannot be mocked (e.g. is final) then plain null is returned.
      * <p>
      */
-    public static final Answer<Object> RETURNS_MOCKS = new ReturnsMocks();
+    public static final Answer<Object> RETURNS_MOCKS = Answers.RETURNS_MOCKS.get();
+
+    /**
+     * Optional Answer to be used with {@link Mockito#mock(Class, Answer)}
+     * <p>
+     * Example that shows how deep stub works:
+     * <pre>
+     *   Foo mock = mock(Foo.class, RETURNS_DEEP_STUBS);
+     *
+     *   // note that we're stubbing a chain of methods here: getBar().getName()
+     *   when(mock.getBar().getName()).thenReturn("deep");
+     *
+     *   // note that we're chaining method calls: getBar().getName()
+     *   assertEquals("deep", mock.getBar().getName());
+     * </pre>
+     * 
+     * <strong>Verification API does not support 'chaining'</strong> so deep stub doesn't change how you do verification.
+     * <p>
+     * <strong>WARNING: </strong>
+     * This feature should rarely be required for regular clean code! Leave it for legacy code.
+     * Mocking a mock to return a mock, to return a mock, (...), to return something meaningful
+     * hints at violation of Law of Demeter or mocking a value object (a well known anti-pattern).
+     * <p>
+     * Good quote I've seen one day on the web: <strong>every time a mock returns a mock a fairy dies</strong>. 
+     * <p>
+     * How deep stub work internally?
+     * <pre>
+     *   //this:
+     *   Foo mock = mock(Foo.class, RETURNS_DEEP_STUBS);
+     *   when(mock.getBar().getName(), "deep");
+     *
+     *   //is equivalent of
+     *   Foo foo = mock(Foo.class);
+     *   Bar bar = mock(Bar.class);
+     *   when(foo.getBar()).thenReturn(bar);
+     *   when(bar.getName()).thenReturn("deep");
+     * </pre>
+     * <p>
+     * This feature will not work when any return type of methods included in the chain cannot be mocked
+     * (for example: is a primitive or a final class). This is because of java type system.   
+     */
+    public static final Answer<Object> RETURNS_DEEP_STUBS = Answers.RETURNS_DEEP_STUBS.get();
 
     /**
      * Optional Answer to be used with {@link Mockito#mock(Class, Answer)}
@@ -707,8 +763,8 @@ public class Mockito extends Matchers {
      * value = mock.getSomething();
      * </pre>
      */
-    public static final Answer<Object> CALLS_REAL_METHODS = new CallsRealMethods();
-    
+    public static final Answer<Object> CALLS_REAL_METHODS = Answers.CALLS_REAL_METHODS.get();
+
     /**
      * Creates mock object of given class or interface.
      * <p>
@@ -733,6 +789,7 @@ public class Mockito extends Matchers {
      * See examples in javadoc for {@link Mockito} class
      * 
      * @param classToMock class or interface to mock
+     * @param name of the mock 
      * @return mock object
      */
     public static <T> T mock(Class<T> classToMock, String name) {
@@ -898,32 +955,54 @@ public class Mockito extends Matchers {
     }
 
     /**
+     * Stubs a method call with return value or an exception. E.g:
+     *
+     * <pre>
+     * stub(mock.someMethod()).toReturn(10);
+     *
+     * //you can use flexible argument matchers, e.g:
+     * stub(mock.someMethod(<b>anyString()</b>)).toReturn(10);
+     *
+     * //setting exception to be thrown:
+     * stub(mock.someMethod("some arg")).toThrow(new RuntimeException());
+     *
+     * //you can stub with different behavior for consecutive method calls.
+     * //Last stubbing (e.g: toReturn("foo")) determines the behavior for further consecutive calls.
+     * stub(mock.someMethod("some arg"))
+     *  .toThrow(new RuntimeException())
+     *  .toReturn("foo");
+     * </pre>
+     * <p>
+     * Some users find stub() confusing therefore {@link Mockito#when(Object)} is recommended over stub()
      * <pre>
      *   //Instead of:
      *   stub(mock.count()).toReturn(10);
      * 
-     *   //Please do:
+     *   //You can do:
      *   when(mock.count()).thenReturn(10);
      * </pre> 
-     * 
-     * Many users found stub() confusing therefore stub() has been deprecated in favor of {@link Mockito#when(Object)} 
+     * For stubbing void methods with throwables see: {@link Mockito#doThrow(Throwable)}
      * <p>
-     * How to fix deprecation warnings? Typically it's just few minutes of search & replace job:
-     * <pre>
-     *   Mockito.stub;  <i>replace with:</i>  Mockito.when;
-     *   stub(          <i>replace with:</i>  when(
-     *   .toReturn(     <i>replace with:</i>  .thenReturn(
-     *   .toThrow(      <i>replace with:</i>  .thenThrow(
-     *   .toAnswer(     <i>replace with:</i>  .thenAnswer(
-     * </pre>
-     * If you're an existing user then sorry for making your code littered with deprecation warnings. 
-     * This change was required to make Mockito better.
+     * Stubbing can be overridden: for example common stubbing can go to fixture
+     * setup but the test methods can override it.
+     * Please note that overridding stubbing is a potential code smell that points out too much stubbing.
+     * <p>
+     * Once stubbed, the method will always return stubbed value regardless
+     * of how many times it is called.
+     * <p>
+     * Last stubbing is more important - when you stubbed the same method with
+     * the same arguments many times.
+     * <p>
+     * Although it is possible to verify a stubbed invocation, usually <b>it's just redundant</b>.
+     * Let's say you've stubbed foo.bar(). 
+     * If your code cares what foo.bar() returns then something else breaks(often before even verify() gets executed).
+     * If your code doesn't care what get(0) returns then it should not be stubbed. 
+     * Not convinced? See <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling">here</a>. 
      * 
      * @param methodCall
      *            method call
      * @return DeprecatedOngoingStubbing object to set stubbed value/exception
      */
-    @Deprecated
     public static <T> DeprecatedOngoingStubbing<T> stub(T methodCall) {
         return MOCKITO_CORE.stub(methodCall);
     }
@@ -1074,7 +1153,7 @@ public class Mockito extends Matchers {
      * </pre>
      *
      * @param <T>
-     * @param mocks
+     * @param mocks to be reset
      */
     public static <T> void reset(T ... mocks) {
         MOCKITO_CORE.reset(mocks);
@@ -1478,7 +1557,7 @@ public class Mockito extends Matchers {
      * <p>
      * In case of questions you may also post to mockito mailing list: <a href="http://groups.google.com/group/mockito">http://groups.google.com/group/mockito</a> 
      * <p>
-     * {@link Mockito#validateMockitoUsage()} <b>explicitly validates</b> the framework state to detect invalid use of Mockito.
+     * validateMockitoUsage() <b>explicitly validates</b> the framework state to detect invalid use of Mockito.
      * However, this feature is optional <b>because Mockito validates the usage all the time...</b> but there is a gotcha so read on.
      * <p>
      * Examples of incorrect use:
@@ -1500,7 +1579,7 @@ public class Mockito extends Matchers {
      * Hence you can click and find the place where Mockito was misused.
      * <p>
      * Sometimes though, you might want to validate the framework usage explicitly. 
-     * For example, one of the users wanted to put {@link Mockito#validateMockitoUsage()} in his &#064;After method
+     * For example, one of the users wanted to put validateMockitoUsage() in his &#064;After method
      * so that he knows immediately when he misused Mockito. 
      * Without it, he would have known about it not sooner than <b>next time</b> he used the framework.
      * One more benefit of having validateMockitoUsage() in &#064;After is that jUnit runner will always fail in the test method with defect
@@ -1554,5 +1633,13 @@ public class Mockito extends Matchers {
      */
     public static MockSettings withSettings() {
         return new MockSettingsImpl().defaultAnswer(RETURNS_DEFAULTS);
+    }
+
+    /*
+     * Helps debugging failing tests. Experimental - use at your own risk. 
+     */
+    @Deprecated
+    static MockitoDebugger debug() {
+        return new MockitoDebuggerImpl();
     }
 }

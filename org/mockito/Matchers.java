@@ -477,7 +477,7 @@ public class Matchers {
      */
     public static <T> T eq(T value) {
         return (T) reportMatcher(new Equals(value)).<T>returnFor(value);
-    }  
+    }
 
     /**
      * Object argument that is reflection-equal to the given value with support for excluding
@@ -488,6 +488,8 @@ public class Matchers {
      * <p>
      * Works similarly to EqualsBuilder.reflectionEquals(this, other, exlucdeFields) from
      * apache commons library.
+     * <p>
+     * <b>Warning</b> The equality check is shallow!
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 

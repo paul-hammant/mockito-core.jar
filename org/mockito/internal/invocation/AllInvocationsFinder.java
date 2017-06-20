@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.mockito.internal.MockHandlerInterface;
 import org.mockito.internal.util.MockUtil;
 
 public class AllInvocationsFinder {
@@ -20,10 +21,11 @@ public class AllInvocationsFinder {
      * @param mocks mocks
      * @return invocations
      */
-    public List<Invocation> getAllInvocations(List<?> mocks) {
+    public List<Invocation> find(List<?> mocks) {
         Set<Invocation> invocationsInOrder = new TreeSet<Invocation>(new SequenceNumberComparator());
         for (Object mock : mocks) {
-            List<Invocation> fromSingleMock = new MockUtil().getMockHandler(mock).getRegisteredInvocations();
+            MockHandlerInterface<Object> handler = new MockUtil().getMockHandler(mock);
+            List<Invocation> fromSingleMock = handler.getInvocationContainer().getInvocations();
             invocationsInOrder.addAll(fromSingleMock);
         }
         

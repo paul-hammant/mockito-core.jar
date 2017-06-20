@@ -1,21 +1,23 @@
 Manifest-Version: 1.0
-Export-Package: org.mockito.exceptions.base;version="1.8.2",org.mockit
- o.exceptions;uses:="org.mockito.exceptions.verification.junit,org.moc
- kito.exceptions.base,org.mockito.exceptions.misusing,org.mockito.exce
- ptions.verification";version="1.8.2",org.mockito.exceptions.verificat
- ion;uses:="org.mockito.exceptions.base";version="1.8.2",org.mockito.c
- onfiguration;uses:="org.mockito,org.mockito.stubbing";version="1.8.2"
- ,org.mockito.invocation;version="1.8.2",org.mockito.exceptions.verifi
- cation.junit;uses:="junit.framework,org.mockito.exceptions.verificati
- on";version="1.8.2",org.mockito;uses:="org.hamcrest,org.mockito.stubb
- ing,org.mockito.exceptions.base,org.mockito.configuration,org.mockito
- .invocation";version="1.8.2",org.mockito.runners;uses:="org.junit.run
- ner.notification,org.junit.runner";version="1.8.2",org.mockito.except
- ions.misusing;uses:="org.mockito.exceptions.base";version="1.8.2",org
- .mockito.stubbing;uses:="org.mockito.invocation";version="1.8.2"
-Bundle-Version: 1.8.2
+Export-Package: org.mockito.exceptions;uses:="org.mockito.exceptions.v
+ erification.junit,org.mockito.exceptions.base,org.mockito.exceptions.
+ misusing,org.mockito.exceptions.verification";version="1.8.3",org.moc
+ kito.runners;uses:="org.junit.runner,org.junit.runner.notification,or
+ g.junit.runner.manipulation";version="1.8.3",org.mockito.exceptions.b
+ ase;version="1.8.3",org.mockito.exceptions.verification;uses:="org.mo
+ ckito.exceptions.base";version="1.8.3",org.mockito.configuration;uses
+ :="org.mockito,org.mockito.stubbing";version="1.8.3",org.mockito.invo
+ cation;version="1.8.3",org.mockito.exceptions.verification.junit;uses
+ :="junit.framework,org.mockito.exceptions.verification";version="1.8.
+ 3",org.mockito;uses:="org.hamcrest,org.mockito.stubbing,org.mockito.v
+ erification,org.mockito.exceptions.base,org.mockito.exceptions,org.mo
+ ckito.configuration,org.mockito.invocation";version="1.8.3",org.mocki
+ to.exceptions.misusing;uses:="org.mockito.exceptions.base";version="1
+ .8.3",org.mockito.verification;version="1.8.3",org.mockito.stubbing;u
+ ses:="org.mockito.invocation";version="1.8.3"
+Bundle-Version: 1.8.3
 Tool: Bnd-0.0.313
-Bnd-LastModified: 1260631085078
+Bnd-LastModified: 1267999892375
 Bundle-Name: Mockito Mock Library for Java. Core bundle requires Hamcr
  est-core and Objenesis. 
 Bundle-ManifestVersion: 2
@@ -24,15 +26,16 @@ Import-Package: junit.framework;resolution:=optional,org.apache.tools.
  ant;resolution:=optional,org.apache.tools.ant.types;resolution:=optio
  nal,org.hamcrest;version="[1.0,2.0)",org.junit;resolution:=optional,o
  rg.junit.internal.runners;resolution:=optional,org.junit.runner;resol
- ution:=optional,org.junit.runner.notification;resolution:=optional,or
- g.junit.runners;resolution:=optional,org.junit.runners.model;resoluti
- on:=optional,org.mockito;version="[1.8,2)",org.mockito.configuration;
- version="[1.8,2)",org.mockito.exceptions;version="[1.8,2)",org.mockit
- o.exceptions.base;version="[1.8,2)",org.mockito.exceptions.misusing;v
- ersion="[1.8,2)",org.mockito.exceptions.verification;version="[1.8,2)
- ",org.mockito.exceptions.verification.junit;version="[1.8,2)",org.moc
- kito.invocation;version="[1.8,2)",org.mockito.runners;version="[1.8,2
- )",org.mockito.stubbing;version="[1.8,2)",org.objenesis;version="[1.0
- ,2.0)"
+ ution:=optional,org.junit.runner.manipulation;resolution:=optional,or
+ g.junit.runner.notification;resolution:=optional,org.junit.runners;re
+ solution:=optional,org.junit.runners.model;resolution:=optional,org.m
+ ockito;version="[1.8,2)",org.mockito.configuration;version="[1.8,2)",
+ org.mockito.exceptions;version="[1.8,2)",org.mockito.exceptions.base;
+ version="[1.8,2)",org.mockito.exceptions.misusing;version="[1.8,2)",o
+ rg.mockito.exceptions.verification;version="[1.8,2)",org.mockito.exce
+ ptions.verification.junit;version="[1.8,2)",org.mockito.invocation;ve
+ rsion="[1.8,2)",org.mockito.runners;version="[1.8,2)",org.mockito.stu
+ bbing;version="[1.8,2)",org.mockito.verification;version="[1.8,2)",or
+ g.objenesis;version="[1.0,2.0)"
 Bundle-SymbolicName: org.mockito.mockito-core
 

@@ -10,7 +10,7 @@ import org.mockito.internal.invocation.AllInvocationsFinder;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.internal.verification.api.VerificationInOrderMode;
-import org.mockito.internal.verification.api.VerificationMode;
+import org.mockito.verification.VerificationMode;
 
 public class InOrderWrapper implements VerificationMode {
 
@@ -23,7 +23,7 @@ public class InOrderWrapper implements VerificationMode {
     }
 
     public void verify(VerificationData data) {
-        List<Invocation> allInvocations = new AllInvocationsFinder().getAllInvocations(mocksToBeVerifiedInOrder);
+        List<Invocation> allInvocations = new AllInvocationsFinder().find(mocksToBeVerifiedInOrder);
         mode.verifyInOrder(new VerificationDataImpl(allInvocations, data.getWanted()));
     }
 }

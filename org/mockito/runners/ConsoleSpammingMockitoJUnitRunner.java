@@ -4,21 +4,22 @@
  */
 package org.mockito.runners;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.Filterable;
+import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import org.mockito.internal.debugging.DebuggingInfo;
-import org.mockito.internal.progress.MockingProgress;
-import org.mockito.internal.progress.ThreadSafeMockingProgress;
+import org.mockito.internal.debugging.WarningsCollector;
 import org.mockito.internal.runners.RunnerFactory;
 import org.mockito.internal.runners.RunnerImpl;
+import org.mockito.internal.util.ConsoleMockitoLogger;
 import org.mockito.internal.util.MockitoLogger;
-import org.mockito.internal.util.MockitoLoggerImpl;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Uses <b>JUnit 4.5</b> runner {@link BlockJUnit4ClassRunner}.
@@ -77,8 +78,7 @@ import java.lang.reflect.InvocationTargetException;
  * <p>
  * Note that code links printed to the console are clickable in any decent IDE (e.g. Eclipse).
  * <p>
- * So far I identified 3 cases when warnings are printed:
- * <li>unstubbed method</li>
+ * So far I identified 2 cases when warnings are printed:
  * <li>unsued stub</li>
  * <li>stubbed method but called with different arguments</li> 
  * <p>
@@ -86,13 +86,13 @@ import java.lang.reflect.InvocationTargetException;
  * <p>
  * Do you think it is useful or not? Drop us an email at mockito@googlegroups.com
  */
-public class ConsoleSpammingMockitoJUnitRunner extends Runner {
+public class ConsoleSpammingMockitoJUnitRunner extends Runner implements Filterable {
 
     private final MockitoLogger logger;
     private RunnerImpl runner;
     
     public ConsoleSpammingMockitoJUnitRunner(Class<?> klass) throws InvocationTargetException {
-        this(new MockitoLoggerImpl(), new RunnerFactory().create(klass));
+        this(new ConsoleMockitoLogger(), new RunnerFactory().create(klass));
     }
     
     ConsoleSpammingMockitoJUnitRunner(MockitoLogger logger, RunnerImpl runnerImpl) {
@@ -102,34 +102,31 @@ public class ConsoleSpammingMockitoJUnitRunner extends Runner {
     
     @Override
     public void run(RunNotifier notifier) {
-        MockingProgress progress = new ThreadSafeMockingProgress();
-        DebuggingInfo debuggingInfo = progress.getDebuggingInfo();
-        
-        beforeRun(notifier, debuggingInfo);
-        
-        runner.run(notifier);
-        
-        afterRun(debuggingInfo);
-    }
-
-    private void afterRun(final DebuggingInfo debuggingInfo) {
-        debuggingInfo.clearData();
-    }
-
-    private void beforeRun(RunNotifier notifier, final DebuggingInfo debuggingInfo) {
-        debuggingInfo.collectData();
-
         RunListener listener = new RunListener() {
-            @Override public void testFailure(Failure failure) throws Exception {
-                debuggingInfo.printWarnings(logger);
+            WarningsCollector warningsCollector;
+            
+            @Override
+            public void testStarted(Description description) throws Exception {
+                warningsCollector = new WarningsCollector();
+            }
+            
+            @Override public void testFailure(Failure failure) throws Exception {                
+                logger.log(warningsCollector.getWarnings());
             }
         };
-        
+
         notifier.addListener(listener);
+
+        runner.run(notifier);
     }
 
     @Override
     public Description getDescription() {
         return runner.getDescription();
+    }
+    
+    public void filter(Filter filter) throws NoTestsRemainException {
+        //filter is required because without it UnrootedTests show up in Eclipse
+        runner.filter(filter);
     }
 }

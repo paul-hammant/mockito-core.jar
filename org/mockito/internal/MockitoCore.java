@@ -16,8 +16,8 @@ import org.mockito.internal.progress.ThreadSafeMockingProgress;
 import org.mockito.internal.stubbing.OngoingStubbingImpl;
 import org.mockito.internal.stubbing.StubberImpl;
 import org.mockito.internal.util.MockUtil;
-import org.mockito.internal.verification.api.VerificationMode;
 import org.mockito.stubbing.*;
+import org.mockito.verification.VerificationMode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,12 +28,13 @@ public class MockitoCore {
     private final Reporter reporter = new Reporter();
     private final MockUtil mockUtil = new MockUtil();
     private final MockingProgress mockingProgress = new ThreadSafeMockingProgress();
-
+    
     public <T> T mock(Class<T> classToMock, MockSettings mockSettings) {
-        mockingProgress.validateState();
-        return mockUtil.createMock(classToMock, mockingProgress, (MockSettingsImpl) mockSettings);
+        T mock = mockUtil.createMock(classToMock, (MockSettingsImpl) mockSettings);
+        mockingProgress.mockingStarted(mock, classToMock, mockSettings);
+        return mock;
     }
-
+    
     public IOngoingStubbing stub() {
         IOngoingStubbing stubbing = mockingProgress.pullOngoingStubbing();
         if (stubbing == null) {
@@ -43,7 +44,6 @@ public class MockitoCore {
         return stubbing;
     }
 
-    @Deprecated
     public <T> DeprecatedOngoingStubbing<T> stub(T methodCall) {
         mockingProgress.stubbingStarted();
         return (DeprecatedOngoingStubbing) stub();
@@ -117,7 +117,7 @@ public class MockitoCore {
     }
     
     public <T> VoidMethodStubbable<T> stubVoid(T mock) {
-        MockHandler<T> handler = mockUtil.getMockHandler(mock);
+        MockHandlerInterface<T> handler = mockUtil.getMockHandler(mock);
         mockingProgress.stubbingStarted();
         return handler.voidMethodStubbable(mock);
     }
@@ -132,7 +132,7 @@ public class MockitoCore {
      */
     public Invocation getLastInvocation() {
         OngoingStubbingImpl ongoingStubbing = ((OngoingStubbingImpl) mockingProgress.pullOngoingStubbing());
-        List<Invocation> allInvocations = ongoingStubbing.getRegisteredInvocations().getAll();
+        List<Invocation> allInvocations = ongoingStubbing.getRegisteredInvocations();
         return allInvocations.get(allInvocations.size()-1);
     }
 }
