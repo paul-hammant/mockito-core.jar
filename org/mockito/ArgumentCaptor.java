@@ -49,9 +49,7 @@ import java.util.List;
  *
  * <p>
  * This utility class <strong>*don't do any type checks*</strong>, the generic signatures are only there to avoid casting
- * in your code. If you want specific types, then you should do that the captured values.
- * This behavior might change (type checks could be added) in a
- * future major release.
+ * in your code.
  * <p>
  * There is an <strong>annotation</strong> that you might find useful: &#64;{@link Captor}
  * <p>
@@ -65,7 +63,7 @@ public class ArgumentCaptor<T> {
     HandyReturnValues handyReturnValues = new HandyReturnValues();
 
     private final CapturingMatcher<T> capturingMatcher = new CapturingMatcher<T>();
-    private final Class<T> clazz;
+    private final Class<? extends T> clazz;
 
     /**
      * @deprecated
@@ -87,7 +85,7 @@ public class ArgumentCaptor<T> {
         this.clazz = null;
     }
 
-    ArgumentCaptor(Class<T> clazz) {
+    private ArgumentCaptor(Class<? extends T> clazz) {
         this.clazz = clazz;
     }
 
@@ -163,10 +161,11 @@ public class ArgumentCaptor<T> {
      * future major release.
      *
      * @param clazz Type matching the parameter to be captured.
-     * @param <T> Type of clazz
+     * @param <S> Type of clazz
+     * @param <U> Type of object captured by the newly built ArgumentCaptor
      * @return A new ArgumentCaptor
      */
-    public static <T> ArgumentCaptor<T> forClass(Class<T> clazz) {
-        return new ArgumentCaptor<T>(clazz);
+    public static <U,S extends U> ArgumentCaptor<U> forClass(Class<S> clazz) {
+        return new ArgumentCaptor<U>(clazz);
     }
 }

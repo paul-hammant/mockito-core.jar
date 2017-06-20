@@ -7,6 +7,7 @@ package org.mockito.internal.util;
 import org.mockito.exceptions.Reporter;
 import org.mockito.internal.util.reflection.Constructors;
 import org.mockito.mock.SerializableMode;
+import org.mockito.plugins.MockMaker.TypeMockability;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -16,13 +17,14 @@ public class MockCreationValidator {
 
     private final MockUtil mockUtil = new MockUtil();
 
-    public void validateType(Class classToMock) {
-        if (!mockUtil.isTypeMockable(classToMock)) {
-            new Reporter().cannotMockFinalClass(classToMock);
+    public void validateType(Class<?> classToMock) {
+        TypeMockability typeMockability = mockUtil.typeMockabilityOf(classToMock);
+        if (!typeMockability.mockable()) {
+            new Reporter().cannotMockClass(classToMock, typeMockability.nonMockableReason());
         }
     }
 
-    public void validateExtraInterfaces(Class classToMock, Collection<Class> extraInterfaces) {
+    public void validateExtraInterfaces(Class<?> classToMock, Collection<Class<?>> extraInterfaces) {
         if (extraInterfaces == null) {
             return;
         }
@@ -34,7 +36,7 @@ public class MockCreationValidator {
         }
     }
 
-    public void validateMockedType(Class classToMock, Object spiedInstance) {
+    public void validateMockedType(Class<?> classToMock, Object spiedInstance) {
         if (classToMock == null || spiedInstance == null) {
             return;
         }
@@ -43,7 +45,7 @@ public class MockCreationValidator {
         }
     }
 
-    public void validateDelegatedInstance(Class classToMock, Object delegatedInstance) {
+    public void validateDelegatedInstance(Class<?> classToMock, Object delegatedInstance) {
         if (classToMock == null || delegatedInstance == null) {
             return;
         }
@@ -52,7 +54,7 @@ public class MockCreationValidator {
         }
     }
 
-    public void validateSerializable(Class classToMock, boolean serializable) {
+    public void validateSerializable(Class<?> classToMock, boolean serializable) {
         // We can't catch all the errors with this piece of code
         // Having a **superclass that do not implements Serializable** might fail as well when serialized
         // Though it might prevent issues when mockito is mocking a class without superclass.

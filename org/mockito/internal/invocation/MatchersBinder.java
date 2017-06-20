@@ -5,26 +5,28 @@
 
 package org.mockito.internal.invocation;
 
-import org.hamcrest.Matcher;
+import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.Reporter;
 import org.mockito.internal.matchers.LocalizedMatcher;
 import org.mockito.internal.progress.ArgumentMatcherStorage;
 import org.mockito.invocation.Invocation;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class MatchersBinder implements Serializable {
 
-    private static final long serialVersionUID = -311433939339443463L;
-
     public InvocationMatcher bindMatchers(ArgumentMatcherStorage argumentMatcherStorage, Invocation invocation) {
         List<LocalizedMatcher> lastMatchers = argumentMatcherStorage.pullLocalizedMatchers();
         validateMatchers(invocation, lastMatchers);
 
-        InvocationMatcher invocationWithMatchers = new InvocationMatcher(invocation, (List<Matcher>)(List) lastMatchers);
-        return invocationWithMatchers;
+        List<ArgumentMatcher> matchers = new LinkedList<ArgumentMatcher>();
+        for (LocalizedMatcher m : lastMatchers) {
+            matchers.add(m.getMatcher());
+        }
+        return new InvocationMatcher(invocation, matchers);
     }
 
     private void validateMatchers(Invocation invocation, List<LocalizedMatcher> lastMatchers) {
