@@ -5,11 +5,12 @@
 
 package org.mockito.internal.configuration.injection;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.reflection.FieldInitializationReport;
 import org.mockito.internal.util.reflection.FieldInitializer;
 import org.mockito.internal.util.reflection.FieldInitializer.ConstructorArgumentResolver;
+
+import static org.mockito.internal.exceptions.Reporter.fieldInitialisationThrewException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -37,14 +38,7 @@ import java.util.Set;
  */
 public class ConstructorInjection extends MockInjectionStrategy {
 
-    private ConstructorArgumentResolver argResolver;
-
     public ConstructorInjection() { }
-
-    // visible for testing
-    ConstructorInjection(ConstructorArgumentResolver argResolver) {
-        this.argResolver = argResolver;
-    }
 
     public boolean processInjection(Field field, Object fieldOwner, Set<Object> mockCandidates) {
         try {
@@ -55,7 +49,7 @@ public class ConstructorInjection extends MockInjectionStrategy {
         } catch (MockitoException e) {
             if(e.getCause() instanceof InvocationTargetException) {
                 Throwable realCause = e.getCause().getCause();
-                new Reporter().fieldInitialisationThrewException(field, realCause);
+                throw fieldInitialisationThrewException(field, realCause);
             }
             // other causes should be fine
             return false;

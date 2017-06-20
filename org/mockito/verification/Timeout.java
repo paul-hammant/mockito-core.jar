@@ -4,9 +4,13 @@
  */
 package org.mockito.verification;
 
-import org.mockito.exceptions.Reporter;
+import static org.mockito.internal.exceptions.Reporter.atMostAndNeverShouldNotBeUsedWithTimeout;
+
 import org.mockito.internal.util.Timer;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.VerificationOverTimeImpl;
+import org.mockito.internal.verification.VerificationWrapper;
+
 /**
  * See the javadoc for {@link VerificationWithTimeout}
  * <p>
@@ -49,12 +53,16 @@ public class Timeout extends VerificationWrapper<VerificationOverTimeImpl> imple
     }
 
     public VerificationMode atMost(int maxNumberOfInvocations) {
-        new Reporter().atMostAndNeverShouldNotBeUsedWithTimeout();
-        return null;
+        throw atMostAndNeverShouldNotBeUsedWithTimeout();
     }
 
     public VerificationMode never() {
-        new Reporter().atMostAndNeverShouldNotBeUsedWithTimeout();
-        return null;
+        throw atMostAndNeverShouldNotBeUsedWithTimeout();
     }
+
+    @Override
+    public VerificationMode description(String description) {
+        return VerificationModeFactory.description(this, description);
+    }
+
 }

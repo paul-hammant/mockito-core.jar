@@ -4,6 +4,7 @@
  */
 package org.mockito.plugins;
 
+import org.mockito.Incubating;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
 
@@ -55,7 +56,7 @@ public interface MockMaker {
      *     </li>
      * </ul>
      *
-     * @param settings - mock creation settings like type to mock, extra interfaces and so on.
+     * @param settings Mock creation settings like type to mock, extra interfaces and so on.
      * @param handler See {@link org.mockito.invocation.MockHandler}.
      *                <b>Do not</b> provide your own implementation at this time. Make sure your implementation of
      *                {@link #getHandler(Object)} will return this instance.
@@ -74,7 +75,7 @@ public interface MockMaker {
      * Use the instance provided to you by Mockito at {@link #createMock} or {@link #resetMock}.
      *
      * @param mock The mock instance.
-     * @return may return null - it means that there is no handler attached to provided object.
+     * @return The mock handler, but may return null - it means that there is no handler attached to provided object.
      *   This means the passed object is not really a Mockito mock.
      * @since 1.9.5
      */
@@ -99,4 +100,36 @@ public interface MockMaker {
             MockHandler newHandler,
             MockCreationSettings settings
     );
+
+    /**
+     * Indicates if the given type can be mocked by this mockmaker.
+     *
+     * <p>Mockmaker may have different capabilities in term of mocking, typically
+     * Mockito 1.x's internal mockmaker cannot mock final types. Other implementations, may
+     * have different limitations.</p>
+     *
+     * @param type The type inspected for mockability.
+     * @return object that carries the information about mockability of given type.
+     * @since 2.0
+     */
+    @Incubating
+    TypeMockability isTypeMockable(Class<?> type);
+
+    /**
+     * Carries the mockability information
+     *
+     * @since 2.0
+     */
+    @Incubating
+    interface TypeMockability {
+        /**
+         * informs if type is mockable
+         */
+        boolean mockable();
+
+        /**
+         * informs why type is not mockable
+         */
+        String nonMockableReason();
+    }
 }

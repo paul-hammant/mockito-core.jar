@@ -4,6 +4,7 @@
  */
 package org.mockito;
 
+import org.mockito.internal.stubbing.answers.AnswerFunctionalInterfaces;
 import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.internal.stubbing.answers.ReturnsElementsOf;
 import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
@@ -12,12 +13,14 @@ import org.mockito.stubbing.Answer;
 import java.util.Collection;
 
 /**
- * Additional answers provides factory methods for less common answers.
+ * Additional answers provides factory methods for answers.
  *
- * <p>Currently offer answers that can return the parameter of an invocation at a certain position.
+ * <p>Currently offer answers that can return the parameter of an invocation at a certain position,
+ * along with answers that draw on a strongly typed interface from {@link AnswerFunctionalInterfaces}
+ * to provide a neater way to write custom answers that either return a value or are void.
  *
  * <p>See factory methods for more information : {@link #returnsFirstArg}, {@link #returnsSecondArg},
- * {@link #returnsLastArg} and {@link #returnsArgAt}
+ * {@link #returnsLastArg}, {@link #returnsArgAt}, {@link #answer} and {@link #answerVoid}
  *
  * @since 1.9.5
  */
@@ -119,8 +122,7 @@ public class AdditionalAnswers {
      *     <li>Already custom proxied object</li>
      *     <li>Special objects with a finalize method, i.e. to avoid executing it 2 times</li>
      * </ul>
-     * For more details including the use cases reported by users take a look at
-     * <a link="http://code.google.com/p/mockito/issues/detail?id=145">issue 145</a>.
+     *
      * <p>
      * The difference with the regular spy:
      * <ul>
@@ -194,5 +196,151 @@ public class AdditionalAnswers {
      */
     public static <T> Answer<T> returnsElementsOf(Collection<?> elements) {
         return (Answer<T>) new ReturnsElementsOf(elements);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - which is expected to return something
+     * @param <T> return type
+     * @param <A> input parameter type 1
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <T, A, B> Answer<T> answer(AnswerFunctionalInterfaces.Answer1<T, A> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - a void method
+     * @param <A> input parameter type 1
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <A, B> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer1<A> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - which is expected to return something
+     * @param <T> return type
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <T, A, B> Answer<T> answer(AnswerFunctionalInterfaces.Answer2<T, A, B> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - a void method
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <A, B> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer2<A, B> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - which is expected to return something
+     * @param <T> return type
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @param <C> input parameter type 3
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <T, A, B, C> Answer<T> answer(AnswerFunctionalInterfaces.Answer3<T, A, B, C> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - a void method
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @param <C> input parameter type 3
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <A, B, C> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer3<A, B, C> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - which is expected to return something
+     * @param <T> return type
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @param <C> input parameter type 3
+     * @param <D> input parameter type 4
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <T, A, B, C, D> Answer<T> answer(AnswerFunctionalInterfaces.Answer4<T, A, B, C, D> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - a void method
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @param <C> input parameter type 3
+     * @param <D> input parameter type 4
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <A, B, C, D> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer4<A, B, C, D> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     * @param answer interface to the answer - which is expected to return something
+     * @param <T> return type
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @param <C> input parameter type 3
+     * @param <D> input parameter type 4
+     * @param <E> input parameter type 5
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <T, A, B, C, D, E> Answer<T> answer(AnswerFunctionalInterfaces.Answer5<T, A, B, C, D, E> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
+    }
+
+    /**
+     * Creates an answer from a functional interface - allows for a strongly typed answer to be created
+     * ideally in Java 8
+     *
+     * @param answer interface to the answer - a void method
+     * @param <A> input parameter type 1
+     * @param <B> input parameter type 2
+     * @param <C> input parameter type 3
+     * @param <D> input parameter type 4
+     * @param <E> input parameter type 5
+     * @return the answer object to use
+     * @since 2.0.0
+     */
+    public static <A, B, C, D, E> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer5<A, B, C, D, E> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 }

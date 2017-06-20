@@ -7,9 +7,10 @@ package org.mockito.internal.configuration.injection.scanner;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.exceptions.Reporter;
 
+import static org.mockito.internal.exceptions.Reporter.unsupportedCombinationOfAnnotations;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,7 +18,6 @@ import java.util.Set;
 /**
  * Scan field for injection.
  */
-@SuppressWarnings("deprecation")
 public class InjectMocksScanner {
     private final Class<?> clazz;
 
@@ -45,12 +45,13 @@ public class InjectMocksScanner {
      *
      * @return Fields that depends on Mock
      */
+    @SuppressWarnings("unchecked")
     private Set<Field> scan() {
         Set<Field> mockDependentFields = new HashSet<Field>();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (null != field.getAnnotation(InjectMocks.class)) {
-                assertNoAnnotations(field, Mock.class, MockitoAnnotations.Mock.class, Captor.class);
+                assertNoAnnotations(field, Mock.class, Captor.class);
                 mockDependentFields.add(field);
             }
         }
@@ -58,10 +59,10 @@ public class InjectMocksScanner {
         return mockDependentFields;
     }
 
-    void assertNoAnnotations(final Field field, final Class... annotations) {
-        for (Class annotation : annotations) {
+    private static void assertNoAnnotations(Field field, Class<? extends Annotation>... annotations) {
+        for (Class<? extends Annotation> annotation : annotations) {
             if (field.isAnnotationPresent(annotation)) {
-                new Reporter().unsupportedCombinationOfAnnotations(annotation.getSimpleName(), InjectMocks.class.getSimpleName());
+                throw unsupportedCombinationOfAnnotations(annotation.getSimpleName(), InjectMocks.class.getSimpleName());
             }
         }
     }
