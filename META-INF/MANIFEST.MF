@@ -1,30 +1,30 @@
 Manifest-Version: 1.0
-Export-Package: org.mockito;version="2.3.0";uses:="org.mockito.invocat
+Export-Package: org.mockito;version="2.3.1";uses:="org.mockito.invocat
  ion,org.mockito.listeners,org.mockito.mock,org.mockito.stubbing,org.m
- ockito.verification",org.mockito.configuration;version="2.3.0";uses:=
- "org.mockito.stubbing",org.mockito.exceptions.base;version="2.3.0",or
- g.mockito.exceptions.misusing;version="2.3.0";uses:="org.mockito.exce
- ptions.base",org.mockito.exceptions.stacktrace;version="2.3.0",org.mo
- ckito.exceptions.verification;version="2.3.0";uses:="org.mockito.exce
- ptions.base",org.mockito.exceptions.verification.junit;version="2.3.0
- ";uses:="junit.framework",org.mockito.hamcrest;version="2.3.0";uses:=
- "org.hamcrest",org.mockito.invocation;version="2.3.0";uses:="org.mock
- ito",org.mockito.junit;version="2.3.0";uses:="org.junit.rules,org.jun
+ ockito.verification",org.mockito.configuration;version="2.3.1";uses:=
+ "org.mockito.stubbing",org.mockito.exceptions.base;version="2.3.1",or
+ g.mockito.exceptions.misusing;version="2.3.1";uses:="org.mockito.exce
+ ptions.base",org.mockito.exceptions.stacktrace;version="2.3.1",org.mo
+ ckito.exceptions.verification;version="2.3.1";uses:="org.mockito.exce
+ ptions.base",org.mockito.exceptions.verification.junit;version="2.3.1
+ ";uses:="junit.framework",org.mockito.hamcrest;version="2.3.1";uses:=
+ "org.hamcrest",org.mockito.invocation;version="2.3.1";uses:="org.mock
+ ito",org.mockito.junit;version="2.3.1";uses:="org.junit.rules,org.jun
  it.runner,org.junit.runner.manipulation,org.junit.runner.notification
  ,org.mockito,org.mockito.exceptions.base,org.mockito.quality",org.moc
- kito.listeners;version="2.3.0";uses:="org.mockito.invocation,org.mock
- ito.mock",org.mockito.mock;version="2.3.0";uses:="org.mockito,org.moc
+ kito.listeners;version="2.3.1";uses:="org.mockito.invocation,org.mock
+ ito.mock",org.mockito.mock;version="2.3.1";uses:="org.mockito,org.moc
  kito.listeners,org.mockito.stubbing",org.mockito.plugins;version="2.3
- .0";uses:="org.mockito,org.mockito.exceptions.stacktrace,org.mockito.
- invocation,org.mockito.mock",org.mockito.quality;version="2.3.0";uses
- :="org.mockito",org.mockito.runners;version="2.3.0";uses:="org.junit.
+ .1";uses:="org.mockito,org.mockito.exceptions.stacktrace,org.mockito.
+ invocation,org.mockito.mock",org.mockito.quality;version="2.3.1";uses
+ :="org.mockito",org.mockito.runners;version="2.3.1";uses:="org.junit.
  runner,org.junit.runner.manipulation,org.junit.runner.notification,or
- g.mockito.junit",org.mockito.stubbing;version="2.3.0";uses:="org.mock
- ito,org.mockito.invocation",org.mockito.verification;version="2.3.0"
+ g.mockito.junit",org.mockito.stubbing;version="2.3.1";uses:="org.mock
+ ito,org.mockito.invocation",org.mockito.verification;version="2.3.1"
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
-Bundle-Version: 2.3.0
+Bundle-Version: 2.3.1
 Tool: Bnd-2.4.0.201411031534
-Bnd-LastModified: 1481391988000
+Bnd-LastModified: 1481653427000
 Bundle-Name: Mockito Mock Library for Java. Core bundle requires Byte 
  Buddy and Objenesis.
 Bundle-ManifestVersion: 2
