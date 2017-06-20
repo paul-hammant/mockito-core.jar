@@ -119,25 +119,4 @@ public class VerificationOverTimeImpl implements VerificationMode {
             throw new RuntimeException("Thread sleep has been interrupted", ie);
         }
     }
-
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
-    }
-
-    public boolean isReturnOnSuccess() {
-        return returnOnSuccess;
-    }
-
-    public long getPollingPeriodMillis() {
-        return pollingPeriodMillis;
-    }
-
-    public Timer getTimer() {
-        return timer;
-    }
-
-    public VerificationMode getDelegate() {
-        return delegate;
-    }
 }

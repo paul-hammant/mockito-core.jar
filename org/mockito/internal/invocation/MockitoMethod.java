@@ -8,15 +8,15 @@ import java.lang.reflect.Method;
 
 public interface MockitoMethod extends AbstractAwareMethod {
 
-    String getName();
+    public String getName();
 
-    Class<?> getReturnType();
+    public Class<?> getReturnType();
 
-    Class<?>[] getParameterTypes();
+    public Class<?>[] getParameterTypes();
 
-    Class<?>[] getExceptionTypes();
+    public Class<?>[] getExceptionTypes();
 
-    boolean isVarArgs();
+    public boolean isVarArgs();
 
-    Method getJavaMethod();
+    public Method getJavaMethod();
 }

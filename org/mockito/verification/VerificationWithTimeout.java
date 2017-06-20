@@ -39,7 +39,23 @@ public interface VerificationWithTimeout extends VerificationMode {
      * 
      * @return verification mode
      */
-    VerificationMode times(int wantedNumberOfInvocations);
+    public VerificationMode times(int wantedNumberOfInvocations);
+    
+    /**
+     * @deprecated
+     * Validation with timeout combined with never simply does not make sense, as never() will typically immediately pass,
+     * and therefore not wait the timeout. The behaviour you may be looking for is actually provided by after().never(). 
+     * <p>
+     * To avoid compilation errors upon upgrade the method is deprecated and it throws a "friendly reminder" exception.
+     * <p>
+     * In a future release we will remove timeout(x).atMost(y) and timeout(x).never() from the API.
+     * <p>
+     * Do you want to find out more? See <a href="http://code.google.com/p/mockito/issues/detail?id=235">issue 235</a>
+     * 
+     * @return verification mode
+     */
+    @Deprecated    
+    public VerificationMode never();
     
     /**
      * Allows at-least-once verification within given timeout. E.g:
@@ -52,7 +68,7 @@ public interface VerificationWithTimeout extends VerificationMode {
      * 
      * @return verification mode
      */
-    VerificationMode atLeastOnce();
+    public VerificationMode atLeastOnce();
 
     /**
      * Allows at-least-x verification within given timeout. E.g:
@@ -66,7 +82,25 @@ public interface VerificationWithTimeout extends VerificationMode {
      * 
      * @return verification mode
      */
-    VerificationMode atLeast(int minNumberOfInvocations);
+    public VerificationMode atLeast(int minNumberOfInvocations);
+
+    /**
+     * @deprecated
+     *
+     * <b>Deprecated</b>
+     * Validation with timeout combined with never simply does not make sense, as atMost() will typically immediately pass,
+     * and therefore not wait the timeout. The behaviour you may be looking for is actually provided by after().atMost(). 
+     * <p>
+     * To avoid compilation errors upon upgrade the method is deprecated and it throws a "friendly reminder" exception.
+     * <p>
+     * In a future release we will remove timeout(x).atMost(y) and timeout(x).never() from the API.
+     * <p>
+     * Do you want to find out more? See <a href="http://code.google.com/p/mockito/issues/detail?id=235">issue 235</a>
+     *
+     * @return verification mode
+     */
+    @Deprecated
+    public VerificationMode atMost(int maxNumberOfInvocations);
 
     /**
      * Allows checking if given method was the only one invoked. E.g:
@@ -74,7 +108,7 @@ public interface VerificationWithTimeout extends VerificationMode {
      *   verify(mock, only()).someMethod();
      *   //above is a shorthand for following 2 lines of code:
      *   verify(mock).someMethod();
-     *   verifyNoMoreInteractions(mock);
+     *   verifyNoMoreInvocations(mock);
      * </code></pre>
      * 
      * <p>
@@ -84,5 +118,5 @@ public interface VerificationWithTimeout extends VerificationMode {
      * 
      * @return verification mode
      */
-    VerificationMode only();
+    public VerificationMode only();       
 }

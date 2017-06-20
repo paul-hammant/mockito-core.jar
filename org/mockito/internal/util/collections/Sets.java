@@ -4,6 +4,8 @@
  */
 package org.mockito.internal.util.collections;
 
+
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 

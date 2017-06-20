@@ -4,27 +4,19 @@
  */
 package org.mockito.internal;
 
-import static org.mockito.internal.exceptions.Reporter.missingMethodInvocation;
-import static org.mockito.internal.exceptions.Reporter.mocksHaveToBePassedToVerifyNoMoreInteractions;
-import static org.mockito.internal.exceptions.Reporter.mocksHaveToBePassedWhenCreatingInOrder;
-import static org.mockito.internal.exceptions.Reporter.notAMockPassedToVerify;
-import static org.mockito.internal.exceptions.Reporter.notAMockPassedToVerifyNoMoreInteractions;
-import static org.mockito.internal.exceptions.Reporter.notAMockPassedWhenCreatingInOrder;
-import static org.mockito.internal.exceptions.Reporter.nullPassedToVerify;
-import static org.mockito.internal.exceptions.Reporter.nullPassedToVerifyNoMoreInteractions;
-import static org.mockito.internal.exceptions.Reporter.nullPassedWhenCreatingInOrder;
-import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
-import static org.mockito.internal.verification.VerificationModeFactory.noMoreInteractions;
-
 import java.util.Arrays;
 import java.util.List;
+
 import org.mockito.InOrder;
 import org.mockito.MockSettings;
 import org.mockito.MockingDetails;
+import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.misusing.NotAMockException;
 import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.invocation.finder.VerifiableInvocationsFinder;
+import org.mockito.internal.progress.IOngoingStubbing;
 import org.mockito.internal.progress.MockingProgress;
+import org.mockito.internal.progress.ThreadSafeMockingProgress;
 import org.mockito.internal.stubbing.InvocationContainer;
 import org.mockito.internal.stubbing.OngoingStubbingImpl;
 import org.mockito.internal.stubbing.StubberImpl;
@@ -38,142 +30,144 @@ import org.mockito.internal.verification.api.VerificationDataInOrder;
 import org.mockito.internal.verification.api.VerificationDataInOrderImpl;
 import org.mockito.invocation.Invocation;
 import org.mockito.mock.MockCreationSettings;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.DeprecatedOngoingStubbing;
 import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.stubbing.Stubber;
+import org.mockito.stubbing.VoidMethodStubbable;
 import org.mockito.verification.VerificationMode;
 
 @SuppressWarnings("unchecked")
 public class MockitoCore {
 
+    private final Reporter reporter = new Reporter();
     private final MockUtil mockUtil = new MockUtil();
+    private final MockingProgress mockingProgress = new ThreadSafeMockingProgress();
 
     public boolean isTypeMockable(Class<?> typeToMock) {
-        return mockUtil.typeMockabilityOf(typeToMock).mockable();
+        return mockUtil.isTypeMockable(typeToMock);
     }
 
     public <T> T mock(Class<T> typeToMock, MockSettings settings) {
         if (!MockSettingsImpl.class.isInstance(settings)) {
-            throw new IllegalArgumentException("Unexpected implementation of '" + settings.getClass().getCanonicalName() + "'\n" + "At the moment, you cannot provide your own implementations of that class.");
+            throw new IllegalArgumentException(
+                    "Unexpected implementation of '" + settings.getClass().getCanonicalName() + "'\n"
+                    + "At the moment, you cannot provide your own implementations that class.");
         }
         MockSettingsImpl impl = MockSettingsImpl.class.cast(settings);
         MockCreationSettings<T> creationSettings = impl.confirm(typeToMock);
         T mock = mockUtil.createMock(creationSettings);
-        mockingProgress().mockingStarted(mock, typeToMock);
+        mockingProgress.mockingStarted(mock, typeToMock);
         return mock;
     }
-
-    public <T> OngoingStubbing<T> when(T methodCall) {
-        MockingProgress mockingProgress = mockingProgress();
-        mockingProgress.stubbingStarted();
-        @SuppressWarnings("unchecked")
-        OngoingStubbing<T> stubbing = (OngoingStubbing<T>) mockingProgress.pullOngoingStubbing();
+    
+    public IOngoingStubbing stub() {
+        IOngoingStubbing stubbing = mockingProgress.pullOngoingStubbing();
         if (stubbing == null) {
             mockingProgress.reset();
-            throw missingMethodInvocation();
+            reporter.missingMethodInvocation();
         }
         return stubbing;
     }
 
-    public <T> T verify(T mock, VerificationMode mode) {
-        if (mock == null) {
-            throw nullPassedToVerify();
-        }
-        if (!mockUtil.isMock(mock)) {
-            throw notAMockPassedToVerify(mock.getClass());
-        }
-        MockingProgress mockingProgress = mockingProgress();
-        VerificationMode actualMode = mockingProgress.maybeVerifyLazily(mode);
-        mockingProgress.verificationStarted(new MockAwareVerificationMode(mock, actualMode));
-        return mock;
+    public <T> DeprecatedOngoingStubbing<T> stub(T methodCall) {
+        mockingProgress.stubbingStarted();
+        return (DeprecatedOngoingStubbing) stub();
     }
 
-    public <T> void reset(T... mocks) {
-        MockingProgress mockingProgress = mockingProgress();
+    public <T> OngoingStubbing<T> when(T methodCall) {
+        mockingProgress.stubbingStarted();
+        return (OngoingStubbing) stub();
+    }
+    
+    public <T> T verify(T mock, VerificationMode mode) {
+        if (mock == null) {
+            reporter.nullPassedToVerify();
+        } else if (!mockUtil.isMock(mock)) {
+            reporter.notAMockPassedToVerify(mock.getClass());
+        }
+        mockingProgress.verificationStarted(new MockAwareVerificationMode(mock, mode));
+        return mock;
+    }
+    
+    public <T> void reset(T ... mocks) {
         mockingProgress.validateState();
         mockingProgress.reset();
         mockingProgress.resetOngoingStubbing();
-
+        
         for (T m : mocks) {
             mockUtil.resetMock(m);
         }
     }
-
-    public <T> void clearInvocations(T... mocks) {
-        MockingProgress mockingProgress = mockingProgress();
-        mockingProgress.validateState();
-        mockingProgress.reset();
-        mockingProgress.resetOngoingStubbing();
-
-        for (T m : mocks) {
-            mockUtil.getMockHandler(m).getInvocationContainer().clearInvocations();
-        }
-    }
-
+    
     public void verifyNoMoreInteractions(Object... mocks) {
         assertMocksNotEmpty(mocks);
-        mockingProgress().validateState();
+        mockingProgress.validateState();
         for (Object mock : mocks) {
             try {
                 if (mock == null) {
-                    throw nullPassedToVerifyNoMoreInteractions();
+                    reporter.nullPassedToVerifyNoMoreInteractions();
                 }
                 InvocationContainer invocations = mockUtil.getMockHandler(mock).getInvocationContainer();
                 VerificationDataImpl data = new VerificationDataImpl(invocations, null);
-                noMoreInteractions().verify(data);
+                VerificationModeFactory.noMoreInteractions().verify(data);
             } catch (NotAMockException e) {
-                throw notAMockPassedToVerifyNoMoreInteractions();
+                reporter.notAMockPassedToVerifyNoMoreInteractions();
             }
         }
     }
 
     public void verifyNoMoreInteractionsInOrder(List<Object> mocks, InOrderContext inOrderContext) {
-        mockingProgress().validateState();
+        mockingProgress.validateState();
         VerifiableInvocationsFinder finder = new VerifiableInvocationsFinder();
         VerificationDataInOrder data = new VerificationDataInOrderImpl(inOrderContext, finder.find(mocks), null);
         VerificationModeFactory.noMoreInteractions().verifyInOrder(data);
-    }
-
+    }    
+    
     private void assertMocksNotEmpty(Object[] mocks) {
         if (mocks == null || mocks.length == 0) {
-            throw mocksHaveToBePassedToVerifyNoMoreInteractions();
+            reporter.mocksHaveToBePassedToVerifyNoMoreInteractions();
         }
     }
-
+    
     public InOrder inOrder(Object... mocks) {
         if (mocks == null || mocks.length == 0) {
-            throw mocksHaveToBePassedWhenCreatingInOrder();
+            reporter.mocksHaveToBePassedWhenCreatingInOrder();
         }
         for (Object mock : mocks) {
             if (mock == null) {
-                throw nullPassedWhenCreatingInOrder();
-            }
-            if (!mockUtil.isMock(mock)) {
-                throw notAMockPassedWhenCreatingInOrder();
+                reporter.nullPassedWhenCreatingInOrder();
+            } else if (!mockUtil.isMock(mock)) {
+                reporter.notAMockPassedWhenCreatingInOrder();
             }
         }
         return new InOrderImpl(Arrays.asList(mocks));
     }
-
-    public Stubber stubber() {
-        MockingProgress mockingProgress = mockingProgress();
+    
+    public Stubber doAnswer(Answer answer) {
         mockingProgress.stubbingStarted();
         mockingProgress.resetOngoingStubbing();
-        return new StubberImpl();
+        return new StubberImpl().doAnswer(answer);
+    }
+    
+    public <T> VoidMethodStubbable<T> stubVoid(T mock) {
+        InternalMockHandler<T> handler = mockUtil.getMockHandler(mock);
+        mockingProgress.stubbingStarted();
+        return handler.voidMethodStubbable(mock);
     }
 
     public void validateMockitoUsage() {
-        mockingProgress().validateState();
+        mockingProgress.validateState();
     }
 
     /**
      * For testing purposes only. Is not the part of main API.
-     * 
      * @return last invocation
      */
     public Invocation getLastInvocation() {
-        OngoingStubbingImpl ongoingStubbing = ((OngoingStubbingImpl) mockingProgress().pullOngoingStubbing());
+        OngoingStubbingImpl ongoingStubbing = ((OngoingStubbingImpl) mockingProgress.pullOngoingStubbing());
         List<Invocation> allInvocations = ongoingStubbing.getRegisteredInvocations();
-        return allInvocations.get(allInvocations.size() - 1);
+        return allInvocations.get(allInvocations.size()-1);
     }
 
     public Object[] ignoreStubs(Object... mocks) {

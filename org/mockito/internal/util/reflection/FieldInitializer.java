@@ -7,8 +7,6 @@ package org.mockito.internal.util.reflection;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.MockUtil;
 
-import static org.mockito.internal.util.reflection.FieldSetter.setField;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -182,7 +180,7 @@ public class FieldInitializer {
 
                 final Object[] noArg = new Object[0];
                 Object newFieldInstance = constructor.newInstance(noArg);
-                setField(testClass, field,newFieldInstance);
+                new FieldSetter(testClass, field).set(newFieldInstance);
 
                 return new FieldInitializationReport(field.get(testClass), true, false);
             } catch (NoSuchMethodException e) {
@@ -230,7 +228,7 @@ public class FieldInitializer {
             private int countMockableParams(Constructor<?> constructor) {
                 int constructorMockableParamsSize = 0;
                 for (Class<?> aClass : constructor.getParameterTypes()) {
-                    if(mockUtil.typeMockabilityOf(aClass).mockable()){
+                    if(mockUtil.isTypeMockable(aClass)){
                         constructorMockableParamsSize++;
                     }
                 }
@@ -257,7 +255,7 @@ public class FieldInitializer {
 
                 final Object[] args = argResolver.resolveTypeInstances(constructor.getParameterTypes());
                 Object newFieldInstance = constructor.newInstance(args);
-                setField(testClass, field,newFieldInstance);
+                new FieldSetter(testClass, field).set(newFieldInstance);
 
                 return new FieldInitializationReport(field.get(testClass), false, true);
             } catch (IllegalArgumentException e) {
@@ -282,7 +280,7 @@ public class FieldInitializer {
         }
 
         private Constructor<?> biggestConstructor(Class<?> clazz) {
-            final List<? extends Constructor<?>> constructors = Arrays.asList(clazz.getDeclaredConstructors());
+            final List<Constructor<?>> constructors = Arrays.asList(clazz.getDeclaredConstructors());
             Collections.sort(constructors, byParameterNumber);
             
             Constructor<?> constructor = constructors.get(0);

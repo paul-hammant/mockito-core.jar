@@ -5,6 +5,7 @@
 package org.mockito.stubbing;
 
 import org.mockito.Mockito;
+import org.mockito.internal.progress.IOngoingStubbing;
 
 /**
  * Simply put: "<b>When</b> the x method is called <b>then</b> return y". E.g:
@@ -31,7 +32,7 @@ import org.mockito.Mockito;
  *
  * See examples in javadoc for {@link Mockito#when}
  */
-public interface OngoingStubbing<T> {
+public interface OngoingStubbing<T> extends IOngoingStubbing {
 
     /**
      * Sets a return value to be returned when the method is called. E.g:
@@ -62,8 +63,6 @@ public interface OngoingStubbing<T> {
      *
      * @return iOngoingStubbing object that allows stubbing consecutive calls
      */
-    // Additional method helps users of JDK7+ to hide heap pollution / unchecked generics array creation warnings (on call site)
-    @SuppressWarnings ({"unchecked", "varargs"})
     OngoingStubbing<T> thenReturn(T value, T... values);
 
     /**
@@ -78,7 +77,7 @@ public interface OngoingStubbing<T> {
      * You can specify throwables to be thrown for consecutive calls. 
      * In that case the last throwable determines the behavior of further consecutive calls.
      * <p>
-     * If throwable is null then exception will be thrown.
+     * if throwable is null then exception will be thrown.
      * <p>
      * See examples in javadoc for {@link Mockito#when}
      *
@@ -89,31 +88,6 @@ public interface OngoingStubbing<T> {
     OngoingStubbing<T> thenThrow(Throwable... throwables);
 
     /**
-     * Sets a Throwable type to be thrown when the method is called. E.g:
-     * <pre class="code"><code class="java">
-     * when(mock.someMethod()).thenThrow(RuntimeException.class);
-     * </code></pre>
-     *
-     * <p>
-     * If the throwable class is a checked exception then it has to
-     * match one of the checked exceptions of the stubbed method signature.
-     * <p>
-     * If throwable is null then exception will be thrown.
-     * <p>
-     * See examples in javadoc for {@link Mockito#when}
-     * 
-     * <p>Note depending on the JVM, stack trace information may not be available in
-     * the generated throwable instance.  If you require stack trace information,
-     * use {@link OngoingStubbing#thenThrow(Throwable...)} instead.
-     *
-     * @param throwableType to be thrown on method invocation
-     *
-     * @return iOngoingStubbing object that allows stubbing consecutive calls
-     * @since 2.0.0
-     */
-    OngoingStubbing<T> thenThrow(Class<? extends Throwable> throwableType);
-
-    /**
      * Sets Throwable classes to be thrown when the method is called. E.g:
      * <pre class="code"><code class="java">
      * when(mock.someMethod()).thenThrow(RuntimeException.class);
@@ -122,31 +96,22 @@ public interface OngoingStubbing<T> {
      * <p>
      * Each throwable class will be instantiated for each method invocation.
      * <p>
-     * If <code>throwableTypes</code> contain a checked exception then it has to
+     * If throwableClasses contain a checked exception then it has to
      * match one of the checked exceptions of method signature.
      * <p>
-     * You can specify <code>throwableTypes</code> to be thrown for consecutive calls.
+     * You can specify throwableClasses to be thrown for consecutive calls.
      * In that case the last throwable determines the behavior of further consecutive calls.
      * <p>
-     * If throwable is null then exception will be thrown.
+     * if throwable is null then exception will be thrown.
      * <p>
      * See examples in javadoc for {@link Mockito#when}
      *
-     * <p>Note since JDK 7, invoking this method will raise a compiler warning "possible heap pollution",
-     * this API is safe to use. If you don't want to see this warning it is possible to chain {@link #thenThrow(Class)}
-     * <p>Note depending on the JVM, stack trace information may not be available in
-     * the generated throwable instance.  If you require stack trace information,
-     * use {@link OngoingStubbing#thenThrow(Throwable...)} instead.
-     *
-     * @param toBeThrown to be thrown on method invocation
-     * @param nextToBeThrown next to be thrown on method invocation
+     * @param throwableClasses to be thrown on method invocation
      *
      * @return iOngoingStubbing object that allows stubbing consecutive calls
-     * @since 2.0.0
+     * @since 1.9.0
      */
-    // Additional method helps users of JDK7+ to hide heap pollution / unchecked generics array creation warnings (on call site)
-    @SuppressWarnings ({"unchecked", "varargs"})
-    OngoingStubbing<T> thenThrow(Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... nextToBeThrown);
+    OngoingStubbing<T> thenThrow(Class<? extends Throwable>... throwableClasses);
 
     /**     
      * Sets the real implementation to be called when the method is called on a mock object.

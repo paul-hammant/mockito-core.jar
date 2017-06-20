@@ -16,12 +16,14 @@ import java.util.List;
  * Sort fields in an order suitable for injection, by name with superclasses
  * moved after their subclasses.
  */
-public class SuperTypesLastSorter {
+public class SuperTypesLastSorter
+{
     /**
      * Return a new collection with the fields sorted first by name,
      * then with any fields moved after their supertypes.
      */
-    public List<Field> sort(Collection<? extends Field> unsortedFields) {
+    public List<Field> sort(Collection<? extends Field> unsortedFields)
+    {
         List<Field> fields = new ArrayList<Field>(unsortedFields);
 
         Collections.sort(fields, compareFieldsByName);
@@ -52,8 +54,10 @@ public class SuperTypesLastSorter {
     }
 
 
-    private static final Comparator<Field> compareFieldsByName = new Comparator<Field>() {
-        public int compare(Field o1, Field o2) {
+    private static Comparator<Field> compareFieldsByName = new Comparator<Field>()
+    {
+        public int compare(Field o1, Field o2)
+        {
             return o1.getName().compareTo(o2.getName());
         }
     };

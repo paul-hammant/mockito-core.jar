@@ -61,7 +61,6 @@ public abstract class Fields {
      * @param annotations Annotation types to check.
      * @return The filter.
      */
-    @SuppressWarnings({"unchecked", "vararg"})
     public static Filter<InstanceField> annotatedBy(final Class<? extends Annotation>... annotations) {
         return new Filter<InstanceField>() {
             public boolean isOut(InstanceField instanceField) {
@@ -86,19 +85,6 @@ public abstract class Fields {
         return new Filter<InstanceField>() {
             public boolean isOut(InstanceField instanceField) {
                 return instanceField.isNull();
-            }
-        };
-    }
-
-    /**
-     * Accept fields with non null value.
-     *
-     * @return The filter.
-     */
-    public static Filter<InstanceField> syntheticField() {
-        return new Filter<InstanceField>() {
-            public boolean isOut(InstanceField instanceField) {
-                return instanceField.isSynthetic();
             }
         };
     }

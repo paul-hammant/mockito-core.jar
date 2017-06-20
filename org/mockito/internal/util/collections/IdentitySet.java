@@ -9,7 +9,7 @@ import java.util.LinkedList;
 @SuppressWarnings("unchecked")
 public class IdentitySet {
 
-    private final LinkedList list = new LinkedList();
+    LinkedList list = new LinkedList();
     
     public boolean contains(Object o) {
         for(Object existing:list) {
