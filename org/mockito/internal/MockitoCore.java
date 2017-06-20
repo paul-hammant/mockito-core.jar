@@ -28,13 +28,12 @@ public class MockitoCore {
     private final Reporter reporter = new Reporter();
     private final MockUtil mockUtil = new MockUtil();
     private final MockingProgress mockingProgress = new ThreadSafeMockingProgress();
-    
+
     public <T> T mock(Class<T> classToMock, MockSettings mockSettings) {
         mockingProgress.validateState();
-        mockingProgress.resetOngoingStubbing();
         return mockUtil.createMock(classToMock, mockingProgress, (MockSettingsImpl) mockSettings);
     }
-    
+
     public IOngoingStubbing stub() {
         IOngoingStubbing stubbing = mockingProgress.pullOngoingStubbing();
         if (stubbing == null) {

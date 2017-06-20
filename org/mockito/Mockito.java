@@ -595,7 +595,7 @@ import org.mockito.stubbing.*;
  * The behaviour was implemented for a specific use case of a BDD spec that had an unreliable external dependency.  This
  * was in a web environment and the objects from the external dependency were being serialized to pass between layers. 
  * <p>
- * To create serializable mock use {@link #withSettings().serializable()}:
+ * To create serializable mock use {@link MockSettings#serializable()}:
  * <pre>
  *   List serializableMock = mock(List.class, withSettings().serializable());
  * </pre>
@@ -894,7 +894,7 @@ public class Mockito extends Matchers {
     public static <T> T spy(T object) {
         return MOCKITO_CORE.mock((Class<T>) object.getClass(), withSettings()
                 .spiedInstance(object)
-                .defaultAnswer(CALLS_REAL_METHODS)); 
+                .defaultAnswer(CALLS_REAL_METHODS));
     }
 
     /**
@@ -1395,8 +1395,8 @@ public class Mockito extends Matchers {
      * 
      * <p>
      * If you want to verify there were NO interactions with the mock 
-     * check out {@link Mockito#verifyZeroInteractions(Object[])}
-     * or {@link Mockito#verifyNoMoreInteractions(Object[])}
+     * check out {@link Mockito#verifyZeroInteractions(Object...)}
+     * or {@link Mockito#verifyNoMoreInteractions(Object...)}
      * <p>
      * See examples in javadoc for {@link Mockito} class
      * 
@@ -1463,7 +1463,7 @@ public class Mockito extends Matchers {
      * </pre>
      * 
      * <p>
-     * See also {@link Mockito#verifyNoMoreInteractions(Object[])}
+     * See also {@link Mockito#verifyNoMoreInteractions(Object...)}
      * <p>
      * See examples in javadoc for {@link Mockito} class
      * 
