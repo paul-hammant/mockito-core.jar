@@ -11,7 +11,6 @@ import java.util.List;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.mockito.internal.configuration.Configuration;
-import org.mockito.internal.creation.ClassNameFinder;
 import org.mockito.internal.creation.MockAwareInterceptor;
 import org.mockito.internal.invocation.AllInvocationsFinder;
 import org.mockito.internal.invocation.Invocation;
@@ -20,9 +19,12 @@ import org.mockito.internal.invocation.MatchersBinder;
 import org.mockito.internal.progress.MockingProgress;
 import org.mockito.internal.progress.OngoingStubbing;
 import org.mockito.internal.progress.VerificationModeImpl;
-import org.mockito.internal.stubbing.StubbedMethodSelector;
-import org.mockito.internal.stubbing.Stubber;
+import org.mockito.internal.stubbing.MockitoStubber;
+import org.mockito.internal.stubbing.Returns;
+import org.mockito.internal.stubbing.DoesNothing;
+import org.mockito.internal.stubbing.ThrowsException;
 import org.mockito.internal.stubbing.VoidMethodStubbable;
+import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.verification.MissingInvocationInOrderVerifier;
 import org.mockito.internal.verification.MissingInvocationVerifier;
 import org.mockito.internal.verification.NoMoreInvocationsVerifier;
@@ -30,6 +32,7 @@ import org.mockito.internal.verification.NumberOfInvocationsInOrderVerifier;
 import org.mockito.internal.verification.NumberOfInvocationsVerifier;
 import org.mockito.internal.verification.Verifier;
 import org.mockito.internal.verification.VerifyingRecorder;
+import org.mockito.stubbing.Answer;
 
 /**
  * Invocation handler set on mock objects.
@@ -39,76 +42,75 @@ import org.mockito.internal.verification.VerifyingRecorder;
 public class MockHandler<T> implements MockAwareInterceptor<T> {
 
     private final VerifyingRecorder verifyingRecorder;
-    private final Stubber stubber;
+    private final MockitoStubber mockitoStubber;
     private final MatchersBinder matchersBinder;
     private final MockingProgress mockingProgress;
     private final String mockName;
-    
-    private T mock;
-    
+
+    private T instance;
+
     public MockHandler(String mockName, MockingProgress mockingProgress, MatchersBinder matchersBinder) {
         this.mockName = mockName;
         this.mockingProgress = mockingProgress;
         this.matchersBinder = matchersBinder;
-        stubber = new Stubber(mockingProgress);
-        
-        verifyingRecorder = createRecorder(); 
-    }
+        this.mockitoStubber = new MockitoStubber(mockingProgress);
 
+        verifyingRecorder = createRecorder();
+    }
+    
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-        if (stubber.hasThrowableForVoidMethod()) {
+        if (mockitoStubber.hasAnswersForStubbing()) {
+            //stubbing voids in the old-school way: stubVoid()
             Invocation invocation = new Invocation(proxy, method, args, mockingProgress.nextSequenceNumber());
             InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(invocation);
-            stubber.addVoidMethodForThrowable(invocationMatcher);
+            mockitoStubber.setMethodForStubbing(invocationMatcher);
             return null;
         }
         
         VerificationModeImpl verificationMode = mockingProgress.pullVerificationMode();
         mockingProgress.validateState();
-        
+
         Invocation invocation = new Invocation(proxy, method, args, mockingProgress.nextSequenceNumber());
         InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(invocation);
-        
+
         if (verificationMode != null) {
+            //verifying
             verifyingRecorder.verify(invocationMatcher, verificationMode);
-            return Configuration.instance().getReturnValues().valueFor(invocationMatcher.getInvocation());
+            return null;
         }
-        
-        stubber.setInvocationForPotentialStubbing(invocationMatcher);
+
+        mockitoStubber.setInvocationForPotentialStubbing(invocationMatcher);
         verifyingRecorder.recordInvocation(invocationMatcher.getInvocation());
 
         mockingProgress.reportOngoingStubbing(new OngoingStubbingImpl());
-        
-        return stubber.resultFor(invocationMatcher.getInvocation());
+
+        if (mockitoStubber.hasResultFor(invocation)) {
+            return mockitoStubber.getResultFor(invocation);
+        } else if (MockUtil.isMock(instance)) {
+            return Configuration.instance().getReturnValues().valueFor(invocation);
+        } else {
+            return methodProxy.invoke(instance, args);
+        }
     }
 
     public void verifyNoMoreInteractions() {
         verifyingRecorder.verify(VerificationModeImpl.noMoreInteractions());
     }
-    
-    public VoidMethodStubbable<T> voidMethodStubbable() {
-        return new VoidMethodStubbableImpl();
+
+    public VoidMethodStubbable<T> voidMethodStubbable(T mock) {
+        return new VoidMethodStubbableImpl(mock);
     }
-    
-    public void setMock(T mock) {
-        this.mock = mock;
+
+    public void setInstance(T instance) {
+        this.instance = instance;
     }
 
     public List<Invocation> getRegisteredInvocations() {
         return verifyingRecorder.getRegisteredInvocations();
     }
-    
+
     public String getMockName() {
-        if (mockName != null) {
-            return mockName;
-        } else {
-            return toInstanceName(ClassNameFinder.classNameForMock(mock));
-        }
-    }
-    
-    //lower case first letter
-    private String toInstanceName(String className) {
-        return className.substring(0, 1).toLowerCase() + className.substring(1);
+        return mockName;
     }
 
     private VerifyingRecorder createRecorder() {
@@ -120,27 +122,73 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
                 new NoMoreInvocationsVerifier());
         return new VerifyingRecorder(new AllInvocationsFinder(), verifiers);
     }
-    
+
     private final class VoidMethodStubbableImpl implements VoidMethodStubbable<T> {
-        public StubbedMethodSelector<T> toThrow(Throwable throwable) {
-            stubber.addThrowableForVoidMethod(throwable);
-            return new StubbedMethodSelector<T>() {
-                public T on() {
-                    return mock;
-                }
-            };
+        private final T mock;
+
+        public VoidMethodStubbableImpl(T mock) {
+            this.mock = mock;
+        }
+
+        public VoidMethodStubbable<T> toThrow(Throwable throwable) {
+            mockitoStubber.addAnswerForVoidMethod(new ThrowsException(throwable));
+            return this;
+        }
+
+        public VoidMethodStubbable<T> toReturn() {
+            mockitoStubber.addAnswerForVoidMethod(new DoesNothing());
+            return this;
+        }
+
+        public VoidMethodStubbable<T> toAnswer(Answer<?> answer) {
+            mockitoStubber.addAnswerForVoidMethod(answer);
+            return this;
+        }
+
+        public T on() {
+            return mock;
         }
     }
 
     private class OngoingStubbingImpl implements OngoingStubbing<T> {
-        public void toReturn(Object value) {
+        public OngoingStubbing<T> toReturn(Object value) {
             verifyingRecorder.eraseLastInvocation();
-            stubber.addReturnValue(value);
+            mockitoStubber.addAnswer(new Returns(value));
+            return new ConsecutiveStubbing();
         }
 
-        public void toThrow(Throwable throwable) {
+        public OngoingStubbing<T> toThrow(Throwable throwable) {
             verifyingRecorder.eraseLastInvocation();
-            stubber.addThrowable(throwable);
+            mockitoStubber.addAnswer(new ThrowsException(throwable));
+            return new ConsecutiveStubbing();
         }
+
+        public OngoingStubbing<T> toAnswer(Answer<?> answer) {
+            verifyingRecorder.eraseLastInvocation();
+            mockitoStubber.addAnswer(answer);
+            return new ConsecutiveStubbing();
+        }
+    }
+
+    private class ConsecutiveStubbing implements OngoingStubbing<T> {
+        public OngoingStubbing<T> toReturn(Object value) {
+            mockitoStubber.addConsecutiveAnswer(new Returns(value));
+            return this;
+        }
+
+        public OngoingStubbing<T> toThrow(Throwable throwable) {
+            mockitoStubber.addConsecutiveAnswer(new ThrowsException(throwable));
+            return this;
+        }
+
+        public OngoingStubbing<T> toAnswer(Answer<?> answer) {
+            mockitoStubber.addConsecutiveAnswer(answer);
+            return this;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setAnswersForStubbing(List<Answer> answers) {
+        mockitoStubber.setAnswersForStubbing(answers);
     }
 }

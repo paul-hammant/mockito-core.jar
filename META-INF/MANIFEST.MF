@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Ant-Version: Apache Ant 1.7.0
-Created-By: 10.0-b19 (Sun Microsystems Inc.)
-Built-By: sfaber
-Implementation-Version: 1.3
+Created-By: 10.0-b22 (Sun Microsystems Inc.)
+Built-By: SG0897539
+Implementation-Version: 1.5
 

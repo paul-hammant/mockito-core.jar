@@ -8,6 +8,9 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 import net.sf.cglib.core.CollectionUtils;
+import net.sf.cglib.core.DefaultNamingPolicy;
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
 import net.sf.cglib.core.VisibilityPredicate;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -21,17 +24,18 @@ import org.mockito.exceptions.Reporter;
 public class MockFactory<T> {
 
     @SuppressWarnings("unchecked")
-    public T createMock(Class<T> toMock, final MethodInterceptorFilter filter) {
+    public T createMock(Class<T> toMock, final MethodInterceptorFilter filter, Object optionalInstance) {
         validateClass(toMock);
         Enhancer enhancer = createEnhancer(toMock);
         enhancer.setCallbackType(filter.getClass());
 
         Class mockClass = enhancer.createClass();
+        
         Enhancer.registerCallbacks(mockClass, new Callback[] { filter });
 
         Factory mock = createMock(mockClass);
 
-        filter.setMock(mock);
+        filter.setInstance(optionalInstance != null ? optionalInstance : mock);
         return (T) mock;
     }
 
@@ -44,7 +48,7 @@ public class MockFactory<T> {
     private Enhancer createEnhancer(Class<T> toMock) {
         Enhancer enhancer = new Enhancer() {
             @SuppressWarnings("unchecked")
-            //Filter all private constructors but do not check that there are some left
+            //Override default behavior which throws exception when no non-private constructors are left
             protected void filterConstructors(Class sc, List constructors) {
                 CollectionUtils.filter(constructors, new VisibilityPredicate(
                         sc, true));
@@ -56,6 +60,17 @@ public class MockFactory<T> {
         } else {
             enhancer.setSuperclass(toMock);
         }
+        
+        //This is required but I could not figure out the way to test it
+        //See issue #11
+        if (toMock.getSigners() != null) {
+            enhancer.setNamingPolicy(ALLOWS_MOCKING_CLASSES_IN_SIGNED_PACKAGES);
+        }
+
+        //This is required to make (cglib + eclipse plugins testing) happy
+        //See issue #11
+        enhancer.setClassLoader(SearchingClassLoader.combineLoadersOf(toMock));
+        
         return enhancer;
     }
 
@@ -79,4 +94,11 @@ public class MockFactory<T> {
         mock.getCallback(0);
         return mock;
     }
+    
+    private static final NamingPolicy ALLOWS_MOCKING_CLASSES_IN_SIGNED_PACKAGES = new DefaultNamingPolicy() {
+        @Override
+        public String getClassName(String prefix, String source, Object key, Predicate names) {
+            return "codegen." + super.getClassName(prefix, source, key, names);
+        }
+    };
 }

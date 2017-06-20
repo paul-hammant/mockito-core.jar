@@ -29,7 +29,7 @@ import org.mockito.invocation.InvocationOnMock;
  * Contains stack trace of invocation
  */
 @SuppressWarnings("unchecked")
-public class Invocation implements PrintableInvocation, InvocationOnMock {
+public class Invocation implements PrintableInvocation, InvocationOnMock, CanPrintInMultilines {
 
     private static final int MAX_LINE_LENGTH = 45;
     private final int sequenceNumber;
@@ -49,14 +49,21 @@ public class Invocation implements PrintableInvocation, InvocationOnMock {
         this.stackTrace = new MockitoException("");
     }
 
+    //expands array varArgs that are given by runtime (1, [a, b]) into true varArgs (1, a, b);
     private static Object[] expandVarArgs(final boolean isVarArgs,
             final Object[] args) {
         if (!isVarArgs || isVarArgs && args[args.length - 1] != null
                 && !args[args.length - 1].getClass().isArray()) {
             return args == null ? new Object[0] : args;
         }
-        Object[] varArgs = ArrayEquals.createObjectArray(args[args.length - 1]);
+        
+        //in case someone deliberately passed null varArg array
+        if (args[args.length - 1] == null) {
+            return new Object[] {null};
+        }
+            
         final int nonVarArgsCount = args.length - 1;
+        Object[] varArgs = ArrayEquals.createObjectArray(args[nonVarArgsCount]);
         final int varArgsCount = varArgs.length;
         Object[] newArgs = new Object[nonVarArgsCount + varArgsCount];
         System.arraycopy(args, 0, newArgs, 0, nonVarArgsCount);
@@ -121,16 +128,24 @@ public class Invocation implements PrintableInvocation, InvocationOnMock {
     }
     
     public String toString() {
-        return toString(argumentsToMatchers());
+        return toString(argumentsToMatchers(), false);
     }
 
-    protected String toString(List<Matcher> matchers) {
+    public boolean printsInMultilines() {
+        return toString().contains("\n");
+    }
+
+    public String toMultilineString() {
+        return toString(argumentsToMatchers(), true);
+    }    
+
+    protected String toString(List<Matcher> matchers, boolean forceMultiline) {
         String method = qualifiedMethodName();
         String invocation = method + getArgumentsLine(matchers);
-        if (invocation.length() <= MAX_LINE_LENGTH) {
-            return invocation;
-        } else {
+        if (forceMultiline || invocation.length() > MAX_LINE_LENGTH) {
             return method + getArgumentsBlock(matchers);
+        } else {
+            return invocation;
         }
     }
 
@@ -166,5 +181,21 @@ public class Invocation implements PrintableInvocation, InvocationOnMock {
         return invocation.getMethod().getReturnType() == String.class 
             && invocation.getMethod().getParameterTypes().length == 0 
             && invocation.getMethod().getName().equals("toString");
+    }
+
+    public boolean isValidException(Throwable throwable) {
+        Class<?>[] exceptions = this.getMethod().getExceptionTypes();
+        Class<?> throwableClass = throwable.getClass();
+        for (Class<?> exception : exceptions) {
+            if (exception.isAssignableFrom(throwableClass)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    public boolean isVoid() {
+        return this.method.getReturnType() == Void.TYPE;
     }
 }

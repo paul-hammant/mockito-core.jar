@@ -4,6 +4,10 @@
  */
 package org.mockito;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.hamcrest.Matcher;
 import org.mockito.internal.matchers.Any;
 import org.mockito.internal.matchers.Contains;
@@ -16,8 +20,8 @@ import org.mockito.internal.matchers.Null;
 import org.mockito.internal.matchers.Same;
 import org.mockito.internal.matchers.StartsWith;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-import org.mockito.internal.progress.LastArguments;
 import org.mockito.internal.progress.EmptyReturnValues;
+import org.mockito.internal.progress.LastArguments;
 
 /**
  * Allow flexible verification or stubbing. See also {@link AdditionalMatchers}.
@@ -58,7 +62,7 @@ import org.mockito.internal.progress.EmptyReturnValues;
  * Example:
  * 
  * <pre>
- *   class IsListOfTwoElements extends ArgumentMatcher&lt;List&gt; {
+ *   class IsListOfTwoElements extends ArgumentMatcher<List> {
  *      public boolean matches(Object list) {
  *          return ((List) list).size() == 2;
  *      }
@@ -85,10 +89,11 @@ import org.mockito.internal.progress.EmptyReturnValues;
  * (Mockito naturally uses equals() for argument matching). 
  * This can make the test cleaner.
  */
+@SuppressWarnings("unchecked")
 public class Matchers {
 
     /**
-     * any boolean argument.
+     * any boolean, Boolean or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -99,7 +104,7 @@ public class Matchers {
     }
 
     /**
-     * any byte argument.
+     * any byte, Byte or null
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -110,7 +115,7 @@ public class Matchers {
     }
 
     /**
-     * any char argument.
+     * any char, Character or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -121,7 +126,7 @@ public class Matchers {
     }
 
     /**
-     * any int argument.
+     * any int, Integer or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -132,7 +137,7 @@ public class Matchers {
     }
 
     /**
-     * any long argument.
+     * any long, Long or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -143,7 +148,7 @@ public class Matchers {
     }
 
     /**
-     * any float argument.
+     * any float, Float or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -154,7 +159,7 @@ public class Matchers {
     }
 
     /**
-     * any double argument.
+     * any double, Double or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -165,7 +170,7 @@ public class Matchers {
     }
 
     /**
-     * any short argument.
+     * any short, Short or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -176,7 +181,7 @@ public class Matchers {
     }
 
     /**
-     * any Object argument.
+     * any Object or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
@@ -188,15 +193,48 @@ public class Matchers {
     }
 
     /**
-     * any String argument.
+     * any String or null.
      * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
      * @return <code>null</code>.
      */
     public static String anyString() {
-        return isA(String.class);
+        return (String) anyObject();
     }
+    
+    /**
+     * any List or null.
+     * <p>
+     * See examples in javadoc for {@link Matchers} class
+     * 
+     * @return <code>null</code>.
+     */
+    public static List anyList() {
+        return (List) anyObject();
+    }    
+    
+    /**
+     * any Map or null.
+     * <p>
+     * See examples in javadoc for {@link Matchers} class
+     * 
+     * @return <code>null</code>.
+     */
+    public static Map anyMap() {
+        return (Map) anyObject();
+    }    
+    
+    /**
+     * any Collection or null.
+     * <p>
+     * See examples in javadoc for {@link Matchers} class
+     * 
+     * @return <code>null</code>.
+     */
+    public static Collection anyCollection() {
+        return (Collection) anyObject();
+    }    
 
     /**
      * Object argument that implements the given class. 
@@ -377,12 +415,27 @@ public class Matchers {
     /**
      * not null argument.
      * <p>
+     * alias to {@link Matchers#isNotNull()}
+     * <p>
      * See examples in javadoc for {@link Matchers} class
      * 
      * @return <code>null</code>.
      */
     public static Object notNull() {
         return reportMatcher(NotNull.NOT_NULL).returnNull();
+    }
+    
+    /**
+     * not null argument.
+     * <p>
+     * alias to {@link Matchers#notNull()}
+     * <p>
+     * See examples in javadoc for {@link Matchers} class
+     * 
+     * @return <code>null</code>.
+     */
+    public static Object isNotNull() {
+        return notNull();
     }
 
     /**

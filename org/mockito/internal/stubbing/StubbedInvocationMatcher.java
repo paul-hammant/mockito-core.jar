@@ -4,24 +4,35 @@
  */
 package org.mockito.internal.stubbing;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
+import org.mockito.stubbing.Answer;
 
 @SuppressWarnings("unchecked")
 public class StubbedInvocationMatcher extends InvocationMatcher {
 
-    private final IAnswer result;
-    
-    public StubbedInvocationMatcher(InvocationMatcher invocation, IAnswer result) {
+    private final Queue<Answer> answers = new ConcurrentLinkedQueue<Answer>();
+
+    public StubbedInvocationMatcher(InvocationMatcher invocation, Answer answer) {
         super(invocation.getInvocation(), invocation.getMatchers());
-        this.result = result;
+        this.answers.add(answer);
     }
 
-    public Object answer() throws Throwable {
-        return result.answer();
+    public Object answer(Invocation invocation) throws Throwable {
+        synchronized(answers) {
+            return answers.size() == 1 ? answers.peek().answer(invocation) : answers.poll().answer(invocation);
+        }
     }
-    
+
+    public void addAnswer(Answer answer) {
+        answers.add(answer);
+    }
+
     @Override
     public String toString() {
-        return super.toString() + " stubbed with: " + result.toString();
+        return super.toString() + " stubbed with: " + answers;
     }
 }

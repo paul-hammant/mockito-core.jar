@@ -15,6 +15,7 @@ import org.mockito.exceptions.cause.ActualArgumentsAreDifferent;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.exceptions.misusing.MissingMethodInvocationException;
 import org.mockito.exceptions.misusing.NotAMockException;
+import org.mockito.exceptions.misusing.NullInsteadOfMockException;
 import org.mockito.exceptions.misusing.UnfinishedStubbingException;
 import org.mockito.exceptions.misusing.UnfinishedVerificationException;
 import org.mockito.exceptions.verification.ArgumentsAreDifferent;
@@ -63,7 +64,7 @@ public class Reporter {
                 "Examples of correct stubbing:",
                 "    stub(mock.isOk()).toReturn(true);",
                 "    stub(mock.isOk()).toThrow(exception);",
-                "    stubVoid(mock).toThrow(exception).on().someMethod();"
+                "    doThrow(exception).when(mock).someVoidMethod();"
         ));
     }
 
@@ -83,7 +84,6 @@ public class Reporter {
         ));
     }
     
-
     public void notAMockPassedToVerify() {
         throw new NotAMockException(join(
                 "Argument passed to verify() is not a mock!",
@@ -91,7 +91,34 @@ public class Reporter {
                 "    verify(mock).someMethod();",
                 "    verify(mock, times(10)).someMethod();",
                 "    verify(mock, atLeastOnce()).someMethod();"
-                
+        ));
+    }
+    
+    public void nullPassedToVerify() {
+        throw new NullInsteadOfMockException(join(
+                "Argument passed to verify() is null!",
+                "Examples of correct verifications:",
+                "    verify(mock).someMethod();",
+                "    verify(mock, times(10)).someMethod();",
+                "    verify(mock, atLeastOnce()).someMethod();",
+                "Also, if you use @Mock annotation don't miss initMocks()"
+        ));
+    }    
+    
+    public void notAMockPassedToWhenMethod() {
+        throw new NotAMockException(join(
+                "Argument passed to when() is not a mock!",
+                "Example of correct stubbing:",
+                "    doThrow(new RuntimeException()).when(mock).someMethod();"
+        ));
+    }
+    
+    public void nullPassedToWhenMethod() {
+        throw new NullInsteadOfMockException(join(
+                "Argument passed to when() is null!",
+                "Example of correct stubbing:",
+                "    doThrow(new RuntimeException()).when(mock).someMethod();",                
+                "Also, if you use @Mock annotation don't miss initMocks()"
         ));
     }
     
@@ -112,6 +139,15 @@ public class Reporter {
             "    verifyZeroInteractions(mockOne, mockTwo);"
         ));
     }
+    
+    public void nullPassedToVerifyNoMoreInteractions() {
+        throw new NullInsteadOfMockException(join(
+                "Argument(s) passed is null!",
+                "Examples of correct verifications:",
+                "    verifyNoMoreInteractions(mockOne, mockTwo);",
+                "    verifyZeroInteractions(mockOne, mockTwo);"
+        ));
+    }
 
     public void notAMockPassedWhenCreatingInOrder() {
         throw new NotAMockException(join(
@@ -121,6 +157,15 @@ public class Reporter {
                 "    InOrder inOrder = inOrder(mockOne, mockTwo);"
                 ));
     } 
+    
+    public void nullPassedWhenCreatingInOrder() {
+        throw new NullInsteadOfMockException(join(
+                "Argument(s) passed is null!",
+                "Pass mocks that require verification in order.",
+                "For example:",
+                "    InOrder inOrder = inOrder(mockOne, mockTwo);"
+                ));
+    }
     
     public void mocksHaveToBePassedWhenCreatingInOrder() {
         throw new MockitoException(join(
@@ -144,7 +189,7 @@ public class Reporter {
         throw new InvalidUseOfMatchersException(join(
                 "Invalid use of argument matchers!",
                 expectedMatchersCount + " matchers expected, " + recordedMatchersCount + " recorded.",
-                "Typically this exception occurs when matchers are combined with raw values:",        
+                "This exception may occur if matchers are combined with raw values:",        
                 "    //incorrect:",
                 "    someMethod(anyObject(), \"raw String\");",
                 "When using matchers, all arguments have to be provided by matchers.",
@@ -268,5 +313,25 @@ public class Reporter {
                 "Mockito cannot mock final classes like: ",
                 clazz.toString()
         ));
+    }
+
+    public void cannotStubVoidMethodWithAReturnValue() {
+        throw new MockitoException(join(
+                "Cannot stub a void method with a return value!",
+                "Voids are usually stubbed with Throwables:",
+                "    doThrow(exception).when(mock).someVoidMethod();"
+             ));
+    }
+
+    public void onlyVoidMethodsCanBeSetToDoNothing() {
+        throw new MockitoException(join(
+                "Only void methods can doNothing()!",
+                "Example of correct use of doNothing():",
+                "    doNothing().",
+                "    doThrow(new RuntimeException())",
+                "    .when(mock).someVoidMethod();",
+                "Above means:",
+                "someVoidMethod() does nothing the 1st time but throws an exception the 2nd time is called"
+             ));
     }
 }
