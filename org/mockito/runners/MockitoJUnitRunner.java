@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.runners;
 
 import org.junit.runner.Description;
@@ -36,7 +35,7 @@ import java.lang.reflect.InvocationTargetException;
  * See javadoc for {@link Mockito#validateMockitoUsage()}.
  * <p>
  * Read more about &#064;Mock annotation in javadoc for {@link MockitoAnnotations}
- * <pre>
+ * <pre class="code"><code class="java">
  * <b>&#064;RunWith(MockitoJUnitRunner.class)</b>
  * public class ExampleTest {
  * 
@@ -48,7 +47,7 @@ import java.lang.reflect.InvocationTargetException;
  *         list.add(100);
  *     }
  * }
- * </pre>
+ * </code></pre>
  */
 public class MockitoJUnitRunner extends Runner implements Filterable {
 

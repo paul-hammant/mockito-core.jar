@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.progress;
 
 import static org.mockito.internal.util.Primitives.*;
@@ -38,10 +37,11 @@ public class HandyReturnValues {
     }
 
     public <T> T returnFor(Class<T> clazz) {
-        if (isPrimitiveWrapper(clazz)) {
-            return primitiveWrapperOf(clazz);
+        // explicitly return null if type is not a primitive or a wrapper
+        if (isPrimitiveOrWrapper(clazz)) {
+            return defaultValueForPrimitiveOrWrapper(clazz);
         } 
-        return primitiveValueOrNullFor(clazz);
+        return null;
     }
 
     public Map returnMap() {

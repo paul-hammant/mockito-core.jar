@@ -8,10 +8,11 @@ package org.mockito.internal.invocation;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.mockito.internal.debugging.Location;
-import org.mockito.internal.util.ListUtil;
-import org.mockito.internal.util.ListUtil.Filter;
+import org.mockito.internal.util.collections.ListUtil;
+import org.mockito.internal.util.collections.ListUtil.Filter;
 import org.mockito.internal.verification.api.InOrderContext;
+import org.mockito.invocation.Invocation;
+import org.mockito.invocation.Location;
 
 public class InvocationsFinder {
 
@@ -60,6 +61,15 @@ public class InvocationsFinder {
             }
         }
         return firstChunk;
+    }
+    
+    public Invocation findFirstMatchingUnverifiedInvocation( List<Invocation> invocations, InvocationMatcher wanted, InOrderContext context ){
+        for( Invocation invocation : removeVerifiedInOrder( invocations, context )){
+            if( wanted.matches( invocation )){
+                return invocation;
+            }
+        }
+        return null;
     }
     
     public Invocation findSimilarInvocation(List<Invocation> invocations, InvocationMatcher wanted) {
@@ -162,7 +172,7 @@ public class InvocationsFinder {
      * @param context
      * @param orderedInvocations
      */
-    public Invocation findFirstUnverifiedInOrder(InOrderContext context, List<Invocation> orderedInvocations) {        
+    public Invocation findFirstUnverifiedInOrder(InOrderContext context, List<Invocation> orderedInvocations) {
         Invocation candidate = null;
         for(Invocation i : orderedInvocations) {
             if (!context.isVerified(i)) {

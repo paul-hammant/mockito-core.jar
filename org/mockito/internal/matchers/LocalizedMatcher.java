@@ -2,13 +2,13 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.matchers;
 
 import java.io.Serializable;
 
 import org.hamcrest.*;
-import org.mockito.internal.debugging.Location;
+import org.mockito.internal.debugging.LocationImpl;
+import org.mockito.invocation.Location;
 
 @SuppressWarnings("unchecked")
 public class LocalizedMatcher implements Matcher, ContainsExtraTypeInformation, CapturesArguments, MatcherDecorator, Serializable {
@@ -19,7 +19,7 @@ public class LocalizedMatcher implements Matcher, ContainsExtraTypeInformation, 
 
     public LocalizedMatcher(Matcher actualMatcher) {
         this.actualMatcher = actualMatcher;
-        this.location = new Location();
+        this.location = new LocationImpl();
     }
 
     public void _dont_implement_Matcher___instead_extend_BaseMatcher_() {

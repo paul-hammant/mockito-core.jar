@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.configuration;
 
 import org.mockito.ReturnValues;
@@ -46,4 +45,13 @@ public class DefaultMockitoConfiguration implements IMockitoConfiguration {
     public boolean cleansStackTrace() {
         return true;
     }
+
+    /* (non-Javadoc)
+     * @see org.mockito.configuration.IMockitoConfiguration#enableClassCache()
+     */
+    public boolean enableClassCache() {
+        return true;
+    }
+    
+    
 }

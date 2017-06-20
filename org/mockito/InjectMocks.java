@@ -2,17 +2,18 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * Mark a field on which injection should be performed.
+ *
  * <ul>
  * <li>Allows shorthand mock and spy injection.</li>
  * <li>Minimizes repetitive mock and spy injection.</li>
@@ -30,24 +31,28 @@ import static java.lang.annotation.ElementType.FIELD;
  *     In these cases, you will have to satisfy dependencies yourself.</p></li>
  *
  *     <li><strong>Property setter injection</strong>; mocks will first be resolved by type,
- *     then (using name if there is several property of the same type).
- *     <p><u>Note:</u> If &#064;InjectMocks instance wasn't initialized before and have a no-arg constructor,
+ *     then, if there is several property of the same type, by the match of the property name and the mock name.
+ *     <p><u>Note 1:</u> If you have properties with the same type (or same erasure), it's better to name all &#064;Mock
+ *     annotated fields with the matching properties, otherwise Mockito might get confused and injection won't happen.</p>
+ *     <p><u>Note 2:</u> If &#064;InjectMocks instance wasn't initialized before and have a no-arg constructor,
  *     then it will be initialized with this constructor.</p></li>
  *
  *     <li><strong>Field injection</strong>; mocks will first be resolved by type,
- *     then (using name if there is several property of the same type).
- *     <p><u>Note:</u> If &#064;InjectMocks instance wasn't initialized before and have a no-arg constructor,
+ *     then, if there is several property of the same type, by the match of the field name and the mock name.
+ *     <p><u>Note 1:</u> If you have fields with the same type (or same erasure), it's better to name all &#064;Mock
+ *     annotated fields with the matching fields, otherwise Mockito might get confused and injection won't happen.</p>
+ *     <p><u>Note 2:</u> If &#064;InjectMocks instance wasn't initialized before and have a no-arg constructor,
  *     then it will be initialized with this constructor.</p></li>
  * </ol>
  * </p>
  *
  * <p>
  * Example:
- * <pre>
+ * <pre class="code"><code class="java">
  *   public class ArticleManagerTest extends SampleBaseTestCase {
  *
  *       &#064;Mock private ArticleCalculator calculator;
- *       &#064;Mock private ArticleDatabase database;
+ *       &#064;Mock(name = "database") private ArticleDatabase dbMock; // note the mock name attribute
  *       &#064;Spy private UserProvider userProvider = new ConsumerUserProvider();
  *
  *       &#064;InjectMocks private ArticleManager manager;
@@ -64,7 +69,7 @@ import static java.lang.annotation.ElementType.FIELD;
  *           MockitoAnnotations.initMocks(this);
  *       }
  *   }
- * </pre>
+ * </code></pre>
  * </p>
  *
  * <p>
@@ -72,44 +77,46 @@ import static java.lang.annotation.ElementType.FIELD;
  * a parameterized constructor only or a no-arg constructor only, or both.
  * All these constructors can be package protected, protected or private, however
  * <u>Mockito cannot instantiate inner classes, local classes, abstract classes and of course interfaces.</u>
+ * <u>Beware of private nest static classes too.</u>
  *
  * <p>The same stands for setters or fields, they can be declared with private
  * visibility, Mockito will see them through reflection.
  * However fields that are static or final will be ignored.</p>
  *
  * <p>So on the field that needs injection, for example constructor injection will happen here :</p>
- * <pre>
+ * <pre class="code"><code class="java">
  *   public class ArticleManager {
  *       ArticleManager(ArticleCalculator calculator, ArticleDatabase database) {
  *           // parameterized constructor
  *       }
  *   }
- * </pre>
+ * </code></pre>
  *
  * <p>Property setter injection will happen here :</p>
- * <pre>
+ * <pre class="code"><code class="java">
  *   public class ArticleManager {
- *       ArticleManager() {
- *           // no-arg constructor
- *       }
+ *       // no-arg constructor
+ *       ArticleManager() {  }
  *
- *       void setDatabase(ArticleDatabase database) {
- *           // setter
- *       }
+ *       // setter
+ *       void setDatabase(ArticleDatabase database) { }
+ *
+ *       // setter
+ *       void setCalculator(ArticleCalculator calculator) { }
  *   }
- * </pre>
+ * </code></pre>
  *
  * <p>Field injection will be used here :</p>
- * <pre>
+ * <pre class="code"><code class="java">
  *   public class ArticleManager {
  *       private ArticleDatabase database;
  *       private ArticleCalculator calculator;
  *   }
- * </pre>
+ * </code></pre>
  * </p>
  *
  * <p>And finally, no injection will happen on the type in this case:</p>
- * <pre>
+ * <pre class="code"><code class="java">
  *   public class ArticleManager {
  *       private ArticleDatabase database;
  *       private ArticleCalculator calculator;
@@ -119,7 +126,7 @@ import static java.lang.annotation.ElementType.FIELD;
  *           // flag is not mockable anyway
  *       }
  *   }
- * </pre>
+ * </code></pre>
  * </p>
  *
  *
@@ -128,17 +135,20 @@ import static java.lang.annotation.ElementType.FIELD;
  * </p>
  *
  * <p>
- * <b><code>MockitoAnnotations.initMocks(this)</code></b> method has to called to initialize annotated objects.
- * A <code>MockitoJUnitRunner</code> can also be used to initialize mocks instead of the &#64;Before approach.
- * <p>
- *
- * <p>
+ * <strong><code>MockitoAnnotations.initMocks(this)</code></strong> method has to be called to initialize annotated objects.
  * In above example, <code>initMocks()</code> is called in &#064;Before (JUnit4) method of test's base class.
  * For JUnit3 <code>initMocks()</code> can go to <code>setup()</code> method of a base class.
- * You can also put initMocks() in your JUnit runner (&#064;RunWith) or use built-in runners: {@link org.mockito.runners.MockitoJUnitRunner}
+ * <strong>Instead</strong> you can also put initMocks() in your JUnit runner (&#064;RunWith) or use the built-in
+ * {@link org.mockito.runners.MockitoJUnitRunner}.
  * </p>
+ *
+ * @see Mock
+ * @see Spy
+ * @see MockitoAnnotations#initMocks(Object)
+ * @see org.mockito.runners.MockitoJUnitRunner
+ * @since 1.8.3
  */
 @Documented
-@Target( { FIELD })
-@Retention(RetentionPolicy.RUNTIME)
+@Target(FIELD)
+@Retention(RUNTIME)
 public @interface InjectMocks {}

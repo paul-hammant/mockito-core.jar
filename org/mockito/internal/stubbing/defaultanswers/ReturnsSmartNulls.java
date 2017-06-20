@@ -2,19 +2,15 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.stubbing.defaultanswers;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.lang.reflect.Modifier;
 
 import org.mockito.Mockito;
-import org.mockito.cglib.proxy.MethodInterceptor;
-import org.mockito.cglib.proxy.MethodProxy;
 import org.mockito.exceptions.Reporter;
-import org.mockito.internal.creation.jmock.ClassImposterizer;
-import org.mockito.internal.debugging.Location;
+import org.mockito.internal.debugging.LocationImpl;
+import org.mockito.invocation.Location;
 import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -41,25 +37,6 @@ public class ReturnsSmartNulls implements Answer<Object>, Serializable {
 
     private static final long serialVersionUID = 7618312406617949441L;
 
-    private final class ThrowingInterceptor implements MethodInterceptor {
-        private final InvocationOnMock invocation;
-        private final Location location = new Location();
-
-        private ThrowingInterceptor(InvocationOnMock invocation) {
-            this.invocation = invocation;
-        }
-
-        public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-            if (new ObjectMethodsGuru().isToString(method)) {
-                return "SmartNull returned by this unstubbed method call on a mock:\n" +
-                        invocation.toString();
-            }
-
-            new Reporter().smartNullPointerException(invocation.toString(), location);
-            return null;
-        }
-    }
-
     private final Answer<Object> delegate = new ReturnsMoreEmptyValues();
 
     public Object answer(final InvocationOnMock invocation) throws Throwable {
@@ -68,9 +45,30 @@ public class ReturnsSmartNulls implements Answer<Object>, Serializable {
             return defaultReturnValue;
         }
         Class<?> type = invocation.getMethod().getReturnType();
-        if (ClassImposterizer.INSTANCE.canImposterise(type)) {
-            return ClassImposterizer.INSTANCE.imposterise(new ThrowingInterceptor(invocation), type);
+        if (!type.isPrimitive() && !Modifier.isFinal(type.getModifiers())) {
+            final Location location = new LocationImpl();
+            return Mockito.mock(type, new ThrowsSmartNullPointer(invocation, location));
         }
         return null;
+    }
+
+    private static class ThrowsSmartNullPointer implements Answer {
+        private final InvocationOnMock unstubbedInvocation;
+        private final Location location;
+
+        public ThrowsSmartNullPointer(InvocationOnMock unstubbedInvocation, Location location) {
+            this.unstubbedInvocation = unstubbedInvocation;
+            this.location = location;
+        }
+
+        public Object answer(InvocationOnMock currentInvocation) throws Throwable {
+            if (new ObjectMethodsGuru().isToString(currentInvocation.getMethod())) {
+                return "SmartNull returned by this unstubbed method call on a mock:\n" +
+                        unstubbedInvocation.toString();
+            }
+
+            new Reporter().smartNullPointerException(unstubbedInvocation.toString(), location);
+            return null;
+        }
     }
 }

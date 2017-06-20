@@ -2,13 +2,12 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.debugging;
 
 import org.mockito.MockitoDebugger;
-import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.UnusedStubsFinder;
 import org.mockito.internal.invocation.finder.AllInvocationsFinder;
+import org.mockito.invocation.Invocation;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class MockitoDebuggerImpl implements MockitoDebugger {
             out += line(i.toString());
             out += line(" invoked: " + i.getLocation());
             if (i.stubInfo() != null) {
-                out += line(" stubbed: " + i.stubInfo().stubbedAt());
+                out += line(" stubbed: " + i.stubInfo().stubbedAt().toString());
             }
         }
 

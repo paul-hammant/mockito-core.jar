@@ -8,8 +8,8 @@ package org.mockito.internal.progress;
 import java.io.Serializable;
 
 import org.mockito.MockSettings;
-import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.listeners.MockingProgressListener;
+import org.mockito.invocation.Invocation;
 import org.mockito.verification.VerificationMode;
 
 @SuppressWarnings("unchecked")
@@ -69,8 +69,8 @@ public class ThreadSafeMockingProgress implements MockingProgress, Serializable 
         return threadSafely().getArgumentMatcherStorage();
     }
     
-    public void mockingStarted(Object mock, Class classToMock, MockSettings mockSettings) {
-        threadSafely().mockingStarted(mock, classToMock, mockSettings);
+    public void mockingStarted(Object mock, Class classToMock) {
+        threadSafely().mockingStarted(mock, classToMock);
     }
 
     public void setListener(MockingProgressListener listener) {

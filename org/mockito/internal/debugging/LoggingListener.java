@@ -2,12 +2,11 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.debugging;
 
-import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.util.MockitoLogger;
+import org.mockito.invocation.Invocation;
 
 import static org.mockito.internal.util.StringJoiner.join;
 

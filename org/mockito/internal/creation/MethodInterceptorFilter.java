@@ -10,22 +10,25 @@ import java.lang.reflect.Method;
 
 import org.mockito.cglib.proxy.MethodInterceptor;
 import org.mockito.cglib.proxy.MethodProxy;
-import org.mockito.internal.MockitoInvocationHandler;
+import org.mockito.internal.InternalMockHandler;
+import org.mockito.invocation.Invocation;
+import org.mockito.invocation.MockHandler;
 import org.mockito.internal.creation.cglib.CGLIBHacker;
 import org.mockito.internal.invocation.*;
 import org.mockito.internal.invocation.realmethod.FilteredCGLIBProxyRealMethod;
 import org.mockito.internal.progress.SequenceNumber;
 import org.mockito.internal.util.ObjectMethodsGuru;
+import org.mockito.mock.MockCreationSettings;
 
 public class MethodInterceptorFilter implements MethodInterceptor, Serializable {
 
     private static final long serialVersionUID = 6182795666612683784L;
-    private final MockitoInvocationHandler handler;
+    private final InternalMockHandler handler;
     CGLIBHacker cglibHacker = new CGLIBHacker();
     ObjectMethodsGuru objectMethodsGuru = new ObjectMethodsGuru();
-    private final MockSettingsImpl mockSettings;
+    private final MockCreationSettings mockSettings;
 
-    public MethodInterceptorFilter(MockitoInvocationHandler handler, MockSettingsImpl mockSettings) {
+    public MethodInterceptorFilter(InternalMockHandler handler, MockCreationSettings mockSettings) {
         this.handler = handler;
         this.mockSettings = mockSettings;
     }
@@ -44,11 +47,11 @@ public class MethodInterceptorFilter implements MethodInterceptor, Serializable 
         MockitoMethod mockitoMethod = createMockitoMethod(method);
         
         FilteredCGLIBProxyRealMethod realMethod = new FilteredCGLIBProxyRealMethod(mockitoMethodProxy);
-        Invocation invocation = new Invocation(proxy, mockitoMethod, args, SequenceNumber.next(), realMethod);
+        Invocation invocation = new InvocationImpl(proxy, mockitoMethod, args, SequenceNumber.next(), realMethod);
         return handler.handle(invocation);
     }
    
-    public MockitoInvocationHandler getHandler() {
+    public MockHandler getHandler() {
         return handler;
     }
 

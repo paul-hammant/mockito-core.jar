@@ -5,12 +5,18 @@
 
 package org.mockito.exceptions;
 
-import org.mockito.internal.debugging.Location;
+import org.mockito.invocation.DescribedInvocation;
+import org.mockito.invocation.Location;
 
+@Deprecated
+/**
+ * @Deprecated. We needed to move this class to a better place to keep consistency of the API.
+ * Please use {@link DescribedInvocation} instead.
+ */
 public interface PrintableInvocation {
-    
+
     String toString();
-    
+
     Location getLocation();
-    
+
 }

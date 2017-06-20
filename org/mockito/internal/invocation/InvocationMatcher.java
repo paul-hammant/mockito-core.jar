@@ -12,14 +12,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hamcrest.Matcher;
-import org.mockito.exceptions.PrintableInvocation;
-import org.mockito.internal.debugging.Location;
 import org.mockito.internal.matchers.CapturesArguments;
 import org.mockito.internal.reporting.PrintSettings;
-import org.mockito.internal.reporting.PrintingFriendlyInvocation;
+import org.mockito.invocation.DescribedInvocation;
+import org.mockito.invocation.Invocation;
+import org.mockito.invocation.Location;
 
 @SuppressWarnings("unchecked")
-public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyInvocation, CapturesArgumensFromInvocation, Serializable {
+public class InvocationMatcher implements DescribedInvocation, CapturesArgumensFromInvocation, Serializable {
 
     private static final long serialVersionUID = -3047126096857467610L;
     private final Invocation invocation;
@@ -28,7 +28,7 @@ public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyI
     public InvocationMatcher(Invocation invocation, List<Matcher> matchers) {
         this.invocation = invocation;
         if (matchers.isEmpty()) {
-            this.matchers = invocation.argumentsToMatchers();
+            this.matchers = ArgumentsProcessor.argumentsToMatchers(invocation.getArguments());
         } else {
             this.matchers = matchers;
         }
@@ -51,7 +51,7 @@ public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyI
     }
     
     public String toString() {
-        return invocation.toString(matchers, new PrintSettings());
+        return new PrintSettings().print(matchers, invocation);
     }
 
     public boolean matches(Invocation actual) {
@@ -90,7 +90,7 @@ public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyI
         return !overloadedButSameArgs;
     }
 
-    public boolean hasSameMethod(Invocation candidate) {        
+    public boolean hasSameMethod(Invocation candidate) {
         //not using method.equals() for 1 good reason:
         //sometimes java generates forwarding methods when generics are in play see JavaGenericsForwardingMethodsTest
         Method m1 = invocation.getMethod();
@@ -113,10 +113,6 @@ public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyI
     
     public Location getLocation() {
         return invocation.getLocation();
-    }
-
-    public String toString(PrintSettings printSettings) {
-        return invocation.toString(matchers, printSettings);
     }
 
     public void captureArgumentsFrom(Invocation i) {

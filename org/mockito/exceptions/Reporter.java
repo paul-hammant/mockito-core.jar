@@ -7,21 +7,41 @@ package org.mockito.exceptions;
 
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.exceptions.misusing.*;
-import org.mockito.exceptions.verification.*;
-import org.mockito.exceptions.verification.junit.JUnitTool;
-import org.mockito.internal.debugging.Location;
+import org.mockito.exceptions.misusing.FriendlyReminderException;
+import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
+import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+import org.mockito.exceptions.misusing.NotAMockException;
+import org.mockito.exceptions.misusing.NullInsteadOfMockException;
+import org.mockito.exceptions.misusing.UnfinishedStubbingException;
+import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+import org.mockito.exceptions.misusing.WrongTypeOfReturnValue;
+import org.mockito.exceptions.verification.ArgumentsAreDifferent;
+import org.mockito.exceptions.verification.NeverWantedButInvoked;
+import org.mockito.exceptions.verification.NoInteractionsWanted;
+import org.mockito.exceptions.verification.SmartNullPointerException;
+import org.mockito.exceptions.verification.TooLittleActualInvocations;
+import org.mockito.exceptions.verification.TooManyActualInvocations;
+import org.mockito.exceptions.verification.VerificationInOrderFailure;
+import org.mockito.exceptions.verification.WantedButNotInvoked;
+import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.exceptions.VerificationAwareInvocation;
 import org.mockito.internal.exceptions.util.ScenarioPrinter;
-import org.mockito.internal.invocation.Invocation;
+import org.mockito.internal.junit.JUnitTool;
+import org.mockito.internal.matchers.LocalizedMatcher;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.util.StringJoiner;
+import org.mockito.invocation.DescribedInvocation;
+import org.mockito.invocation.Invocation;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.invocation.Location;
 import org.mockito.listeners.InvocationListener;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import static org.mockito.exceptions.Pluralizer.pluralize;
+import static org.mockito.internal.reporting.Pluralizer.pluralize;
 import static org.mockito.internal.util.StringJoiner.join;
 
 /**
@@ -71,7 +91,7 @@ public class Reporter {
     public void incorrectUseOfApi() {
         throw new MockitoException(join(
                 "Incorrect use of API detected here:",
-                new Location(),
+                new LocationImpl(),
                 "",
                 "You probably stored a reference to OngoingStubbing returned by when() and called stubbing methods like thenReturn() on this reference more than once.",
                 "Examples of correct usage:",
@@ -91,6 +111,8 @@ public class Reporter {
                 "1. you stub either of: final/private/equals()/hashCode() methods.",
                 "   Those methods *cannot* be stubbed/verified.",
                 "2. inside when() you don't call method on mock but on some other object.",
+                "3. the parent of the mocked class is not public.",
+                "   It is a limitation of the mock engine.",
                 ""
         ));
     }
@@ -215,10 +237,12 @@ public class Reporter {
                 ));
     }
 
-    public void invalidUseOfMatchers(int expectedMatchersCount, int recordedMatchersCount) {
+    public void invalidUseOfMatchers(int expectedMatchersCount, List<LocalizedMatcher> recordedMatchers) {
         throw new InvalidUseOfMatchersException(join(
                 "Invalid use of argument matchers!",
-                expectedMatchersCount + " matchers expected, " + recordedMatchersCount + " recorded.",
+                expectedMatchersCount + " matchers expected, " + recordedMatchers.size()+ " recorded:" +
+                locationsOf(recordedMatchers),
+                "",
                 "This exception may occur if matchers are combined with raw values:",
                 "    //incorrect:",
                 "    someMethod(anyObject(), \"raw String\");",
@@ -227,14 +251,52 @@ public class Reporter {
                 "    //correct:",
                 "    someMethod(anyObject(), eq(\"String by matcher\"));",
                 "",
-                "For more info see javadoc for Matchers class."
+                "For more info see javadoc for Matchers class.",
+                ""
         ));
+    }
+
+    public void incorrectUseOfAdditionalMatchers(String additionalMatcherName, int expectedSubMatchersCount, Collection<LocalizedMatcher> matcherStack) {
+        throw new InvalidUseOfMatchersException(join(
+                "Invalid use of argument matchers inside additional matcher " + additionalMatcherName + " !",
+                new LocationImpl(),
+                "",
+                expectedSubMatchersCount + " sub matchers expected, " + matcherStack.size() + " recorded:",
+                locationsOf(matcherStack),
+                "",
+                "This exception may occur if matchers are combined with raw values:",
+                "    //incorrect:",
+                "    someMethod(AdditionalMatchers.and(isNotNull(), \"raw String\");",
+                "When using matchers, all arguments have to be provided by matchers.",
+                "For example:",
+                "    //correct:",
+                "    someMethod(AdditionalMatchers.and(isNotNull(), eq(\"raw String\"));",
+                "",
+                "For more info see javadoc for Matchers and AdditionalMatchers classes.",
+                ""
+        ));
+    }
+
+    public void reportNoSubMatchersFound(String additionalMatcherName) {
+        throw new InvalidUseOfMatchersException(join(
+                "No matchers found for additional matcher " + additionalMatcherName,
+                new LocationImpl(),
+                ""
+        ));
+    }
+
+
+    private Object locationsOf(Collection<LocalizedMatcher> matchers) {
+        List<String> description = new ArrayList<String>();
+        for (LocalizedMatcher matcher : matchers)
+			description.add(matcher.getLocation().toString());
+        return join(description.toArray());
     }
 
     public void argumentsAreDifferent(String wanted, String actual, Location actualLocation) {
         String message = join("Argument(s) are different! Wanted:",
                 wanted,
-                new Location(),
+                new LocationImpl(),
                 "Actual invocation has different arguments:",
                 actual,
                 actualLocation,
@@ -248,17 +310,17 @@ public class Reporter {
         }
     }
 
-    public void wantedButNotInvoked(PrintableInvocation wanted) {
+    public void wantedButNotInvoked(DescribedInvocation wanted) {
         throw new WantedButNotInvoked(createWantedButNotInvokedMessage(wanted));
     }
 
-    public void wantedButNotInvoked(PrintableInvocation wanted, List<? extends PrintableInvocation> invocations) {
+    public void wantedButNotInvoked(DescribedInvocation wanted, List<? extends DescribedInvocation> invocations) {
         String allInvocations;
         if (invocations.isEmpty()) {
             allInvocations = "Actually, there were zero interactions with this mock.\n";
         } else {
             StringBuilder sb = new StringBuilder("\nHowever, there were other interactions with this mock:\n");
-            for (PrintableInvocation i : invocations) {
+            for (DescribedInvocation i : invocations) {
                  sb.append(i.getLocation());
                  sb.append("\n");
             }
@@ -269,21 +331,21 @@ public class Reporter {
         throw new WantedButNotInvoked(message + allInvocations);
     }
 
-    private String createWantedButNotInvokedMessage(PrintableInvocation wanted) {
+    private String createWantedButNotInvokedMessage(DescribedInvocation wanted) {
         return join(
                 "Wanted but not invoked:",
                 wanted.toString(),
-                new Location(),
+                new LocationImpl(),
                 ""
         );
     }
 
-    public void wantedButNotInvokedInOrder(PrintableInvocation wanted, PrintableInvocation previous) {
+    public void wantedButNotInvokedInOrder(DescribedInvocation wanted, DescribedInvocation previous) {
         throw new VerificationInOrderFailure(join(
                     "Verification in order failure",
                     "Wanted but not invoked:",
                     wanted.toString(),
-                    new Location(),
+                    new LocationImpl(),
                     "Wanted anywhere AFTER following interaction:",
                     previous.toString(),
                     previous.getLocation(),
@@ -291,42 +353,42 @@ public class Reporter {
         ));
     }
 
-    public void tooManyActualInvocations(int wantedCount, int actualCount, PrintableInvocation wanted, Location firstUndesired) {
+    public void tooManyActualInvocations(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
         String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
         throw new TooManyActualInvocations(message);
     }
 
-    private String createTooManyInvocationsMessage(int wantedCount, int actualCount, PrintableInvocation wanted,
+    private String createTooManyInvocationsMessage(int wantedCount, int actualCount, DescribedInvocation wanted,
             Location firstUndesired) {
         return join(
                 wanted.toString(),
-                "Wanted " + Pluralizer.pluralize(wantedCount) + ":",
-                new Location(),
+                "Wanted " + pluralize(wantedCount) + ":",
+                new LocationImpl(),
                 "But was " + pluralize(actualCount) + ". Undesired invocation:",
                 firstUndesired,
                 ""
         );
     }
 
-    public void neverWantedButInvoked(PrintableInvocation wanted, Location firstUndesired) {
+    public void neverWantedButInvoked(DescribedInvocation wanted, Location firstUndesired) {
         throw new NeverWantedButInvoked(join(
                 wanted.toString(),
                 "Never wanted here:",
-                new Location(),
+                new LocationImpl(),
                 "But invoked here:",
                 firstUndesired,
                 ""
         ));
     }
 
-    public void tooManyActualInvocationsInOrder(int wantedCount, int actualCount, PrintableInvocation wanted, Location firstUndesired) {
+    public void tooManyActualInvocationsInOrder(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
         String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
         throw new VerificationInOrderFailure(join(
                 "Verification in order failure:" + message
                 ));
     }
 
-    private String createTooLittleInvocationsMessage(Discrepancy discrepancy, PrintableInvocation wanted,
+    private String createTooLittleInvocationsMessage(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted,
             Location lastActualInvocation) {
         String ending =
             (lastActualInvocation != null)? lastActualInvocation + "\n" : "\n";
@@ -334,20 +396,20 @@ public class Reporter {
             String message = join(
                     wanted.toString(),
                     "Wanted " + discrepancy.getPluralizedWantedCount() + ":",
-                    new Location(),
+                    new LocationImpl(),
                     "But was " + discrepancy.getPluralizedActualCount() + ":",
                     ending
             );
             return message;
     }
 
-    public void tooLittleActualInvocations(Discrepancy discrepancy, PrintableInvocation wanted, Location lastActualLocation) {
+    public void tooLittleActualInvocations(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
         String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
 
         throw new TooLittleActualInvocations(message);
     }
 
-    public void tooLittleActualInvocationsInOrder(Discrepancy discrepancy, PrintableInvocation wanted, Location lastActualLocation) {
+    public void tooLittleActualInvocationsInOrder(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
         String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
 
         throw new VerificationInOrderFailure(join(
@@ -361,7 +423,7 @@ public class Reporter {
 
         throw new NoInteractionsWanted(join(
                 "No interactions wanted here:",
-                new Location(),
+                new LocationImpl(),
                 "But found this interaction:",
                 undesired.getLocation(),
                 scenario
@@ -371,7 +433,7 @@ public class Reporter {
     public void noMoreInteractionsWantedInOrder(Invocation undesired) {
         throw new VerificationInOrderFailure(join(
                 "No interactions wanted here:",
-                new Location(),
+                new LocationImpl(),
                 "But found this interaction:",
                 undesired.getLocation(),
                 ""
@@ -421,8 +483,12 @@ public class Reporter {
                 actualType + " cannot be returned by " + methodName + "()",
                 methodName + "() should return " + expectedType,
                 "***",
-                "This exception *might* occur in wrongly written multi-threaded tests.",
-                "Please refer to Mockito FAQ on limitations of concurrency testing.",
+                "If you're unsure why you're getting above error read on.",
+                "Due to the nature of the syntax above problem might occur because:",
+                "1. This exception *might* occur in wrongly written multi-threaded tests.",
+                "   Please refer to Mockito FAQ on limitations of concurrency testing.",
+                "2. A spy is stubbed using when(spy.foo()).then() syntax. It is safer to stub spies - ",
+                "   - with doReturn|Throw() family of methods. More in javadocs for Mockito.spy() method.",
                 ""
                 ));
     }
@@ -431,10 +497,10 @@ public class Reporter {
         throw new MockitoAssertionError(join("Wanted at most " + pluralize(maxNumberOfInvocations) + " but was " + foundSize));
     }
 
-    public void misplacedArgumentMatcher(Location location) {
+    public void misplacedArgumentMatcher(List<LocalizedMatcher> lastMatchers) {
         throw new InvalidUseOfMatchersException(join(
                 "Misplaced argument matcher detected here:",
-                location,
+                locationsOf(lastMatchers),
                 "",
                 "You cannot use argument matchers outside of verification or stubbing.",
                 "Examples of correct usage of argument matchers:",
@@ -451,7 +517,7 @@ public class Reporter {
     public void smartNullPointerException(String invocation, Location location) {
         throw new SmartNullPointerException(join(
                 "You have a NullPointerException here:",
-                new Location(),
+                new LocationImpl(),
                 "because this method call was *not* stubbed correctly:",
                 location,
                 invocation,
@@ -607,5 +673,83 @@ public class Reporter {
                 "Also I failed because: " + details.getCause().getMessage(),
                 ""
         ), details);
+    }
+
+	public void mockedTypeIsInconsistentWithDelegatedInstanceType(Class mockedType, Object delegatedInstance) {
+		throw new MockitoException(join(
+                "Mocked type must be the same as the type of your delegated instance.",
+                "Mocked type must be: " + delegatedInstance.getClass().getSimpleName() + ", but is: " + mockedType.getSimpleName(),
+                "  //correct delegate:",
+                "  spy = mock( ->List.class<- , withSettings().delegatedInstance( ->new ArrayList()<- );",
+                "  //incorrect - types don't match:",
+                "  spy = mock( ->List.class<- , withSettings().delegatedInstance( ->new HashSet()<- );"
+        ));
+	}
+
+	public void spyAndDelegateAreMutuallyExclusive() {
+		throw new MockitoException(join(
+				"Settings should not define a spy instance and a delegated instance at the same time."
+				)) ;
+	}
+
+    public void invalidArgumentRangeAtIdentityAnswerCreationTime() {
+        throw new MockitoException(join("Invalid argument index.",
+                                        "The index need to be a positive number that indicates the position of the argument to return.",
+                                        "However it is possible to use the -1 value to indicates that the last argument should be",
+                                        "returned."));
+    }
+
+    public int invalidArgumentPositionRangeAtInvocationTime(InvocationOnMock invocation, boolean willReturnLastParameter, int argumentIndex) {
+        throw new MockitoException(
+                join("Invalid argument index for the current invocation of method : ",
+                     " -> " + new MockUtil().getMockName(invocation.getMock()) + "." + invocation.getMethod().getName() + "()",
+                     "",
+                     (willReturnLastParameter ?
+                             "Last parameter wanted" :
+                             "Wanted parameter at position " + argumentIndex) + " but " + possibleArgumentTypesOf(invocation),
+                     "The index need to be a positive number that indicates a valid position of the argument in the invocation.",
+                     "However it is possible to use the -1 value to indicates that the last argument should be returned.",
+                     ""));
+    }
+
+    private StringBuilder possibleArgumentTypesOf(InvocationOnMock invocation) {
+        Class<?>[] parameterTypes = invocation.getMethod().getParameterTypes();
+        if (parameterTypes.length == 0) {
+            return new StringBuilder("the method has no arguments.\n");
+        }
+
+        StringBuilder stringBuilder = new StringBuilder("the possible argument indexes for this method are :\n");
+        for (int i = 0, parameterTypesLength = parameterTypes.length; i < parameterTypesLength; i++) {
+            stringBuilder.append("    [").append(i);
+
+            if (invocation.getMethod().isVarArgs() && i == parameterTypesLength - 1) {
+                stringBuilder.append("+] ").append(parameterTypes[i].getComponentType().getSimpleName()).append("  <- Vararg").append("\n");
+            } else {
+                stringBuilder.append("] ").append(parameterTypes[i].getSimpleName()).append("\n");
+            }
+        }
+        return stringBuilder;
+    }
+
+    public void wrongTypeOfArgumentToReturn(InvocationOnMock invocation, String expectedType, Class actualType, int argumentIndex) {
+        throw new WrongTypeOfReturnValue(join(
+                "The argument of type '" + actualType.getSimpleName() + "' cannot be returned because the following ",
+                "method should return the type '" + expectedType + "'",
+                " -> " + new MockUtil().getMockName(invocation.getMock()) + "." + invocation.getMethod().getName() + "()",
+                "",
+                "The reason for this error can be :",
+                "1. The wanted argument position is incorrect.",
+                "2. The answer is used on the wrong interaction.",
+                "",
+                "Position of the wanted argument is " + argumentIndex + " and " + possibleArgumentTypesOf(invocation),
+                "***",
+                "However if you're still unsure why you're getting above error read on.",
+                "Due to the nature of the syntax above problem might occur because:",
+                "1. This exception *might* occur in wrongly written multi-threaded tests.",
+                "   Please refer to Mockito FAQ on limitations of concurrency testing.",
+                "2. A spy is stubbed using when(spy.foo()).then() syntax. It is safer to stub spies - ",
+                "   - with doReturn|Throw() family of methods. More in javadocs for Mockito.spy() method.",
+                ""
+        ));
     }
 }

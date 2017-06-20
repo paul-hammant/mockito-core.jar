@@ -2,31 +2,32 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito;
-
-import java.util.List;
 
 import org.mockito.internal.matchers.CapturingMatcher;
 import org.mockito.internal.progress.HandyReturnValues;
 
+import java.util.List;
+
 /**
  * Use it to capture argument values for further assertions.
+ *
  * <p>
  * Mockito verifies argument values in natural java style: by using an equals() method.
  * This is also the recommended way of matching arguments because it makes tests clean & simple.
  * In some situations though, it is helpful to assert on certain arguments after the actual verification.
  * For example:
- * <pre>
+ * <pre class="code"><code class="java">
  *   ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class);
  *   verify(mock).doSomething(argument.capture());
  *   assertEquals("John", argument.getValue().getName());
- * </pre>
+ * </code></pre>
  *
  * <p>
- * <b>Warning:</b> it is recommended to use ArgumentCaptor with verification <b>but not</b> with stubbing.
+ * <strong>Warning:</strong> it is recommended to use ArgumentCaptor with verification <strong>but not</strong> with stubbing.
  * Using ArgumentCaptor with stubbing may decrease test readability because captor is created outside of assert (aka verify or 'then') block.
  * Also it may reduce defect localization because if stubbed method was not called then no argument is captured.
+ *
  * <p>
  * In a way ArgumentCaptor is related to custom argument matchers (see javadoc for {@link ArgumentMatcher} class).
  * Both techniques can be used for making sure certain arguments where passed to mocks. 
@@ -36,10 +37,19 @@ import org.mockito.internal.progress.HandyReturnValues;
  * <li>you just need it to assert on argument values to complete verification</li>
  * </ul>
  * Custom argument matchers via {@link ArgumentMatcher} are usually better for stubbing.
+ *
  * <p>
- * There is an <b>annotation</b> that you might find useful: &#64;{@link Captor}
+ * This utility class <strong>*don't do any type checks*</strong>, the generic signatures are only there to avoid casting
+ * in your code. If you want specific types, then you should do that the captured values.
+ * This behavior might change (type checks could be added) in a
+ * future major release.
  * <p>
- * See the full documentation on Mockito in javadoc for {@link Mockito} class.    
+ * There is an <strong>annotation</strong> that you might find useful: &#64;{@link Captor}
+ * <p>
+ * See the full documentation on Mockito in javadoc for {@link Mockito} class.
+ *
+ * @see Captor
+ * @since 1.8.0
  */
 public class ArgumentCaptor<T> {
     
@@ -57,11 +67,11 @@ public class ArgumentCaptor<T> {
      * See issue 99.
      * <p>
      * Example:
-     * <pre>
+     * <pre class="code"><code class="java">
      *   ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class);
      *   verify(mock).doSomething(argument.capture());
      *   assertEquals("John", argument.getValue().getName());
-     * </pre>
+     * </code></pre>
      */
     @Deprecated
     public ArgumentCaptor() {
@@ -104,14 +114,14 @@ public class ArgumentCaptor<T> {
      * Returns all captured values. Use it in case the verified method was called multiple times.
      * <p>
      * Example: 
-     * <pre>
+     * <pre class="code"><code class="java">
      *   ArgumentCaptor&lt;Person&gt; peopleCaptor = ArgumentCaptor.forClass(Person.class);
      *   verify(mock, times(2)).doSomething(peopleCaptor.capture());
      *   
      *   List&lt;Person&gt; capturedPeople = peopleCaptor.getAllValues();
      *   assertEquals("John", capturedPeople.get(0).getName());
      *   assertEquals("Jane", capturedPeople.get(1).getName());
-     * </pre>
+     * </code></pre>
      * See more examples in javadoc for {@link ArgumentCaptor} class.
      * 
      * @return captured argument value
@@ -120,6 +130,17 @@ public class ArgumentCaptor<T> {
         return this.capturingMatcher.getAllValues();
     }
 
+    /**
+     * Build a new <code>ArgumentCaptor</code>.
+     * <p>
+     * Note that an <code>ArgumentCaptor</code> <b>*don't do any type checks*</b>, it is only there to avoid casting
+     * in your code. This might however change (type checks could be added) in a
+     * future major release.
+     *
+     * @param clazz Type matching the parameter to be captured.
+     * @param <T> Type of clazz
+     * @return A new ArgumentCaptor
+     */
     public static <T> ArgumentCaptor<T> forClass(Class<T> clazz) {
         return new ArgumentCaptor<T>(clazz);
     }

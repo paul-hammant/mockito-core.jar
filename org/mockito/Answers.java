@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito;
 
 import org.mockito.internal.stubbing.answers.CallsRealMethods;
@@ -18,9 +17,9 @@ import org.mockito.stubbing.Answer;
  * You can use it to pass extra parameters to &#064;Mock annotation, see more info here: {@link Mock}
  * <p>
  * Example:
- * <pre>
+ * <pre class="code"><code class="java">
  *   &#064;Mock(answer = RETURNS_DEEP_STUBS) UserProvider userProvider;
- * </pre>
+ * </code></pre>
  * <b>This is not the full list</b> of Answers available in Mockito. Some interesting answers can be found in org.mockito.stubbing.answers package.
  */
 public enum Answers {

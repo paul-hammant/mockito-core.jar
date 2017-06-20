@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.configuration;
 
 import org.mockito.ReturnValues;
@@ -76,4 +75,10 @@ public interface IMockitoConfiguration {
      * @return if Mockito should clean stack traces
      */
     boolean cleansStackTrace();
+    
+    /**
+     * Allow objenesis to cache classes. If you're in an environment where classes 
+     * are dynamically reloaded, you can disable this to avoid classcast exceptions.
+     */
+    boolean enableClassCache();
 }

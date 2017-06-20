@@ -9,10 +9,11 @@ import org.mockito.MockSettings;
 import org.mockito.exceptions.Reporter;
 import org.mockito.internal.configuration.GlobalConfiguration;
 import org.mockito.internal.debugging.Localized;
-import org.mockito.internal.debugging.Location;
-import org.mockito.internal.invocation.Invocation;
+import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.listeners.MockingProgressListener;
 import org.mockito.internal.listeners.MockingStartedListener;
+import org.mockito.invocation.Invocation;
+import org.mockito.invocation.Location;
 import org.mockito.verification.VerificationMode;
 
 @SuppressWarnings("unchecked")
@@ -61,7 +62,7 @@ public class MockingProgressImpl implements MockingProgress {
 
     public void stubbingStarted() {
         validateState();
-        stubbingInProgress = new Location();
+        stubbingInProgress = new LocationImpl();
     }
 
     public void validateState() {
@@ -109,9 +110,9 @@ public class MockingProgressImpl implements MockingProgress {
         return argumentMatcherStorage;
     }
 
-    public void mockingStarted(Object mock, Class classToMock, MockSettings mockSettings) {
+    public void mockingStarted(Object mock, Class classToMock) {
         if (listener != null && listener instanceof MockingStartedListener) {
-            ((MockingStartedListener) listener).mockingStarted(mock, classToMock, mockSettings);
+            ((MockingStartedListener) listener).mockingStarted(mock, classToMock);
         }
         validateMostStuff();
     }

@@ -11,12 +11,12 @@ import java.util.List;
 import org.mockito.InOrder;
 import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.verification.InOrderContextImpl;
 import org.mockito.internal.verification.InOrderWrapper;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.api.InOrderContext;
 import org.mockito.internal.verification.api.VerificationInOrderMode;
+import org.mockito.invocation.Invocation;
 import org.mockito.verification.VerificationMode;
 
 /**
@@ -54,7 +54,7 @@ public class InOrderImpl implements InOrder, InOrderContext {
         return inOrderContext.isVerified(i);
     }
 
-    public void markVerified(Invocation i) {        
+    public void markVerified(Invocation i) {
         inOrderContext.markVerified(i);
     }
 

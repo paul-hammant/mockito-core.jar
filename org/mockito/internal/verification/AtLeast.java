@@ -8,7 +8,6 @@ package org.mockito.internal.verification;
 import java.util.List;
 
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.internal.verification.api.VerificationDataInOrder;
@@ -17,6 +16,7 @@ import org.mockito.internal.verification.checkers.AtLeastXNumberOfInvocationsChe
 import org.mockito.internal.verification.checkers.AtLeastXNumberOfInvocationsInOrderChecker;
 import org.mockito.internal.verification.checkers.MissingInvocationChecker;
 import org.mockito.internal.verification.checkers.MissingInvocationInOrderChecker;
+import org.mockito.invocation.Invocation;
 import org.mockito.verification.VerificationMode;
 
 public class AtLeast implements VerificationInOrderMode, VerificationMode {

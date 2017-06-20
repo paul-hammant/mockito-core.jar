@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.configuration;
 
 import org.mockito.ReturnValues;
@@ -58,6 +57,10 @@ public class GlobalConfiguration implements IMockitoConfiguration, Serializable 
 
     public boolean cleansStackTrace() {
         return globalConfiguration.get().cleansStackTrace();
+    }
+    
+    public boolean enableClassCache() {
+        return globalConfiguration.get().enableClassCache();
     }
 
     public Answer<Object> getDefaultAnswer() {

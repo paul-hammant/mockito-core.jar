@@ -6,8 +6,8 @@
 package org.mockito.internal.progress;
 
 import org.mockito.MockSettings;
-import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.listeners.MockingProgressListener;
+import org.mockito.invocation.Invocation;
 import org.mockito.verification.VerificationMode;
 
 @SuppressWarnings("unchecked")
@@ -37,7 +37,7 @@ public interface MockingProgress {
 
     ArgumentMatcherStorage getArgumentMatcherStorage();
     
-    void mockingStarted(Object mock, Class classToMock, MockSettings mockSettings);
+    void mockingStarted(Object mock, Class classToMock);
 
     void setListener(MockingProgressListener listener);
 }

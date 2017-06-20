@@ -5,8 +5,8 @@
 
 package org.mockito.internal.invocation.finder;
 
-import org.mockito.internal.invocation.Invocation;
-import org.mockito.internal.util.ListUtil;
+import org.mockito.internal.util.collections.ListUtil;
+import org.mockito.invocation.Invocation;
 
 import java.util.List;
 

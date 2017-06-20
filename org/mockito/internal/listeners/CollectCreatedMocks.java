@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.listeners;
 
 import org.mockito.MockSettings;
@@ -18,7 +17,7 @@ public class CollectCreatedMocks implements MockingStartedListener {
         this.toBeFilled = toBeFilled;
     }
 
-    public void mockingStarted(Object mock, Class classToMock, MockSettings mockSettings) {
+    public void mockingStarted(Object mock, Class classToMock) {
         toBeFilled.add(mock);
     }
 }

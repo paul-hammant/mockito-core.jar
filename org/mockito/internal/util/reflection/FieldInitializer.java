@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.util.reflection;
 
 import org.mockito.exceptions.base.MockitoException;
@@ -55,6 +54,7 @@ public class FieldInitializer {
      *
      * @param fieldOwner Instance of the test.
      * @param field Field to be initialize.
+     * @param argResolver Constructor parameters resolver
      */
     public FieldInitializer(Object fieldOwner, Field field, ConstructorArgumentResolver argResolver) {
         this(fieldOwner, field, new ParameterizedConstructorInstantiator(fieldOwner, field, argResolver));
@@ -73,7 +73,7 @@ public class FieldInitializer {
     }
 
     /**
-     * Initialize field if no initialized and return the actual instance.
+     * Initialize field if not initialized and return the actual instance.
      *
      * @return Actual field instance.
      */
@@ -117,11 +117,10 @@ public class FieldInitializer {
     private FieldInitializationReport acquireFieldInstance() throws IllegalAccessException {
         Object fieldInstance = field.get(fieldOwner);
         if(fieldInstance != null) {
-            return new FieldInitializationReport(fieldInstance, false);
+            return new FieldInitializationReport(fieldInstance, false, false);
         }
 
-        instantiator.instantiate();
-        return new FieldInitializationReport(field.get(fieldOwner), true);
+        return instantiator.instantiate();
     }
 
     /**
@@ -146,7 +145,7 @@ public class FieldInitializer {
     }
 
     private interface ConstructorInstantiator {
-        Object instantiate();
+        FieldInitializationReport instantiate();
     }
 
     /**
@@ -171,7 +170,7 @@ public class FieldInitializer {
             this.field = field;
         }
 
-        public Object instantiate() {
+        public FieldInitializationReport instantiate() {
             final AccessibilityChanger changer = new AccessibilityChanger();
             Constructor<?> constructor = null;
             try {
@@ -182,7 +181,7 @@ public class FieldInitializer {
                 Object newFieldInstance = constructor.newInstance(noArg);
                 new FieldSetter(testClass, field).set(newFieldInstance);
 
-                return field.get(testClass);
+                return new FieldInitializationReport(field.get(testClass), true, false);
             } catch (NoSuchMethodException e) {
                 throw new MockitoException("the type '" + field.getType().getSimpleName() + "' has no default constructor", e);
             } catch (InvocationTargetException e) {
@@ -229,7 +228,7 @@ public class FieldInitializer {
             this.argResolver = argumentResolver;
         }
 
-        public Object instantiate() {
+        public FieldInitializationReport instantiate() {
             final AccessibilityChanger changer = new AccessibilityChanger();
             Constructor<?> constructor = null;
             try {
@@ -240,7 +239,7 @@ public class FieldInitializer {
                 Object newFieldInstance = constructor.newInstance(args);
                 new FieldSetter(testClass, field).set(newFieldInstance);
 
-                return field.get(testClass);
+                return new FieldInitializationReport(field.get(testClass), false, true);
             } catch (IllegalArgumentException e) {
                 throw new MockitoException("internal error : argResolver provided incorrect types for constructor " + constructor + " of type " + field.getType().getSimpleName(), e);
             } catch (InvocationTargetException e) {
