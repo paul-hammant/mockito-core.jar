@@ -1,7 +1,31 @@
 Manifest-Version: 1.0
+Export-Package: org.mockito.exceptions;uses:="org.mockito.exceptions.b
+ ase,org.mockito.exceptions.verification.junit,org.mockito.listeners,o
+ rg.mockito.exceptions.misusing,org.mockito.exceptions.verification";v
+ ersion="1.9.0",org.mockito.stubbing.answers;uses:="org.mockito.except
+ ions.base,org.mockito.invocation,org.mockito.stubbing";version="1.9.0
+ ",org.mockito.listeners;uses:="org.mockito.exceptions";version="1.9.0
+ ",org.mockito.runners;uses:="org.junit.runner,org.junit.runner.notifi
+ cation,org.junit.runner.manipulation";version="1.9.0",org.mockito.exc
+ eptions.base;version="1.9.0",org.mockito.exceptions.verification;uses
+ :="org.mockito.exceptions.base";version="1.9.0",org.mockito.configura
+ tion;uses:="org.mockito,org.mockito.stubbing";version="1.9.0",org.moc
+ kito.invocation;version="1.9.0",org.mockito.exceptions.verification.j
+ unit;uses:="junit.framework,org.mockito.exceptions.verification";vers
+ ion="1.9.0",org.mockito;uses:="org.hamcrest,org.mockito.stubbing,org.
+ mockito.verification,org.mockito.listeners,org.mockito.exceptions.bas
+ e,org.mockito.exceptions,org.mockito.configuration,org.mockito.invoca
+ tion";version="1.9.0",org.mockito.exceptions.misusing;uses:="org.mock
+ ito.exceptions.base";version="1.9.0",org.mockito.verification;uses:="
+ org.mockito.exceptions";version="1.9.0",org.mockito.stubbing;uses:="o
+ rg.mockito.invocation";version="1.9.0"
+Bundle-Version: 1.9.0
+Tool: Bnd-0.0.313
+Bnd-LastModified: 1324069630548
 Bundle-Name: Mockito Mock Library for Java. Core bundle requires Hamcr
  est-core and Objenesis. 
-Created-By: 1.5.0_22 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Created-By: 1.6.0_26 (Apple Inc.)
 Import-Package: junit.framework;resolution:=optional,org.apache.tools.
  ant;resolution:=optional,org.apache.tools.ant.types;resolution:=optio
  nal,org.hamcrest;version="[1.0,2.0)",org.junit;resolution:=optional,o
@@ -9,36 +33,14 @@ Import-Package: junit.framework;resolution:=optional,org.apache.tools.
  ution:=optional,org.junit.runner.manipulation;resolution:=optional,or
  g.junit.runner.notification;resolution:=optional,org.junit.runners;re
  solution:=optional,org.junit.runners.model;resolution:=optional,org.m
- ockito;version="[1.8,2)",org.mockito.configuration;version="[1.8,2)",
- org.mockito.exceptions;version="[1.8,2)",org.mockito.exceptions.base;
- version="[1.8,2)",org.mockito.exceptions.misusing;version="[1.8,2)",o
- rg.mockito.exceptions.verification;version="[1.8,2)",org.mockito.exce
- ptions.verification.junit;version="[1.8,2)",org.mockito.invocation;ve
- rsion="[1.8,2)",org.mockito.runners;version="[1.8,2)",org.mockito.stu
- bbing;version="[1.8,2)",org.mockito.stubbing.answers;version="[1.8,2)
- ",org.mockito.verification;version="[1.8,2)",org.objenesis;version="[
- 1.0,2.0)"
-Bundle-ManifestVersion: 2
+ ockito;version="[1.9,2)",org.mockito.configuration;version="[1.9,2)",
+ org.mockito.exceptions;version="[1.9,2)",org.mockito.exceptions.base;
+ version="[1.9,2)",org.mockito.exceptions.misusing;version="[1.9,2)",o
+ rg.mockito.exceptions.verification;version="[1.9,2)",org.mockito.exce
+ ptions.verification.junit;version="[1.9,2)",org.mockito.invocation;ve
+ rsion="[1.9,2)",org.mockito.listeners;version="[1.9,2)",org.mockito.r
+ unners;version="[1.9,2)",org.mockito.stubbing;version="[1.9,2)",org.m
+ ockito.stubbing.answers;version="[1.9,2)",org.mockito.verification;ve
+ rsion="[1.9,2)",org.objenesis;version="[1.0,2.0)"
 Bundle-SymbolicName: org.mockito.mockito-core
-Tool: Bnd-0.0.313
-Bnd-LastModified: 1274735009557
-Export-Package: org.mockito.exceptions.base;version="1.8.5",org.mockit
- o.stubbing;uses:="org.mockito.invocation";version="1.8.5",org.mockito
- .exceptions.verification.junit;uses:="junit.framework,org.mockito.exc
- eptions.verification";version="1.8.5",org.mockito.exceptions.misusing
- ;uses:="org.mockito.exceptions.base";version="1.8.5",org.mockito.invo
- cation;version="1.8.5",org.mockito.runners;uses:="org.junit.runner,or
- g.junit.runner.notification,org.junit.runner.manipulation";version="1
- .8.5",org.mockito.verification;version="1.8.5",org.mockito;uses:="org
- .hamcrest,org.mockito.stubbing,org.mockito.verification,org.mockito.e
- xceptions.base,org.mockito.exceptions,org.mockito.configuration,org.m
- ockito.invocation";version="1.8.5",org.mockito.exceptions;uses:="org.
- mockito.exceptions.verification.junit,org.mockito.exceptions.base,org
- .mockito.exceptions.verification,org.mockito.exceptions.misusing";ver
- sion="1.8.5",org.mockito.configuration;uses:="org.mockito,org.mockito
- .stubbing";version="1.8.5",org.mockito.stubbing.answers;uses:="org.mo
- ckito.exceptions.base,org.mockito.stubbing,org.mockito.invocation";ve
- rsion="1.8.5",org.mockito.exceptions.verification;uses:="org.mockito.
- exceptions.base";version="1.8.5"
-Bundle-Version: 1.8.5
 

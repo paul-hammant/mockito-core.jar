@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.stubbing.defaultanswers;
 
 import java.io.Serializable;
@@ -35,6 +36,9 @@ import org.mockito.stubbing.Answer;
  * </li>
  * <li>
  *  Returns description of mock for toString() method
+ * </li>
+ * <li>
+ *  Returns non-zero for Comparable#compareTo(T other) method (see issue 184)
  * </li>
  * <li>
  *  Returns null for everything else

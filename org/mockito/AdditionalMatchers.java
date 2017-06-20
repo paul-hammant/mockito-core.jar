@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
 
 import org.mockito.internal.matchers.ArrayEquals;
@@ -25,7 +26,7 @@ import org.mockito.internal.progress.ThreadSafeMockingProgress;
  * <p>
  * Example of using logical and(), not(), or() matchers: 
  *  
- * <pre>
+ * <pre class="code"><code class="java">
  *   //anything but not "ejb"
  *   mock.someMethod(not(eq("ejb")));
  *   
@@ -34,7 +35,7 @@ import org.mockito.internal.progress.ThreadSafeMockingProgress;
  *   
  *   //1 or 10
  *   mock.someMethod(or(eq(1), eq(10)));
- * </pre>
+ * </code></pre>
  * 
  * Scroll down to see all methods - full list of matchers.
  */

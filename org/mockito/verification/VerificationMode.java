@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.verification;
 
 import org.mockito.Mockito;
@@ -11,7 +12,7 @@ import org.mockito.internal.verification.api.VerificationData;
  * Allows verifying that certain behavior happened at least once / exact number
  * of times / never. E.g:
  * 
- * <pre>
+ * <pre class="code"><code class="java">
  * verify(mock, times(5)).someMethod(&quot;was called five times&quot;);
  * 
  * verify(mock, never()).someMethod(&quot;was never called&quot;);
@@ -22,7 +23,7 @@ import org.mockito.internal.verification.api.VerificationData;
  * 
  * verify(mock, atMost(3)).someMethod(&quot;was called at most 3 times&quot;);
  * 
- * </pre>
+ * </code></pre>
  * 
  * <b>times(1) is the default</b> and can be omitted
  * <p>

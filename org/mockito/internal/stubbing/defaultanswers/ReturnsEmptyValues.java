@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.stubbing.defaultanswers;
 
 import java.io.Serializable;
@@ -24,6 +25,7 @@ import org.mockito.internal.creation.ClassNameFinder;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.util.MockName;
 import org.mockito.internal.util.MockUtil;
+import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.internal.util.Primitives;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -44,6 +46,9 @@ import org.mockito.stubbing.Answer;
  *  Returns description of mock for toString() method
  * </li>
  * <li>
+ *  Returns non-zero for Comparable#compareTo(T other) method (see issue 184)
+ * </li>
+ * <li>
  *  Returns null for everything else
  * </li>
  * </ul>
@@ -51,12 +56,13 @@ import org.mockito.stubbing.Answer;
 public class ReturnsEmptyValues implements Answer<Object>, Serializable {
     
     private static final long serialVersionUID = 1998191268711234347L;
+    ObjectMethodsGuru methodsGuru = new ObjectMethodsGuru();
 
     /* (non-Javadoc)
      * @see org.mockito.stubbing.Answer#answer(org.mockito.invocation.InvocationOnMock)
      */
     public Object answer(InvocationOnMock invocation) {
-        if (Invocation.isToString(invocation)) {
+        if (methodsGuru.isToString(invocation.getMethod())) {
             Object mock = invocation.getMock();
             MockName name = new MockUtil().getMockName(mock);
             if (name.isSurrogate()) {
@@ -64,6 +70,11 @@ public class ReturnsEmptyValues implements Answer<Object>, Serializable {
             } else {
                 return name.toString();
             }
+        } else if (methodsGuru.isCompareToMethod(invocation.getMethod())) {
+            //see issue 184.
+            //mocks by default should not return 0 for compareTo because they are not the same. Hence we return 1 (anything but 0 is good).
+            //Only for compareTo() method by the Comparable interface
+            return 1;
         }
         
         Class<?> returnType = invocation.getMethod().getReturnType();

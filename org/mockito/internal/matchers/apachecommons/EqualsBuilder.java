@@ -1,22 +1,10 @@
-//NON-STANDARD LICENCE HEADER HERE - THAT'S OK
-//Class comes from Apache Commons Lang, added some tiny changes  
-
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2007 Mockito contributors
+ * This program is made available under the terms of the MIT License.
  */
+
+//NON-STANDARD LICENCE HEADER HERE - THAT'S OK
+//Class comes from Apache Commons Lang, added some tiny changes
 package org.mockito.internal.matchers.apachecommons;
 
 import java.lang.reflect.AccessibleObject;
@@ -46,7 +34,7 @@ import java.util.List;
  * versa.</p>
  *
  * <p>Typical use for the code is as follows:</p>
- * <pre>
+ * <pre class="code"><code class="java">
  * public boolean equals(Object obj) {
  *   if (obj == null) { return false; }
  *   if (obj == this) { return true; }
@@ -61,7 +49,7 @@ import java.util.List;
  *                 .append(field3, rhs.field3)
  *                 .isEquals();
  *  }
- * </pre>
+ * </code></pre>
  *
  * <p> Alternatively, there is a method that uses reflection to determine
  * the fields to test. Because these fields are usually private, the method,
@@ -71,11 +59,11 @@ import java.util.List;
  * also slower than testing explicitly.</p>
  *
  * <p> A typical invocation for this method would look like:</p>
- * <pre>
+ * <pre class="code"><code class="java">
  * public boolean equals(Object obj) {
  *   return EqualsBuilder.reflectionEquals(this, obj);
  * }
- * </pre>
+ * </code></pre>
  *
  * @author <a href="mailto:steve.downey@netfolio.com">Steve Downey</a>
  * @author Stephen Colebourne

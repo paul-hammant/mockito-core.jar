@@ -2,13 +2,14 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockito.internal.matchers;
 
-import java.io.Serializable;
+package org.mockito.internal.matchers;
 
 import org.hamcrest.Description;
 import org.hamcrest.SelfDescribing;
 import org.mockito.ArgumentMatcher;
+
+import java.io.Serializable;
 
 public class Equals extends ArgumentMatcher<Object> implements ContainsExtraTypeInformation, Serializable {
 
@@ -29,11 +30,7 @@ public class Equals extends ArgumentMatcher<Object> implements ContainsExtraType
 
     public String describe(Object object) {
         String text = quoting();
-        if (object == null) {
-            text+="null";
-        } else {
-            text+=object.toString();
-        }
+        text+="" + object;
         text+= quoting();
         return text;
     }

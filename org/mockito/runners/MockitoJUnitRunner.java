@@ -20,7 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- * Compatible with <b>JUnit 4.4</b> and higher, this runner adds following behavior:
+ * Compatible with <b>JUnit 4.4 and higher</b>, this runner adds following behavior:
  * <ul>
  *   <li>
  *      Initializes mocks annotated with {@link Mock},
@@ -35,8 +35,8 @@ import java.lang.reflect.InvocationTargetException;
  * See javadoc for {@link Mockito#validateMockitoUsage()}.
  * <p>
  * Read more about &#064;Mock annotation in javadoc for {@link MockitoAnnotations}
- * <pre>
- * <b>&#064;RunWith(MockitoJUnit44Runner.class)</b>
+ * <pre class="code"><code class="java">
+ * <b>&#064;RunWith(MockitoJUnitRunner.class)</b>
  * public class ExampleTest {
  * 
  *     &#064;Mock
@@ -47,7 +47,7 @@ import java.lang.reflect.InvocationTargetException;
  *         list.add(100);
  *     }
  * }
- * </pre>
+ * </code></pre>
  */
 public class MockitoJUnitRunner extends Runner implements Filterable {
 

@@ -4,11 +4,10 @@
  */
 package org.mockito.internal.util;
 
-import static org.mockito.Mockito.RETURNS_DEFAULTS;
-import static org.mockito.Mockito.withSettings;
-
-import org.mockito.cglib.proxy.*;
+import org.mockito.cglib.proxy.Callback;
+import org.mockito.cglib.proxy.Factory;
 import org.mockito.exceptions.misusing.NotAMockException;
+import org.mockito.internal.InvocationNotifierHandler;
 import org.mockito.internal.MockHandler;
 import org.mockito.internal.MockHandlerInterface;
 import org.mockito.internal.creation.MethodInterceptorFilter;
@@ -38,8 +37,7 @@ public class MockUtil {
 
         settings.initiateMockName(classToMock);
 
-        MockHandler<T> mockHandler = new MockHandler<T>(settings);
-        MethodInterceptorFilter filter = new MethodInterceptorFilter(mockHandler, settings);
+        MethodInterceptorFilter filter = newMethodInterceptorFilter(settings);
         Class<?>[] interfaces = settings.getExtraInterfaces();
 
         Class<?>[] ancillaryTypes;
@@ -62,10 +60,14 @@ public class MockUtil {
 
     public <T> void resetMock(T mock) {
         MockHandlerInterface<T> oldMockHandler = getMockHandler(mock);
-        MockHandler<T> newMockHandler = new MockHandler<T>(oldMockHandler);
-        MethodInterceptorFilter newFilter = new MethodInterceptorFilter(newMockHandler, 
-                        (MockSettingsImpl) withSettings().defaultAnswer(RETURNS_DEFAULTS));
+        MethodInterceptorFilter newFilter = newMethodInterceptorFilter(oldMockHandler.getMockSettings());
         ((Factory) mock).setCallback(0, newFilter);
+    }
+
+    private <T> MethodInterceptorFilter newMethodInterceptorFilter(MockSettingsImpl settings) {
+        MockHandler<T> mockHandler = new MockHandler<T>(settings);
+        InvocationNotifierHandler<T> invocationNotifierHandler = new InvocationNotifierHandler<T>(mockHandler, settings);
+        return new MethodInterceptorFilter(invocationNotifierHandler, settings);
     }
 
     public <T> MockHandlerInterface<T> getMockHandler(T mock) {
@@ -81,7 +83,7 @@ public class MockUtil {
     }
 
     private <T> boolean isMockitoMock(T mock) {
-        return Enhancer.isEnhanced(mock.getClass()) && getInterceptor(mock) != null;
+        return getInterceptor(mock) != null;
     }
 
     public boolean isMock(Object mock) {
@@ -89,6 +91,9 @@ public class MockUtil {
     }
 
     private <T> MethodInterceptorFilter getInterceptor(T mock) {
+        if (!(mock instanceof Factory)) {
+            return null;
+        }
         Factory factory = (Factory) mock;
         Callback callback = factory.getCallback(0);
         if (callback instanceof MethodInterceptorFilter) {

@@ -2,12 +2,13 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockito.internal.matchers;
 
-import java.io.Serializable;
+package org.mockito.internal.matchers;
 
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
+
+import java.io.Serializable;
 
 
 public class Same extends ArgumentMatcher<Object> implements Serializable {
@@ -26,7 +27,7 @@ public class Same extends ArgumentMatcher<Object> implements Serializable {
     public void describeTo(Description description) {
         description.appendText("same(");
         appendQuoting(description);
-        description.appendText(wanted.toString());
+        description.appendText("" + wanted);
         appendQuoting(description);
         description.appendText(")");
     }

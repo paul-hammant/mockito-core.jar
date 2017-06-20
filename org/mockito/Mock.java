@@ -4,14 +4,14 @@
  */
 package org.mockito;
 
-import static java.lang.annotation.ElementType.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.mockito.runners.MockitoJUnitRunner;
+import static java.lang.annotation.ElementType.FIELD;
 
 /**
  * <ul>
@@ -21,17 +21,18 @@ import org.mockito.runners.MockitoJUnitRunner;
  * <li>Makes the verification error easier to read because the <b>field name</b> is used to identify the mock.</li>
  * </ul>
  *
- * <pre>
+ * <pre class="code"><code class="java">
  *   public class ArticleManagerTest extends SampleBaseTestCase {
  *
  *       &#064;Mock private ArticleCalculator calculator;
  *       &#064;Mock(name = "dbMock") private ArticleDatabase database;
  *       &#064;Mock(answer = RETURNS_MOCKS) private UserProvider userProvider;
+ *       &#064;Mock(extraInterfaces = {Queue.class, Observer.class}) private  articleMonitor;
  *
  *       private ArticleManager manager;
  *
  *       &#064;Before public void setup() {
- *           manager = new ArticleManager(userProvider, database, calculator);
+ *           manager = new ArticleManager(userProvider, database, calculator, articleMonitor);
  *       }
  *   }
  *
@@ -41,7 +42,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  *           MockitoAnnotations.initMocks(this);
  *       }
  *   }
- * </pre>
+ * </code></pre>
  *
  * <b><code>MockitoAnnotations.initMocks(this)</code></b> method has to called to initialize annotated mocks.
  * <p>

@@ -2,12 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockito.internal.invocation;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+package org.mockito.internal.invocation;
 
 import org.hamcrest.Matcher;
 import org.mockito.exceptions.PrintableInvocation;
@@ -24,6 +20,11 @@ import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.internal.util.Primitives;
 import org.mockito.invocation.InvocationOnMock;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Method call on a mock object.
@@ -46,6 +47,7 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
 
     private final Location location;
     private boolean verified;
+    private boolean isIgnoredForVerification;
 
     final RealMethod realMethod;
     private StubInfo stubInfo;
@@ -95,7 +97,7 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
     }
 
     public boolean isVerified() {
-        return verified;
+        return verified || isIgnoredForVerification;
     }
 
     public Integer getSequenceNumber() {
@@ -152,8 +154,8 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
         return matchers;
     }
 
-    public static boolean isToString(InvocationOnMock invocation) {
-        return new ObjectMethodsGuru().isToString(invocation.getMethod());
+    public boolean isToString() {
+        return new ObjectMethodsGuru().isToString(getMethod());
     }
 
     public boolean isValidException(Throwable throwable) {
@@ -229,5 +231,13 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
 
     public void markStubbed(StubInfo stubInfo) {
         this.stubInfo = stubInfo;
+    }
+
+    public boolean isIgnoredForVerification() {
+        return isIgnoredForVerification;
+    }
+
+    public void ignoreForVerification() {
+        isIgnoredForVerification = true;
     }
 }

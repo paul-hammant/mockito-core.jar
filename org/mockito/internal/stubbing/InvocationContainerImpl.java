@@ -4,11 +4,6 @@
  */
 package org.mockito.internal.stubbing;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.StubInfo;
@@ -16,6 +11,11 @@ import org.mockito.internal.progress.MockingProgress;
 import org.mockito.internal.stubbing.answers.AnswersValidator;
 import org.mockito.internal.verification.RegisteredInvocations;
 import org.mockito.stubbing.Answer;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class InvocationContainerImpl implements InvocationContainer, Serializable {
@@ -56,10 +56,12 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
         AnswersValidator answersValidator = new AnswersValidator();
         answersValidator.validate(answer, invocation);
 
-        if (isConsecutive) {
-            stubbed.getFirst().addAnswer(answer);
-        } else {
-            stubbed.addFirst(new StubbedInvocationMatcher(invocationForStubbing, answer));
+        synchronized (stubbed) {
+            if (isConsecutive) {
+                stubbed.getFirst().addAnswer(answer);
+            } else {
+                stubbed.addFirst(new StubbedInvocationMatcher(invocationForStubbing, answer));
+            }
         }
     }
 
@@ -68,11 +70,13 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
     }
 
     public StubbedInvocationMatcher findAnswerFor(Invocation invocation) {
-        for (StubbedInvocationMatcher s : stubbed) {
-            if (s.matches(invocation)) {
-                s.markStubUsed(invocation);
-                invocation.markStubbed(new StubInfo(s));
-                return s;
+        synchronized (stubbed) {
+            for (StubbedInvocationMatcher s : stubbed) {
+                if (s.matches(invocation)) {
+                    s.markStubUsed(invocation);
+                    invocation.markStubbed(new StubInfo(s));
+                    return s;
+                }
             }
         }
 
@@ -89,6 +93,10 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
 
     public boolean hasAnswersForStubbing() {
         return !answersForStubbing.isEmpty();
+    }
+
+    public boolean hasInvocationForPotentialStubbing() {
+        return !registeredInvocations.isEmpty();
     }
 
     public void setMethodForStubbing(InvocationMatcher invocation) {
@@ -111,5 +119,9 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
 
     public List<StubbedInvocationMatcher> getStubbedInvocations() {
         return stubbed;
+    }
+
+    public Object invokedMock() {
+        return invocationForStubbing.getInvocation().getMock();
     }
 }

@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.runners;
 
 import org.mockito.Mock;
@@ -30,8 +31,8 @@ import java.lang.reflect.InvocationTargetException;
  * Read more about &#064;Mock annotation in javadoc for {@link MockitoAnnotations}
  * <p>
  * Example:
- * <pre>
- * &#064;RunWith(MockitoJUnit44Runner.class)
+ * <pre class="code"><code class="java">
+ * &#064;RunWith(MockitoJUnitRunner.class)
  * public class ExampleTest {
  * 
  *     &#064;Mock
@@ -44,7 +45,7 @@ import java.lang.reflect.InvocationTargetException;
  * }
  * <p>
  * 
- * </pre>
+ * </code></pre>
  */
 @Deprecated
 public class MockitoJUnit44Runner extends MockitoJUnitRunner {

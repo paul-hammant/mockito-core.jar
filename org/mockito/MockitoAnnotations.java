@@ -2,15 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
-
-import static java.lang.annotation.ElementType.*;
-
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.reflect.Field;
 
 import org.mockito.configuration.AnnotationEngine;
 import org.mockito.configuration.DefaultMockitoConfiguration;
@@ -19,6 +12,14 @@ import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.configuration.GlobalConfiguration;
 import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+
+import static java.lang.annotation.ElementType.FIELD;
 
 /**
  * MockitoAnnotations.initMocks(this); initializes fields annotated with Mockito annotations.
@@ -30,7 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * <li>Makes the verification error easier to read because <b>field name</b> is used to identify the mock.</li>
  * </ul>
  * 
- * <pre>
+ * <pre class="code"><code class="java">
  *   public class ArticleManagerTest extends SampleBaseTestCase { 
  *     
  *       &#064;Mock private ArticleCalculator calculator;
@@ -50,7 +51,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  *           MockitoAnnotations.initMocks(this);
  *       }
  *   }
- * </pre>
+ * </code></pre>
  * <p>
  * Read also about other annotations &#064;{@link Spy}, &#064;{@link Captor}, &#064;{@link InjectMocks}
  * <p>
@@ -89,27 +90,30 @@ public class MockitoAnnotations {
         if (testClass == null) {
             throw new MockitoException("testClass cannot be null. For info how to use @Mock annotations see examples in javadoc for MockitoAnnotations class");
         }
-        
+
+        AnnotationEngine annotationEngine = new GlobalConfiguration().getAnnotationEngine();
         Class<?> clazz = testClass.getClass();
-        while (clazz != Object.class) {
-            scan(testClass, clazz);
-            clazz = clazz.getSuperclass();
+
+        //below can be removed later, when we get read rid of deprecated stuff
+        if (annotationEngine.getClass() != new DefaultMockitoConfiguration().getAnnotationEngine().getClass()) {
+            //this means user has his own annotation engine and we have to respect that.
+            //we will do annotation processing the old way so that we are backwards compatible
+            while (clazz != Object.class) {
+                scanDeprecatedWay(annotationEngine, testClass, clazz);
+                clazz = clazz.getSuperclass();
+            }
         }
+
+        //anyway act 'the new' way
+        annotationEngine.process(testClass.getClass(), testClass);
     }
 
-    static void scan(Object testClass, Class<?> clazz) {
-        AnnotationEngine annotationEngine = new GlobalConfiguration().getAnnotationEngine();
+    static void scanDeprecatedWay(AnnotationEngine annotationEngine, Object testClass, Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
+
         for (Field field : fields) {
-            //below can be removed later, when we get rid of deprecated stuff
-            if (annotationEngine.getClass() != new DefaultMockitoConfiguration().getAnnotationEngine().getClass()) {
-                //this means user has his own annotation engine and we have to respect that.
-                //we will do annotation processing the old way so that we are backwards compatible
-                processAnnotationDeprecatedWay(annotationEngine, testClass, field);                
-            } 
+            processAnnotationDeprecatedWay(annotationEngine, testClass, field);
         }
-        //act 'the new' way
-        annotationEngine.process(clazz, testClass);
     }
 
     @SuppressWarnings("deprecation")
