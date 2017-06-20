@@ -4,9 +4,11 @@
  */
 package org.mockito.internal.stubbing.answers;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import static org.mockito.internal.exceptions.Reporter.invalidArgumentPositionRangeAtInvocationTime;
+import static org.mockito.internal.exceptions.Reporter.invalidArgumentRangeAtIdentityAnswerCreationTime;
 
 import java.io.Serializable;
 
@@ -39,7 +41,7 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
 
     public Object answer(InvocationOnMock invocation) throws Throwable {
         validateIndexWithinInvocationRange(invocation);
-        return invocation.getArguments()[actualArgumentPosition(invocation)];
+        return invocation.getArgument(actualArgumentPosition(invocation));
     }
 
 
@@ -63,7 +65,7 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
 
     private int checkWithinAllowedRange(int argumentPosition) {
         if (argumentPosition != LAST_ARGUMENT && argumentPosition < 0) {
-            new Reporter().invalidArgumentRangeAtIdentityAnswerCreationTime();
+            throw invalidArgumentRangeAtIdentityAnswerCreationTime();
         }
         return argumentPosition;
     }
@@ -74,9 +76,9 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
 
     public void validateIndexWithinInvocationRange(InvocationOnMock invocation) {
         if (!argumentPositionInRange(invocation)) {
-            new Reporter().invalidArgumentPositionRangeAtInvocationTime(invocation,
-                                                                        returningLastArg(),
-                                                                        wantedArgumentPosition);
+            throw invalidArgumentPositionRangeAtInvocationTime(invocation,
+                                                               returningLastArg(),
+                                                               wantedArgumentPosition);
         }
     }
 
@@ -92,7 +94,7 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
         return true;
     }
 
-    public Class returnedTypeOnSignature(InvocationOnMock invocation) {
+    public Class<?> returnedTypeOnSignature(InvocationOnMock invocation) {
         int actualArgumentPosition = actualArgumentPosition(invocation);
 
         if(!invocation.getMethod().isVarArgs()) {

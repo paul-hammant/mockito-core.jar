@@ -5,19 +5,16 @@
 
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
-
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.mockito.ArgumentMatcher;
 
+import java.io.Serializable;
+
 @SuppressWarnings("unchecked")
-public class Not extends ArgumentMatcher implements Serializable {
+public class Not implements ArgumentMatcher, Serializable {
 
-    private static final long serialVersionUID = 4627373642333593264L;
-    private final Matcher first;
+    private final ArgumentMatcher first;
 
-    public Not(Matcher first) {
+    public Not(ArgumentMatcher first) {
         this.first = first;
     }
 
@@ -25,9 +22,7 @@ public class Not extends ArgumentMatcher implements Serializable {
         return !first.matches(actual);
     }
 
-    public void describeTo(Description description) {
-        description.appendText("not(");
-        first.describeTo(description);
-        description.appendText(")");
+    public String toString() {
+        return "not(" + first.toString() + ")";
     }
 }

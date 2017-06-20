@@ -4,26 +4,23 @@
  */
 package org.mockito.internal.debugging;
 
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
+
+import java.util.LinkedList;
+import java.util.List;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.UnusedStubsFinder;
 import org.mockito.internal.invocation.finder.AllInvocationsFinder;
 import org.mockito.internal.listeners.CollectCreatedMocks;
-import org.mockito.internal.progress.MockingProgress;
-import org.mockito.internal.progress.ThreadSafeMockingProgress;
 import org.mockito.invocation.Invocation;
 
-import java.util.LinkedList;
-import java.util.List;
-
-@SuppressWarnings("unchecked")
 public class WarningsCollector {
    
-    List createdMocks;
+    private final List<Object> createdMocks;
 
     public WarningsCollector() {
-        createdMocks = new LinkedList();
-        MockingProgress progress = new ThreadSafeMockingProgress();
-        progress.setListener(new CollectCreatedMocks(createdMocks));
+        createdMocks = new LinkedList<Object>();
+        mockingProgress().setListener(new CollectCreatedMocks(createdMocks));
     }
 
     public String getWarnings() {
@@ -31,8 +28,6 @@ public class WarningsCollector {
         List<Invocation> all = new AllInvocationsFinder().find(createdMocks);
         List<InvocationMatcher> allInvocationMatchers = InvocationMatcher.createFrom(all);
 
-        String warnings = new WarningsPrinterImpl(unused, allInvocationMatchers, false).print();
-
-        return warnings;
+        return new WarningsPrinterImpl(unused, allInvocationMatchers, false).print();
     }
 }
