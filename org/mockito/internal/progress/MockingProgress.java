@@ -5,20 +5,17 @@
 
 package org.mockito.internal.progress;
 
+import org.mockito.MockSettings;
 import org.mockito.internal.listeners.MockingProgressListener;
 import org.mockito.invocation.Invocation;
-import org.mockito.listeners.MockitoListener;
-import org.mockito.mock.MockCreationSettings;
-import org.mockito.stubbing.OngoingStubbing;
-import org.mockito.listeners.StubbingListener;
 import org.mockito.verification.VerificationMode;
-import org.mockito.verification.VerificationStrategy;
 
+@SuppressWarnings("unchecked")
 public interface MockingProgress {
     
-    void reportOngoingStubbing(OngoingStubbing<?> ongoingStubbing);
+    void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing);
 
-    OngoingStubbing<?> pullOngoingStubbing();
+    IOngoingStubbing pullOngoingStubbing();
 
     void verificationStarted(VerificationMode verificationMode);
 
@@ -40,22 +37,7 @@ public interface MockingProgress {
 
     ArgumentMatcherStorage getArgumentMatcherStorage();
     
-    void mockingStarted(Object mock, MockCreationSettings settings);
+    void mockingStarted(Object mock, Class classToMock);
 
-    void addListener(MockitoListener listener);
-
-    void removeListener(MockitoListener listener);
-
-    void setVerificationStrategy(VerificationStrategy strategy);
-
-    VerificationMode maybeVerifyLazily(VerificationMode mode);
-
-    void setStubbingListener(StubbingListener stubbingListener);
-
-    /**
-     * Stubbing listener is synchronized internally.
-     * This way, users don't have to worry about making the implementations of StubbingListener synchronized
-     * Be cautious how it is used and where to avoid performance impact.
-     */
-    StubbingListener getStubbingListener();
+    void setListener(MockingProgressListener listener);
 }

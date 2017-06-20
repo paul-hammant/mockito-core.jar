@@ -5,36 +5,32 @@
 
 package org.mockito.internal.matchers;
 
+import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-import java.io.Serializable;
 
-public abstract class CompareTo<T extends Comparable<T>> implements ArgumentMatcher<T>, Serializable {
-    private final T wanted;
+public abstract class CompareTo<T extends Comparable<T>> extends ArgumentMatcher<T> {
+    private final Comparable<T> wanted;
 
-    public CompareTo(T value) {
+    public CompareTo(Comparable<T> value) {
         this.wanted = value;
     }
 
-    @Override
-    public final boolean matches(T actual) {
-        if (actual == null) {
+    @SuppressWarnings("unchecked")
+    public boolean matches(Object actual) {
+        
+        if(!(actual instanceof Comparable)) {
             return false;
         }
-        if (!actual.getClass().isInstance(wanted)){ 
-            return false;
-        }
-       
-        int result = actual.compareTo(wanted);
-        return matchResult(result);
+        
+        return matchResult(((Comparable) actual).compareTo(wanted));
     }
 
-    @Override
-    public final String toString() {
-        return getName() + "(" + wanted + ")";
+    public void describeTo(Description description) {
+        description.appendText(getName() + "(" + wanted + ")");
     }
-
+    
     protected abstract String getName();
-
+    
     protected abstract boolean matchResult(int result);
 }

@@ -4,9 +4,10 @@
  */
 package org.mockito.internal.invocation;
 
-import org.mockito.ArgumentMatcher;
+import org.hamcrest.Matcher;
 import org.mockito.internal.matchers.ArrayEquals;
 import org.mockito.internal.matchers.Equals;
+import org.mockito.internal.util.collections.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public class ArgumentsProcessor {
     // expands array varArgs that are given by runtime (1, [a, b]) into true
     // varArgs (1, a, b);
     public static Object[] expandVarArgs(final boolean isVarArgs, final Object[] args) {
-        if (!isVarArgs || isNullOrEmpty(args) || args[args.length - 1] != null && !args[args.length - 1].getClass().isArray()) {
+        if (!isVarArgs || new ArrayUtils().isEmpty(args) || args[args.length - 1] != null && !args[args.length - 1].getClass().isArray()) {
             return args == null ? new Object[0] : args;
         }
 
@@ -36,13 +37,9 @@ public class ArgumentsProcessor {
         System.arraycopy(varArgs, 0, newArgs, nonVarArgsCount, varArgsCount);
         return newArgs;
     }
-    
-    private static <T> boolean isNullOrEmpty(T[] array) {
-        return array == null || array.length == 0;
-    }
 
-    public static List<ArgumentMatcher> argumentsToMatchers(Object[] arguments) {
-        List<ArgumentMatcher> matchers = new ArrayList<ArgumentMatcher>(arguments.length);
+    public static List<Matcher> argumentsToMatchers(Object[] arguments) {
+        List<Matcher> matchers = new ArrayList<Matcher>(arguments.length);
         for (Object arg : arguments) {
             if (arg != null && arg.getClass().isArray()) {
                 matchers.add(new ArrayEquals(arg));
@@ -52,6 +49,4 @@ public class ArgumentsProcessor {
         }
         return matchers;
     }
-    
-    
 }

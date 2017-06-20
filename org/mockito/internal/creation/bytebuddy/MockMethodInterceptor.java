@@ -1,6 +1,9 @@
 package org.mockito.internal.creation.bytebuddy;
 
-import net.bytebuddy.implementation.bind.annotation.*;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 import org.mockito.internal.InternalMockHandler;
 import org.mockito.internal.creation.DelegatingMethod;
 import org.mockito.internal.invocation.MockitoMethod;
@@ -8,11 +11,14 @@ import org.mockito.internal.invocation.SerializableMethod;
 import org.mockito.internal.progress.SequenceNumber;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
-
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Argument;
+import net.bytebuddy.implementation.bind.annotation.BindingPriority;
+import net.bytebuddy.implementation.bind.annotation.DefaultCall;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.implementation.bind.annotation.This;
 
 public class MockMethodInterceptor implements Serializable {
 
@@ -27,6 +33,46 @@ public class MockMethodInterceptor implements Serializable {
         this.handler = handler;
         this.mockCreationSettings = mockCreationSettings;
         serializationSupport = new ByteBuddyCrossClassLoaderSerializationSupport();
+    }
+
+    @RuntimeType
+    @BindingPriority(BindingPriority.DEFAULT * 3)
+    public Object interceptSuperCallable(@This Object mock,
+                                         @Origin(cache = true) Method invokedMethod,
+                                         @AllArguments Object[] arguments,
+                                         @SuperCall(serializableProxy = true) Callable<?> superCall) throws Throwable {
+        return doIntercept(
+                mock,
+                invokedMethod,
+                arguments,
+                new InterceptedInvocation.SuperMethod.FromCallable(superCall)
+        );
+    }
+
+    @RuntimeType
+    @BindingPriority(BindingPriority.DEFAULT * 2)
+    public Object interceptDefaultCallable(@This Object mock,
+                                           @Origin(cache = true) Method invokedMethod,
+                                           @AllArguments Object[] arguments,
+                                           @DefaultCall(serializableProxy = true) Callable<?> superCall) throws Throwable {
+        return doIntercept(
+                mock,
+                invokedMethod,
+                arguments,
+                new InterceptedInvocation.SuperMethod.FromCallable(superCall)
+        );
+    }
+
+    @RuntimeType
+    public Object interceptAbstract(@This Object mock,
+                                    @Origin(cache = true) Method invokedMethod,
+                                    @AllArguments Object[] arguments) throws Throwable {
+        return doIntercept(
+                mock,
+                invokedMethod,
+                arguments,
+                InterceptedInvocation.SuperMethod.IsIllegal.INSTANCE
+        );
     }
 
     private Object doIntercept(Object mock,
@@ -76,46 +122,8 @@ public class MockMethodInterceptor implements Serializable {
         }
     }
 
-    public interface MockAccess {
+    public static interface MockAccess {
         MockMethodInterceptor getMockitoInterceptor();
         void setMockitoInterceptor(MockMethodInterceptor mockMethodInterceptor);
-    }
-
-    public static class DispatcherDefaultingToRealMethod {
-
-        @RuntimeType
-        @BindingPriority(BindingPriority.DEFAULT * 2)
-        public static Object interceptSuperCallable(@This Object mock,
-                                                    @FieldValue("mockitoInterceptor") MockMethodInterceptor interceptor,
-                                                    @Origin Method invokedMethod,
-                                                    @AllArguments Object[] arguments,
-                                                    @SuperCall(serializableProxy = true) Callable<?> superCall) throws Throwable {
-            if (interceptor == null) {
-                return superCall.call();
-            }
-            return interceptor.doIntercept(
-                    mock,
-                    invokedMethod,
-                    arguments,
-                    new InterceptedInvocation.SuperMethod.FromCallable(superCall)
-            );
-        }
-
-        @RuntimeType
-        public static Object interceptAbstract(@This Object mock,
-                                               @FieldValue("mockitoInterceptor") MockMethodInterceptor interceptor,
-                                               @StubValue Object stubValue,
-                                               @Origin Method invokedMethod,
-                                               @AllArguments Object[] arguments) throws Throwable {
-            if (interceptor == null) {
-                return stubValue;
-            }
-            return interceptor.doIntercept(
-                    mock,
-                    invokedMethod,
-                    arguments,
-                    InterceptedInvocation.SuperMethod.IsIllegal.INSTANCE
-            );
-        }
     }
 }

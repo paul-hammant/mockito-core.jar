@@ -5,28 +5,23 @@
 
 package org.mockito.internal.configuration.injection;
 
-import static org.mockito.internal.exceptions.Reporter.cannotInitializeForInjectMocksAnnotation;
-import static org.mockito.internal.exceptions.Reporter.fieldInitialisationThrewException;
-import static org.mockito.internal.util.collections.Sets.newMockSafeHashSet;
-import static org.mockito.internal.util.reflection.SuperTypesLastSorter.sortSuperTypesLast;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoException;
+import org.mockito.internal.configuration.injection.filter.FinalMockCandidateFilter;
 import org.mockito.internal.configuration.injection.filter.MockCandidateFilter;
 import org.mockito.internal.configuration.injection.filter.NameBasedCandidateFilter;
-import org.mockito.internal.configuration.injection.filter.TerminalMockCandidateFilter;
 import org.mockito.internal.configuration.injection.filter.TypeBasedCandidateFilter;
 import org.mockito.internal.util.collections.ListUtil;
 import org.mockito.internal.util.reflection.FieldInitializationReport;
 import org.mockito.internal.util.reflection.FieldInitializer;
 import org.mockito.internal.util.reflection.SuperTypesLastSorter;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.util.*;
+
+import static org.mockito.internal.util.collections.Sets.newMockSafeHashSet;
 
 /**
  * Inject mocks using first setters then fields, if no setters available.
@@ -64,10 +59,7 @@ import org.mockito.internal.util.reflection.SuperTypesLastSorter;
  */
 public class PropertyAndSetterInjection extends MockInjectionStrategy {
 
-    private final MockCandidateFilter mockCandidateFilter =
-            new TypeBasedCandidateFilter(
-                    new NameBasedCandidateFilter(
-                            new TerminalMockCandidateFilter()));
+    private final MockCandidateFilter mockCandidateFilter = new TypeBasedCandidateFilter(new NameBasedCandidateFilter(new FinalMockCandidateFilter()));
 
     private final ListUtil.Filter<Field> notFinalOrStatic = new ListUtil.Filter<Field>() {
         public boolean isOut(Field object) {
@@ -77,6 +69,7 @@ public class PropertyAndSetterInjection extends MockInjectionStrategy {
 
 
     public boolean processInjection(Field injectMocksField, Object injectMocksFieldOwner, Set<Object> mockCandidates) {
+        // Set<Object> mocksToBeInjected = new HashSet<Object>(mockCandidates);
         FieldInitializationReport report = initializeInjectMocksField(injectMocksField, injectMocksFieldOwner);
 
         // for each field in the class hierarchy
@@ -84,43 +77,41 @@ public class PropertyAndSetterInjection extends MockInjectionStrategy {
         Class<?> fieldClass = report.fieldClass();
         Object fieldInstanceNeedingInjection = report.fieldInstance();
         while (fieldClass != Object.class) {
-            injectionOccurred |= injectMockCandidates(fieldClass, fieldInstanceNeedingInjection, newMockSafeHashSet(mockCandidates));
+            injectionOccurred |= injectMockCandidates(fieldClass, newMockSafeHashSet(mockCandidates), fieldInstanceNeedingInjection);
             fieldClass = fieldClass.getSuperclass();
         }
         return injectionOccurred;
     }
 
     private FieldInitializationReport initializeInjectMocksField(Field field, Object fieldOwner) {
+        FieldInitializationReport report = null;
         try {
-            return new FieldInitializer(fieldOwner, field).initialize();
+            report = new FieldInitializer(fieldOwner, field).initialize();
         } catch (MockitoException e) {
             if(e.getCause() instanceof InvocationTargetException) {
                 Throwable realCause = e.getCause().getCause();
-                throw fieldInitialisationThrewException(field, realCause);
+                new Reporter().fieldInitialisationThrewException(field, realCause);
             }
-            throw cannotInitializeForInjectMocksAnnotation(field.getName(),e.getMessage());
+            new Reporter().cannotInitializeForInjectMocksAnnotation(field.getName(), e);
         }
+        return report; // never null
     }
 
 
-    private boolean injectMockCandidates(Class<?> awaitingInjectionClazz, Object injectee, Set<Object> mocks) {
-        boolean injectionOccurred;
-        List<Field> orderedCandidateInjecteeFields = orderedInstanceFieldsFrom(awaitingInjectionClazz);
+    private boolean injectMockCandidates(Class<?> awaitingInjectionClazz, Set<Object> mocks, Object instance) {
+        boolean injectionOccurred = false;
+        List<Field> orderedInstanceFields = orderedInstanceFieldsFrom(awaitingInjectionClazz);
         // pass 1
-        injectionOccurred = injectMockCandidatesOnFields(mocks, injectee, false, orderedCandidateInjecteeFields);
+        injectionOccurred |= injectMockCandidatesOnFields(mocks, instance, injectionOccurred, orderedInstanceFields);
         // pass 2
-        injectionOccurred |= injectMockCandidatesOnFields(mocks, injectee, injectionOccurred, orderedCandidateInjecteeFields);
+        injectionOccurred |= injectMockCandidatesOnFields(mocks, instance, injectionOccurred, orderedInstanceFields);
         return injectionOccurred;
     }
 
-    private boolean injectMockCandidatesOnFields(Set<Object> mocks,
-                                                 Object injectee,
-                                                 boolean injectionOccurred,
-                                                 List<Field> orderedCandidateInjecteeFields) {
-        for (Iterator<Field> it = orderedCandidateInjecteeFields.iterator(); it.hasNext(); ) {
-            Field candidateField = it.next();
-            Object injected = mockCandidateFilter.filterCandidate(mocks, candidateField, orderedCandidateInjecteeFields, injectee)
-                                                 .thenInject();
+    private boolean injectMockCandidatesOnFields(Set<Object> mocks, Object instance, boolean injectionOccurred, List<Field> orderedInstanceFields) {
+        for (Iterator<Field> it = orderedInstanceFields.iterator(); it.hasNext(); ) {
+            Field field = it.next();
+            Object injected = mockCandidateFilter.filterCandidate(mocks, field, instance).thenInject();
             if (injected != null) {
                 injectionOccurred |= true;
                 mocks.remove(injected);
@@ -134,6 +125,6 @@ public class PropertyAndSetterInjection extends MockInjectionStrategy {
         List<Field> declaredFields = Arrays.asList(awaitingInjectionClazz.getDeclaredFields());
         declaredFields = ListUtil.filter(declaredFields, notFinalOrStatic);
 
-        return sortSuperTypesLast(declaredFields);
+        return new SuperTypesLastSorter().sort(declaredFields);
     }
 }

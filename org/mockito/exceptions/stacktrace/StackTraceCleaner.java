@@ -17,10 +17,10 @@ package org.mockito.exceptions.stacktrace;
 public interface StackTraceCleaner {
 
     /**
-     * Decides if element is included.
+     * Decides if element is excluded.
      *
      * @param candidate element of the actual stack trace
      * @return whether the element should be excluded from cleaned stack trace.
      */
-    boolean isIn(StackTraceElement candidate);
+    boolean isOut(StackTraceElement candidate);
 }

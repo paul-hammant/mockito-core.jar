@@ -5,6 +5,7 @@
 package org.mockito.internal.configuration.injection.scanner;
 
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.util.reflection.FieldReader;
@@ -18,6 +19,7 @@ import static org.mockito.internal.util.collections.Sets.newMockSafeHashSet;
  * Scan mocks, and prepare them if needed.
  */
 public class MockScanner {
+    private final MockUtil mockUtil = new MockUtil();
     private final Object instance;
     private final Class<?> clazz;
 
@@ -67,20 +69,21 @@ public class MockScanner {
     private Object preparedMock(Object instance, Field field) {
         if (isAnnotatedByMockOrSpy(field)) {
             return instance;
-        } 
-        if (isMockOrSpy(instance)) {
-            MockUtil.maybeRedefineMockName(instance, field.getName());
+        } else if (isMockOrSpy(instance)) {
+            mockUtil.maybeRedefineMockName(instance, field.getName());
             return instance;
         }
         return null;
     }
 
     private boolean isAnnotatedByMockOrSpy(Field field) {
-        return field.isAnnotationPresent(Spy.class) || field.isAnnotationPresent(Mock.class);
+        return null != field.getAnnotation(Spy.class)
+                || null != field.getAnnotation(Mock.class)
+                || null != field.getAnnotation(MockitoAnnotations.Mock.class);
     }
 
     private boolean isMockOrSpy(Object instance) {
-        return MockUtil.isMock(instance)
-                || MockUtil.isSpy(instance);
+        return mockUtil.isMock(instance)
+                || mockUtil.isSpy(instance);
     }
 }

@@ -9,7 +9,9 @@ import java.io.Serializable;
 
 public class GreaterOrEqual<T extends Comparable<T>> extends CompareTo<T> implements Serializable {
 
-    public GreaterOrEqual(T value) {
+    private static final long serialVersionUID = 87695769061286092L;
+
+    public GreaterOrEqual(Comparable<T> value) {
         super(value);
     }
 

@@ -5,14 +5,15 @@
 
 package org.mockito.internal.verification;
 
-import static org.mockito.internal.verification.checkers.MissingInvocationChecker.checkMissingInvocation;
-
 import java.util.List;
+
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.internal.verification.api.VerificationDataInOrder;
 import org.mockito.internal.verification.api.VerificationInOrderMode;
+import org.mockito.internal.verification.checkers.MissingInvocationChecker;
+import org.mockito.internal.verification.checkers.MissingInvocationInOrderChecker;
 import org.mockito.internal.verification.checkers.NumberOfInvocationsChecker;
 import org.mockito.internal.verification.checkers.NumberOfInvocationsInOrderChecker;
 import org.mockito.invocation.Invocation;
@@ -30,14 +31,12 @@ public class Times implements VerificationInOrderMode, VerificationMode {
     }
     
     public void verify(VerificationData data) {
-        List<Invocation> invocations = data.getAllInvocations();
-        InvocationMatcher wanted = data.getWanted();
-
         if (wantedCount > 0) {
-             checkMissingInvocation(data.getAllInvocations(), data.getWanted());
+            MissingInvocationChecker missingInvocation = new MissingInvocationChecker();
+            missingInvocation.check(data.getAllInvocations(), data.getWanted());
         }
         NumberOfInvocationsChecker numberOfInvocations = new NumberOfInvocationsChecker();
-        numberOfInvocations.check(invocations, wanted, wantedCount);
+        numberOfInvocations.check(data.getAllInvocations(), data.getWanted(), wantedCount);
     }
     
     public void verifyInOrder(VerificationDataInOrder data) {
@@ -45,7 +44,8 @@ public class Times implements VerificationInOrderMode, VerificationMode {
         InvocationMatcher wanted = data.getWanted();
         
         if (wantedCount > 0) {
-            checkMissingInvocation(allInvocations, wanted, data.getOrderingContext());
+            MissingInvocationInOrderChecker missingInvocation = new MissingInvocationInOrderChecker();
+            missingInvocation.check(allInvocations, wanted, this, data.getOrderingContext());
         }
         NumberOfInvocationsInOrderChecker numberOfCalls = new NumberOfInvocationsInOrderChecker();
         numberOfCalls.check(allInvocations, wanted, wantedCount, data.getOrderingContext());
@@ -54,10 +54,5 @@ public class Times implements VerificationInOrderMode, VerificationMode {
     @Override
     public String toString() {
         return "Wanted invocations count: " + wantedCount;
-    }
-
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
     }
 }

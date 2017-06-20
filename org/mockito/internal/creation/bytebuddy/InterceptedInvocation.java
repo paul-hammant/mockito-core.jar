@@ -1,5 +1,6 @@
 package org.mockito.internal.creation.bytebuddy;
 
+import org.mockito.exceptions.Reporter;
 import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.exceptions.VerificationAwareInvocation;
 import org.mockito.internal.exceptions.stacktrace.ConditionalStackTraceFilter;
@@ -9,8 +10,6 @@ import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
 import org.mockito.invocation.StubInfo;
-
-import static org.mockito.internal.exceptions.Reporter.cannotCallAbstractRealMethod;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -69,7 +68,7 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
     }
 
     @Override
-    public Class<?> getRawReturnType() {
+    public Class getRawReturnType() {
         return mockitoMethod.getReturnType();
     }
 
@@ -115,21 +114,20 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getArgument(int index) {
+    public <T> T getArgumentAt(int index, Class<T> clazz) {
         return (T) arguments[index];
     }
 
     @Override
     public Object callRealMethod() throws Throwable {
         if (!superMethod.isInvokable()) {
-            throw cannotCallAbstractRealMethod();
+            new Reporter().cannotCallAbstractRealMethod();
         }
         return superMethod.invoke();
     }
 
     @Override
     public int hashCode() {
-        //TODO SF we need to provide hash code implementation so that there are no unexpected, slight perf issues
         return 1;
     }
 
@@ -153,9 +151,9 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
     }
 
 
-    public interface SuperMethod extends Serializable {
+    public static interface SuperMethod extends Serializable {
 
-        enum IsIllegal implements SuperMethod {
+        static enum IsIllegal implements SuperMethod {
 
             INSTANCE;
 
@@ -170,7 +168,7 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
             }
         }
 
-        class FromCallable implements SuperMethod {
+        static class FromCallable implements SuperMethod {
 
             private static final long serialVersionUID = 47957363950483625L;
 
