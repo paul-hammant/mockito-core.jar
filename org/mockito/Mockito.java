@@ -153,7 +153,7 @@ import org.mockito.junit.*;
  * //stubbing using built-in anyInt() argument matcher
  * when(mockedList.get(anyInt())).thenReturn("element");
  *
- * //stubbing using hamcrest (let's say isValid() returns your own hamcrest matcher):
+ * //stubbing using custom matcher (let's say isValid() returns your own matcher implementation):
  * when(mockedList.contains(argThat(isValid()))).thenReturn("element");
  *
  * //following prints "element"
@@ -1074,7 +1074,7 @@ import org.mockito.junit.*;
  * verify(mock, times(2).description("someMethod should be called twice")).someMethod();
  * </code></pre>
  *
- *
+ * TODO rework the documentation, write about hamcrest.
  *
  */
 @SuppressWarnings("unchecked")

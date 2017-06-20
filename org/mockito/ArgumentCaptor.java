@@ -49,9 +49,7 @@ import java.util.List;
  *
  * <p>
  * This utility class <strong>*don't do any type checks*</strong>, the generic signatures are only there to avoid casting
- * in your code. If you want specific types, then you should do that the captured values.
- * This behavior might change (type checks could be added) in a
- * future major release.
+ * in your code.
  * <p>
  * There is an <strong>annotation</strong> that you might find useful: &#64;{@link Captor}
  * <p>

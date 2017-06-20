@@ -5,18 +5,14 @@
 
 package org.mockito.internal.progress;
 
-import org.hamcrest.Matcher;
+import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.Reporter;
 import org.mockito.internal.matchers.And;
 import org.mockito.internal.matchers.LocalizedMatcher;
 import org.mockito.internal.matchers.Not;
 import org.mockito.internal.matchers.Or;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
@@ -25,17 +21,11 @@ public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
     public static final int ONE_SUB_MATCHER = 1;
     private final Stack<LocalizedMatcher> matcherStack = new Stack<LocalizedMatcher>();
     
-    /* (non-Javadoc)
-     * @see org.mockito.internal.progress.ArgumentMatcherStorage#reportMatcher(org.hamcrest.Matcher)
-     */
-    public HandyReturnValues reportMatcher(Matcher matcher) {
+    public HandyReturnValues reportMatcher(ArgumentMatcher matcher) {
         matcherStack.push(new LocalizedMatcher(matcher));
         return new HandyReturnValues();
     }
 
-    /* (non-Javadoc)
-     * @see org.mockito.internal.progress.ArgumentMatcherStorage#pullLocalizedMatchers()
-     */
     public List<LocalizedMatcher> pullLocalizedMatchers() {
         if (matcherStack.isEmpty()) {
             return Collections.emptyList();
@@ -81,11 +71,10 @@ public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
         assertIncorrectUseOfAdditionalMatchers(additionalMatcherName, subMatchersCount);
     }
 
-    private List<Matcher> popLastArgumentMatchers(int count) {
-        List<Matcher> result = new LinkedList<Matcher>();
-        result.addAll(matcherStack.subList(matcherStack.size() - count, matcherStack.size()));
+    private List<ArgumentMatcher> popLastArgumentMatchers(int count) {
+        LinkedList<ArgumentMatcher> result = new LinkedList<ArgumentMatcher>();
         for (int i = 0; i < count; i++) {
-            matcherStack.pop();
+            result.addFirst(matcherStack.pop().getMatcher());
         }
         return result;
     }
