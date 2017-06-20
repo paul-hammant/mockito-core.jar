@@ -4,28 +4,19 @@
  */
 package org.mockito;
 
-import static org.mockito.internal.stubbing.answers.AnswerFunctionalInterfaces.toAnswer;
-import java.util.Collection;
+import org.mockito.internal.stubbing.answers.AnswerFunctionalInterfaces;
 import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.internal.stubbing.answers.ReturnsElementsOf;
 import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.Answer1;
-import org.mockito.stubbing.Answer2;
-import org.mockito.stubbing.Answer3;
-import org.mockito.stubbing.Answer4;
-import org.mockito.stubbing.Answer5;
-import org.mockito.stubbing.VoidAnswer1;
-import org.mockito.stubbing.VoidAnswer2;
-import org.mockito.stubbing.VoidAnswer3;
-import org.mockito.stubbing.VoidAnswer4;
-import org.mockito.stubbing.VoidAnswer5;
+
+import java.util.Collection;
 
 /**
  * Additional answers provides factory methods for answers.
  *
  * <p>Currently offer answers that can return the parameter of an invocation at a certain position,
- * along with answers that draw on a strongly typed interface from {@link org.mockito.internal.stubbing.answers.AnswerFunctionalInterfaces}
+ * along with answers that draw on a strongly typed interface from {@link AnswerFunctionalInterfaces}
  * to provide a neater way to write custom answers that either return a value or are void.
  *
  * <p>See factory methods for more information : {@link #returnsFirstArg}, {@link #returnsSecondArg},
@@ -214,11 +205,10 @@ public class AdditionalAnswers {
      * @param <T> return type
      * @param <A> input parameter type 1
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <T, A> Answer<T> answer(Answer1<T, A> answer) {
-        return toAnswer(answer);
+    public static <T, A, B> Answer<T> answer(AnswerFunctionalInterfaces.Answer1<T, A> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -227,11 +217,10 @@ public class AdditionalAnswers {
      * @param answer interface to the answer - a void method
      * @param <A> input parameter type 1
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <A> Answer<Void> answerVoid(VoidAnswer1<A> answer) {
-        return toAnswer(answer);
+    public static <A, B> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer1<A> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -242,11 +231,10 @@ public class AdditionalAnswers {
      * @param <A> input parameter type 1
      * @param <B> input parameter type 2
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <T, A, B> Answer<T> answer(Answer2<T, A, B> answer) {
-        return toAnswer(answer);
+    public static <T, A, B> Answer<T> answer(AnswerFunctionalInterfaces.Answer2<T, A, B> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -256,11 +244,10 @@ public class AdditionalAnswers {
      * @param <A> input parameter type 1
      * @param <B> input parameter type 2
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <A, B> Answer<Void> answerVoid(VoidAnswer2<A, B> answer) {
-        return toAnswer(answer);
+    public static <A, B> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer2<A, B> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -272,11 +259,10 @@ public class AdditionalAnswers {
      * @param <B> input parameter type 2
      * @param <C> input parameter type 3
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <T, A, B, C> Answer<T> answer(Answer3<T, A, B, C> answer) {
-        return toAnswer(answer);
+    public static <T, A, B, C> Answer<T> answer(AnswerFunctionalInterfaces.Answer3<T, A, B, C> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -287,11 +273,10 @@ public class AdditionalAnswers {
      * @param <B> input parameter type 2
      * @param <C> input parameter type 3
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <A, B, C> Answer<Void> answerVoid(VoidAnswer3<A, B, C> answer) {
-        return toAnswer(answer);
+    public static <A, B, C> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer3<A, B, C> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -304,11 +289,10 @@ public class AdditionalAnswers {
      * @param <C> input parameter type 3
      * @param <D> input parameter type 4
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <T, A, B, C, D> Answer<T> answer(Answer4<T, A, B, C, D> answer) {
-        return toAnswer(answer);
+    public static <T, A, B, C, D> Answer<T> answer(AnswerFunctionalInterfaces.Answer4<T, A, B, C, D> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -320,11 +304,10 @@ public class AdditionalAnswers {
      * @param <C> input parameter type 3
      * @param <D> input parameter type 4
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <A, B, C, D> Answer<Void> answerVoid(VoidAnswer4<A, B, C, D> answer) {
-        return toAnswer(answer);
+    public static <A, B, C, D> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer4<A, B, C, D> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -338,11 +321,10 @@ public class AdditionalAnswers {
      * @param <D> input parameter type 4
      * @param <E> input parameter type 5
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <T, A, B, C, D, E> Answer<T> answer(Answer5<T, A, B, C, D, E> answer) {
-        return toAnswer(answer);
+    public static <T, A, B, C, D, E> Answer<T> answer(AnswerFunctionalInterfaces.Answer5<T, A, B, C, D, E> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 
     /**
@@ -356,10 +338,9 @@ public class AdditionalAnswers {
      * @param <D> input parameter type 4
      * @param <E> input parameter type 5
      * @return the answer object to use
-     * @since 2.1.0
+     * @since 2.0.0
      */
-    @Incubating
-    public static <A, B, C, D, E> Answer<Void> answerVoid(VoidAnswer5<A, B, C, D, E> answer) {
-        return toAnswer(answer);
+    public static <A, B, C, D, E> Answer<Void> answerVoid(AnswerFunctionalInterfaces.VoidAnswer5<A, B, C, D, E> answer) {
+        return AnswerFunctionalInterfaces.toAnswer(answer);
     }
 }

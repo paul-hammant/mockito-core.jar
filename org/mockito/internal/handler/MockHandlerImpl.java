@@ -28,7 +28,7 @@ import org.mockito.verification.VerificationMode;
  *
  * @param <T> type of mock object to handle
  */
-public class MockHandlerImpl<T> implements InternalMockHandler<T> {
+class MockHandlerImpl<T> implements InternalMockHandler<T> {
 
     private static final long serialVersionUID = -2917871070982574165L;
 
