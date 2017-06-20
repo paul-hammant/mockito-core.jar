@@ -9,7 +9,7 @@ import java.util.List;
 
 import net.sf.cglib.proxy.MethodProxy;
 
-import org.mockito.internal.configuration.Configuration;
+import org.mockito.ReturnValues;
 import org.mockito.internal.creation.MockAwareInterceptor;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
@@ -17,11 +17,13 @@ import org.mockito.internal.invocation.MatchersBinder;
 import org.mockito.internal.progress.DeprecatedOngoingStubbing;
 import org.mockito.internal.progress.MockingProgress;
 import org.mockito.internal.progress.NewOngoingStubbing;
+import org.mockito.internal.progress.SequenceNumber;
 import org.mockito.internal.stubbing.DoesNothing;
 import org.mockito.internal.stubbing.MockitoStubber;
 import org.mockito.internal.stubbing.Returns;
 import org.mockito.internal.stubbing.ThrowsException;
 import org.mockito.internal.stubbing.VoidMethodStubbable;
+import org.mockito.internal.util.MockName;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.verification.RegisteredInvocations;
 import org.mockito.internal.verification.VerificationDataImpl;
@@ -40,14 +42,16 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
     private final MockitoStubber mockitoStubber;
     private final MatchersBinder matchersBinder;
     private final MockingProgress mockingProgress;
-    private final String mockName;
+    private final MockName mockName;
+    private final ReturnValues returnValues;
 
     private T instance;
 
-    public MockHandler(String mockName, MockingProgress mockingProgress, MatchersBinder matchersBinder) {
+    public MockHandler(MockName mockName, MockingProgress mockingProgress, MatchersBinder matchersBinder, ReturnValues returnValues) {
         this.mockName = mockName;
         this.mockingProgress = mockingProgress;
         this.matchersBinder = matchersBinder;
+        this.returnValues = returnValues;
         this.mockitoStubber = new MockitoStubber(mockingProgress);
         this.registeredInvocations = new RegisteredInvocations();
     }
@@ -55,17 +59,17 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         if (mockitoStubber.hasAnswersForStubbing()) {
             //stubbing voids with stubVoid() or doAnswer() style
-            Invocation invocation = new Invocation(proxy, method, args, mockingProgress.nextSequenceNumber());
-            InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(invocation);
+            Invocation invocation = new Invocation(proxy, method, args, SequenceNumber.next());
+            InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(mockingProgress.getArgumentMatcherStorage(), invocation);
             mockitoStubber.setMethodForStubbing(invocationMatcher);
             return null;
         }
-        
         VerificationMode verificationMode = mockingProgress.pullVerificationMode();
-        mockingProgress.validateState();
 
-        Invocation invocation = new Invocation(proxy, method, args, mockingProgress.nextSequenceNumber());
-        InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(invocation);
+        Invocation invocation = new Invocation(proxy, method, args, SequenceNumber.next());
+        InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(mockingProgress.getArgumentMatcherStorage(), invocation);
+        
+        mockingProgress.validateState();
 
         if (verificationMode != null) {
             VerificationDataImpl data = new VerificationDataImpl(registeredInvocations.getAll(), invocationMatcher);
@@ -79,10 +83,16 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
         mockingProgress.reportOngoingStubbing(new OngoingStubbingImpl());
 
         Answer<?> answer = mockitoStubber.findAnswerFor(invocation);
+        if (!invocation.isVoid() && answer == null) {
+            //it is a return-value interaction but not stubbed. This *might* be a problem
+            mockingProgress.getDebuggingInfo().addPotentiallyUnstubbed(invocationMatcher);
+        }
+        
         if (answer != null) {
+            mockingProgress.getDebuggingInfo().reportUsedStub(invocationMatcher);
             return answer.answer(invocation);
         } else if (MockUtil.isMock(instance)) {
-            return Configuration.instance().getReturnValues().valueFor(invocation);
+            return returnValues.valueFor(invocation);
         } else {
             return methodProxy.invoke(instance, args);
         }
@@ -105,7 +115,7 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
         return registeredInvocations.getAll();
     }
 
-    public String getMockName() {
+    public MockName getMockName() {
         return mockName;
     }
 
@@ -136,27 +146,55 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
         }
     }
 
-    private class OngoingStubbingImpl implements NewOngoingStubbing<T>, DeprecatedOngoingStubbing<T> {
-        public NewOngoingStubbing<T> thenReturn(Object value) {
+    private abstract class BaseStubbing implements NewOngoingStubbing<T>, DeprecatedOngoingStubbing<T> {
+        public NewOngoingStubbing<T> thenReturn(T value) {
             return thenAnswer(new Returns(value));
         }
 
-        public NewOngoingStubbing<T> thenThrow(Throwable throwable) {
+        public NewOngoingStubbing<T> thenReturn(T value, T... values) {
+            NewOngoingStubbing<T> stubbing = thenReturn(value);            
+            if (values == null) {
+                return stubbing.thenReturn(null);
+            }
+            for (T v: values) {
+                stubbing = stubbing.thenReturn(v);
+            }
+            return stubbing;
+        }
+
+        private NewOngoingStubbing<T> thenThrow(Throwable throwable) {
             return thenAnswer(new ThrowsException(throwable));
         }
 
-        public NewOngoingStubbing<T> thenAnswer(Answer<?> answer) {
-            registeredInvocations.removeLast();
-            mockitoStubber.addAnswer(answer);
-            return new ConsecutiveStubbing();
-        }
+        public NewOngoingStubbing<T> thenThrow(Throwable... throwables) {
+            if (throwables == null) {
+                thenThrow((Throwable) null);
+            }
+            NewOngoingStubbing<T> stubbing = null;
+            for (Throwable t: throwables) {
+                if (stubbing == null) {
+                    stubbing = thenThrow(t);                    
+                } else {
+                    stubbing = stubbing.thenThrow(t);
+                }
+            }
+            return stubbing;
+        }        
 
-        public DeprecatedOngoingStubbing<T> toReturn(Object value) {
+        public DeprecatedOngoingStubbing<T> toReturn(T value) {
             return toAnswer(new Returns(value));
         }
 
         public DeprecatedOngoingStubbing<T> toThrow(Throwable throwable) {
             return toAnswer(new ThrowsException(throwable));
+        }
+    }
+    
+    private class OngoingStubbingImpl extends BaseStubbing {
+        public NewOngoingStubbing<T> thenAnswer(Answer<?> answer) {
+            registeredInvocations.removeLast();
+            mockitoStubber.addAnswer(answer);
+            return new ConsecutiveStubbing();
         }
 
         public DeprecatedOngoingStubbing<T> toAnswer(Answer<?> answer) {
@@ -166,28 +204,12 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
         }
     }
 
-    private class ConsecutiveStubbing implements NewOngoingStubbing<T>, DeprecatedOngoingStubbing<T> {
-        public NewOngoingStubbing<T> thenReturn(Object value) {
-            return thenAnswer(new Returns(value));
-        }
-
-        public NewOngoingStubbing<T> thenThrow(Throwable throwable) {
-            return thenAnswer(new ThrowsException(throwable));
-        }
-
+    private class ConsecutiveStubbing extends BaseStubbing {
         public NewOngoingStubbing<T> thenAnswer(Answer<?> answer) {
             mockitoStubber.addConsecutiveAnswer(answer);
             return this;
         }
         
-        public DeprecatedOngoingStubbing<T> toReturn(Object value) {
-            return toAnswer(new Returns(value));
-        }
-
-        public DeprecatedOngoingStubbing<T> toThrow(Throwable throwable) {
-            return toAnswer(new ThrowsException(throwable));
-        }
-
         public DeprecatedOngoingStubbing<T> toAnswer(Answer<?> answer) {
             mockitoStubber.addConsecutiveAnswer(answer);
             return this;
@@ -197,5 +219,9 @@ public class MockHandler<T> implements MockAwareInterceptor<T> {
     @SuppressWarnings("unchecked")
     public void setAnswersForStubbing(List<Answer> answers) {
         mockitoStubber.setAnswersForStubbing(answers);
+    }
+
+    public boolean hasName() {
+        return false;
     }
 }

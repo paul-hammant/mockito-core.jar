@@ -35,8 +35,6 @@ import org.mockito.MockitoAnnotations;
  *         list.add(100);
  *     }
  * }
- * <p>
- * 
  * </pre>
  */
 public class MockitoJUnitRunner extends BlockJUnit4ClassRunner {

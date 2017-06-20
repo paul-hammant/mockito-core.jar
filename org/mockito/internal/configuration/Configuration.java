@@ -4,12 +4,15 @@
  */
 package org.mockito.internal.configuration;
 
-import org.mockito.configuration.ReturnValues;
+import org.mockito.ReturnValues;
+import org.mockito.configuration.DefaultMockitoConfiguration;
+import org.mockito.configuration.IMockitoConfiguration;
 import org.mockito.exceptions.base.MockitoException;
 
 /**
  * Singleton implementation of MockitoConfiguration
  */
+@Deprecated
 public class Configuration implements MockitoConfiguration {
     
     public static final ThreadLocal<Configuration> CONFIG = new ThreadLocal<Configuration>();
@@ -51,6 +54,9 @@ public class Configuration implements MockitoConfiguration {
      * @see org.mockito.internal.configuration.MockitoConfiguration#resetReturnValues()
      */
     public void resetReturnValues() {
-        returnValues = MockitoProperties.DEFAULT_RETURN_VALUES;
+        //This is a bit messy but it's just to maintain this stupid and deprecated Configuration class
+        //Once Configuration class is gone DefaultMockitoConfiguration will rule them all
+        IMockitoConfiguration defaultConfiguration = new DefaultMockitoConfiguration();
+        returnValues = defaultConfiguration.getReturnValues();
     }
 }

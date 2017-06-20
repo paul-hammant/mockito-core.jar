@@ -14,6 +14,10 @@ import org.mockito.internal.progress.MockingProgress;
 import org.mockito.internal.progress.NewOngoingStubbing;
 import org.mockito.internal.progress.OngoingStubbing;
 import org.mockito.internal.progress.ThreadSafeMockingProgress;
+import org.mockito.internal.returnvalues.EmptyReturnValues;
+import org.mockito.internal.returnvalues.GloballyConfiguredReturnValues;
+import org.mockito.internal.returnvalues.MoreEmptyReturnValues;
+import org.mockito.internal.returnvalues.SmartNullReturnValues;
 import org.mockito.internal.stubbing.DoesNothing;
 import org.mockito.internal.stubbing.Returns;
 import org.mockito.internal.stubbing.Stubber;
@@ -46,6 +50,7 @@ import org.mockito.stubbing.Answer;
  *      11. Stubbing with callbacks <br/>
  *      12. doThrow()|doAnswer()|doNothing()|doReturn() family of methods mostly for stubbing voids <br/>
  *      13. Spying on real objects <br/>
+ *      14. (**New**) Changing default return values of unstubbed invocations <br/>
  * </b>
  * 
  * <p>
@@ -257,6 +262,7 @@ import org.mockito.stubbing.Answer;
  * verifyNoMoreInteractions(mockedList);
  * </pre>
  * 
+ * A word of <b>warning</b>: 
  * Some users who did a lot of classic, expect-run-verify mocking tend to use verifyNoMoreInteractions() very often, even in every test method. 
  * verifyNoMoreInteractions() is not recommended to use in every test method. 
  * verifyNoMoreInteractions() is a handy assertion from the interaction testing toolkit. Use it only when it's relevant.
@@ -264,9 +270,8 @@ import org.mockito.stubbing.Answer;
  * <a href="http://monkeyisland.pl/2008/07/12/should-i-worry-about-the-unexpected/">here</a>.
  * 
  * <p>   
- * 
- *  See also {@link Mockito#never()} - it is more explicit and
- * communicates an intent well.
+ * See also {@link Mockito#never()} - it is more explicit and
+ * communicates the intent well.
  * <p>
  * 
  * <h3>9. Shorthand for mocks creation - &#064;Mock annotation</h3>
@@ -323,6 +328,13 @@ import org.mockito.stubbing.Answer;
  * 
  * //Any consecutive call: prints "foo" as well (last stubbing wins). 
  * System.out.println(mock.someMethod("some arg"));
+ * </pre>
+ * 
+ * Alternative, shorter version of consecutive stubbing:
+ * 
+ * <pre>
+ * when(mock.someMethod("some arg"))
+ *   .thenReturn("one", "two", "three");
  * </pre>
  * 
  * <h3> 11. Stubbing with callbacks</h3>
@@ -407,7 +419,7 @@ import org.mockito.stubbing.Answer;
  * 
  * <h4>Important gotcha on spying real objects!</h4>
  * 
- * Sometimes it's impossible to use {@link Mockito#when(Object)} for stubbing spies. Example:
+ * 1. Sometimes it's impossible to use {@link Mockito#when(Object)} for stubbing spies. Example:
  * 
  * <pre>
  *   List list = new LinkedList();
@@ -419,9 +431,73 @@ import org.mockito.stubbing.Answer;
  *   //You have to use doReturn() for stubbing
  *   doReturn("foo").when(spy).get(0);
  * </pre>
+ * 
+ * 2. Watch out for final methods. 
+ * Mockito doesn't mock final methods so the bottom line is: when you spy on real objects + you try to stub a final method = trouble.
+ * What will happen is the real method will be called *on mock* but *not on the real instance* you passed to the spy() method.
+ * Typically you may get a NullPointerException because mock instances don't have fields initiated.
+ * 
+ * <h3>14. (**New**) Changing default return values of unstubbed invocations</h3>
+ * 
+ * You can create a mock with specified strategy of for its return values.
+ * It's quite advanced feature and typically you don't need it to write decent tests.
+ * However, it can be helpful for working with legacy systems.
+ * <p>
+ * Obviously those return values are used only when you don't stub the method call.
+ * 
+ * <pre>
+ *   Foo mock = mock(Foo.class, Mockito.RETURNS_SMART_NULLS);
+ *   Foo mockTwo = mock(Foo.class, new YourOwnReturnValues()); 
+ * </pre>
+ * 
+ * <p>
+ * Read more about this interesting implementation of <i>ReturnValues</i>: {@link Mockito#RETURNS_SMART_NULLS}
+ * 
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
+    
+    /**
+     * Default ReturnValues used by the framework.
+     * <p>
+     * {@link ReturnValues} defines the return values of unstubbed invocations. 
+     * <p>
+     * This implementation first tries the global configuration. 
+     * If there is no global configuration then it uses {@link EmptyReturnValues} (returns zeros, empty collections, nulls, etc.)
+     */
+    public static final ReturnValues RETURNS_DEFAULTS = new GloballyConfiguredReturnValues();
+    
+    /**
+     * Optional ReturnValues to be used with {@link Mockito#mock(Class, ReturnValues)}
+     * <p>
+     * {@link ReturnValues} defines the return values of unstubbed invocations.
+     * <p>
+     * This implementation can be helpful when working with legacy code.
+     * Unstubbed methods often return null. If your code uses the object returned by an unstubbed call you get a NullPointerException.
+     * This implementation of ReturnValues makes unstubbed methods <b>return SmartNull instead of null</b>.
+     * SmartNull gives nicer exception message than NPE because it points out the line where unstubbed method was called. You just click on the stack trace.
+     * <p>
+     * SmartNullReturnValues first tries to return ordinary return values (see {@link MoreEmptyReturnValues})
+     * then it tries to return SmartNull. If the return type is final then plain null is returned.
+     * <p>
+     * SmartNullReturnValues will be probably the default return values strategy in Mockito 2.0
+     * <p>
+     * Example:
+     * <pre>
+     *   Foo mock = (Foo.class, RETURNS_SMART_NULLS);
+     *   
+     *   //calling unstubbed method here:
+     *   Stuff stuff = mock.getStuff();
+     *   
+     *   //using object returned by unstubbed call:
+     *   stuff.doSomething();
+     *   
+     *   //Above doesn't yield NullPointerException this time!
+     *   //Instead, SmartNullPointerException is thrown. 
+     *   //Exception's cause links to unstubbed <i>mock.getStuff()</i> - just click on the stack trace.  
+     * </pre>
+     */
+    public static final ReturnValues RETURNS_SMART_NULLS = new SmartNullReturnValues();
     
     static final MockingProgress MOCKING_PROGRESS = new ThreadSafeMockingProgress();
     private static final Reporter REPORTER = new Reporter();
@@ -429,14 +505,13 @@ public class Mockito extends Matchers {
     /**
      * Creates mock object of given class or interface.
      * <p>
-     * 
      * See examples in javadoc for {@link Mockito} class
      * 
      * @param classToMock class or interface to mock
      * @return mock object
      */
     public static <T> T mock(Class<T> classToMock) {
-        return mock(classToMock, null);
+        return mock(classToMock, null, null, RETURNS_DEFAULTS);
     }
     
     /**
@@ -454,8 +529,37 @@ public class Mockito extends Matchers {
      * @return mock object
      */
     public static <T> T mock(Class<T> classToMock, String name) {
-        return MockUtil.createMock(classToMock, MOCKING_PROGRESS, name, null);
+        return mock(classToMock, name, null, RETURNS_DEFAULTS);
     }
+    
+    /**
+     * Creates mock with a specified strategy for its return values. 
+     * It's quite advanced feature and typically you don't need it to write decent tests.
+     * However it can be helpful for working with legacy systems.
+     * <p>
+     * Obviously return values are used only when you don't stub the method call.
+     *
+     * <pre>
+     *   Foo mock = mock(Foo.class, Mockito.RETURNS_SMART_NULLS);
+     *   Foo mockTwo = mock(Foo.class, new YourOwnReturnValues()); 
+     * </pre>
+     * 
+     * <p>See examples in javadoc for {@link Mockito} class</p>
+     * 
+     * @param classToMock class or interface to mock
+     * @param returnValues default return values for unstubbed methods
+     *
+     * @return mock object
+     */
+    public static <T> T mock(Class<T> classToMock, ReturnValues returnValues) {
+        return mock(classToMock, null, (T) null, returnValues);
+    }
+    
+    private static <T> T mock(Class<T> classToMock, String name, T optionalInstance, ReturnValues returnValues) {
+        MOCKING_PROGRESS.validateState();
+        MOCKING_PROGRESS.resetOngoingStubbing();
+        return MockUtil.createMock(classToMock, MOCKING_PROGRESS, name, optionalInstance, returnValues);
+    }    
 
     /**
      * Creates a spy of the real object. The spy calls <b>real</b> methods unless they are stubbed.
@@ -493,7 +597,7 @@ public class Mockito extends Matchers {
      * 
      * <h4>Important gotcha on spying real objects!</h4>
      * 
-     * Sometimes it's impossible to use {@link Mockito#when(Object)} for stubbing spies. Example:
+     * 1. Sometimes it's impossible to use {@link Mockito#when(Object)} for stubbing spies. Example:
      * 
      * <pre>
      *   List list = new LinkedList();
@@ -506,6 +610,11 @@ public class Mockito extends Matchers {
      *   doReturn("foo").when(spy).get(0);
      * </pre>
      * 
+     * 2. Watch out for final methods. 
+     * Mockito doesn't mock final methods so the bottom line is: when you spy on real objects + you try to stub a final method = trouble.
+     * What will happen is the real method will be called *on mock* but *not on the real instance* you passed to the spy() method.
+     * Typically you may get a NullPointerException because mock instances don't have fields initiated.
+     * 
      * <p>
      * See examples in javadoc for {@link Mockito} class
      * 
@@ -514,7 +623,7 @@ public class Mockito extends Matchers {
      * @return a spy of the real object
      */
     public static <T> T spy(T object) {
-        return MockUtil.createMock((Class<T>) object.getClass(), MOCKING_PROGRESS, null, object);
+        return mock((Class<T>) object.getClass(), null, object, RETURNS_DEFAULTS);
     }
 
     /**
@@ -573,6 +682,18 @@ public class Mockito extends Matchers {
      * when(mock.someMethod("some arg"))
      *  .thenThrow(new RuntimeException())
      *  .thenReturn("foo");
+     *  
+     * //Alternative, shorter version for consecutive stubbing:
+     * when(mock.someMethod("some arg"))
+     *  .thenReturn("one", "two");
+     * //is the same as:
+     * when(mock.someMethod("some arg"))
+     *  .thenReturn("one")
+     *  .thenReturn("two");
+     *
+     * //shorter version for consecutive method calls throwing exceptions:
+     * when(mock.someMethod("some arg"))
+     *  .thenThrow(new RuntimeException(), new NullPointerException();
      *   
      * </pre>
      * 
@@ -605,6 +726,7 @@ public class Mockito extends Matchers {
     private static OngoingStubbing stub() {
         OngoingStubbing stubbing = MOCKING_PROGRESS.pullOngoingStubbing();
         if (stubbing == null) {
+            MOCKING_PROGRESS.reset();
             REPORTER.missingMethodInvocation();
         }
         return stubbing;
@@ -675,15 +797,20 @@ public class Mockito extends Matchers {
      * You can use this method after you verified your mocks - to make sure that nothing
      * else was invoked on your mocks.
      * <p>
-     * See also {@link Mockito#never()} - it is more explicit and communicates an intent well.
+     * See also {@link Mockito#never()} - it is more explicit and communicates the intent well.
      * <p>
      * Stubbed invocations (if called) are also treated as interactions.
      * <p>
+     * A word of <b>warning</b>: 
      * Some users who did a lot of classic, expect-run-verify mocking tend to use verifyNoMoreInteractions() very often, even in every test method. 
      * verifyNoMoreInteractions() is not recommended to use in every test method. 
      * verifyNoMoreInteractions() is a handy assertion from the interaction testing toolkit. Use it only when it's relevant.
      * Abusing it leads to overspecified, less maintainable tests. You can find further reading 
      * <a href="http://monkeyisland.pl/2008/07/12/should-i-worry-about-the-unexpected/">here</a>.
+     * <p>
+     * This method will also detect unverified invocations that occurred before the test method,
+     * for example: in setUp(), &#064;Before method or in constructor.
+     * Consider writing nice code that makes interactions only in test methods.
      * 
      * <p>
      * Example:
@@ -725,7 +852,10 @@ public class Mockito extends Matchers {
      * <pre>
      *   verifyZeroInteractions(mockOne, mockTwo);
      * </pre>
-     * 
+     * This method will also detect invocations 
+     * that occurred before the test method, for example: in setUp(), &#064;Before method or in constructor.
+     * Consider writing nice code that makes interactions only in test methods.  
+     * <p>
      * See examples in javadoc for {@link Mockito} class
      * 
      * @param mocks to be verified
@@ -818,6 +948,7 @@ public class Mockito extends Matchers {
      */
     public static Stubber doAnswer(Answer answer) {
         MOCKING_PROGRESS.stubbingStarted();
+        MOCKING_PROGRESS.resetOngoingStubbing();
         return new StubberImpl().doAnswer(answer);
     }  
     

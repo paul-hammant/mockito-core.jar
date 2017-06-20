@@ -10,31 +10,28 @@ import java.util.List;
 import java.util.Stack;
 
 import org.hamcrest.Matcher;
+import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.internal.matchers.And;
 import org.mockito.internal.matchers.Not;
 import org.mockito.internal.matchers.Or;
 
 @SuppressWarnings("unchecked")
-public class LastArguments {
-    
-    private static final ThreadLocal<LastArguments> INSTANCE = new ThreadLocal<LastArguments>();
+public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
     
     private Stack<Matcher> matcherStack = new Stack<Matcher>();
-
-    public static LastArguments instance() {
-        if (INSTANCE.get() == null) {
-            INSTANCE.set(new LastArguments()); 
-        }
-        
-        return INSTANCE.get();
-    }
     
-    public EmptyReturnValues reportMatcher(Matcher matcher) {
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.ArgumentMatcherStorage#reportMatcher(org.hamcrest.Matcher)
+     */
+    public HandyReturnValues reportMatcher(Matcher matcher) {
         matcherStack.push(matcher);
-        return new EmptyReturnValues();
+        return new HandyReturnValues();
     }
 
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.ArgumentMatcherStorage#pullMatchers()
+     */
     public List<Matcher> pullMatchers() {
         if (matcherStack.isEmpty()) {
             return null;
@@ -45,16 +42,22 @@ public class LastArguments {
         return matchers;
     }
 
-    public EmptyReturnValues reportAnd() {
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.ArgumentMatcherStorage#reportAnd()
+     */
+    public HandyReturnValues reportAnd() {
         assertState(!matcherStack.isEmpty(), "No matchers found for And(?).");
         matcherStack.push(new And(popLastArgumentMatchers(2)));
-        return new EmptyReturnValues();
+        return new HandyReturnValues();
     }
 
-    public EmptyReturnValues reportNot() {
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.ArgumentMatcherStorage#reportNot()
+     */
+    public HandyReturnValues reportNot() {
         assertState(!matcherStack.isEmpty(), "No matchers found for Not(?).");
         matcherStack.push(new Not(popLastArgumentMatchers(1).get(0)));
-        return new EmptyReturnValues();
+        return new HandyReturnValues();
     }
 
     private List<Matcher> popLastArgumentMatchers(int count) {
@@ -76,9 +79,29 @@ public class LastArguments {
         }
     }
 
-    public EmptyReturnValues reportOr() {
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.ArgumentMatcherStorage#reportOr()
+     */
+    public HandyReturnValues reportOr() {
         assertState(!matcherStack.isEmpty(), "No matchers found.");
         matcherStack.push(new Or(popLastArgumentMatchers(2)));
-        return new EmptyReturnValues();
+        return new HandyReturnValues();
+    }
+
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.ArgumentMatcherStorage#validateState()
+     */
+    public void validateState() {
+        if (!matcherStack.isEmpty()) {
+            matcherStack.clear();
+            new Reporter().misplacedArgumentMatcher();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.ArgumentMatcherStorage#reset()
+     */
+    public void reset() {
+        matcherStack.clear();
     }
 }

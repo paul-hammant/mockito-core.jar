@@ -20,8 +20,9 @@ import org.mockito.internal.matchers.Null;
 import org.mockito.internal.matchers.Same;
 import org.mockito.internal.matchers.StartsWith;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-import org.mockito.internal.progress.EmptyReturnValues;
-import org.mockito.internal.progress.LastArguments;
+import org.mockito.internal.progress.HandyReturnValues;
+import org.mockito.internal.progress.MockingProgress;
+import org.mockito.internal.progress.ThreadSafeMockingProgress;
 
 /**
  * Allow flexible verification or stubbing. See also {@link AdditionalMatchers}.
@@ -91,6 +92,8 @@ import org.mockito.internal.progress.LastArguments;
  */
 @SuppressWarnings("unchecked")
 public class Matchers {
+    
+    private static MockingProgress mockingProgress = new ThreadSafeMockingProgress();
 
     /**
      * any boolean, Boolean or null.
@@ -190,6 +193,21 @@ public class Matchers {
     @SuppressWarnings("unchecked")
     public static <T> T anyObject() {
         return (T) reportMatcher(Any.ANY).returnNull();
+    }
+    
+    /**
+     * any object of specified class. 
+     * Sometimes looks better than anyObject() 
+     * <p>
+     * Alias to {@link Matchers#anyObject()}
+     * <p>
+     * See examples in javadoc for {@link Matchers} class
+     * 
+     * @return <code>null</code>.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T any(Class<T> clazz) {
+        return isA(clazz);
     }
 
     /**
@@ -598,7 +616,7 @@ public class Matchers {
         return reportMatcher(matcher).returnZero();
     }
 
-    private static EmptyReturnValues reportMatcher(Matcher<?> matcher) {
-        return LastArguments.instance().reportMatcher(matcher);
+    private static HandyReturnValues reportMatcher(Matcher<?> matcher) {
+        return mockingProgress.getArgumentMatcherStorage().reportMatcher(matcher);
     }
 }

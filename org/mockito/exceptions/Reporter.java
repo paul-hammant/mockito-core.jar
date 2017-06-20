@@ -4,7 +4,7 @@
  */
 package org.mockito.exceptions;
 
-import static org.mockito.exceptions.StringJoiner.*;
+import static org.mockito.internal.util.StringJoiner.*;
 
 import org.mockito.exceptions.base.HasStackTrace;
 import org.mockito.exceptions.base.MockitoAssertionError;
@@ -67,7 +67,8 @@ public class Reporter {
                 "Examples of correct stubbing:",
                 "    when(mock.isOk()).thenReturn(true);",
                 "    when(mock.isOk()).thenThrow(exception);",
-                "    doThrow(exception).when(mock).someVoidMethod();"
+                "    doThrow(exception).when(mock).someVoidMethod();",
+                "Also make sure the method is not final - you cannot stub final methods."
         ));
     }
 
@@ -75,7 +76,8 @@ public class Reporter {
         throw new MissingMethodInvocationException(join(
                 "when() requires an argument which has to be a method call on a mock.",
                 "For example:",
-                "    when(mock.getArticles()).thenReturn(articles);"
+                "    when(mock.getArticles()).thenReturn(articles);",
+                "Also make sure the method is not final - you cannot stub final methods."
         ));
     }
 
@@ -83,7 +85,8 @@ public class Reporter {
         throw new UnfinishedVerificationException(join(
                 "Previous verify(mock) doesn't have a method call!",
                 "Example of correct verification:",
-                "    verify(mock).doSomething()"
+                "    verify(mock).doSomething()",
+                "Also make sure the method is not final - you cannot verify final methods."
         ));
     }
     
@@ -377,5 +380,17 @@ public class Reporter {
 
     public void wantedAtMostX(int maxNumberOfInvocations, int foundSize) {
         throw new MockitoAssertionError(join("Wanted at most " + pluralize(maxNumberOfInvocations) + " but was " + foundSize));
+    }
+
+    public void misplacedArgumentMatcher() {
+        throw new InvalidUseOfMatchersException(join(
+                "Misplaced argument matcher detected!",
+                "Somewhere before this line you probably misused Mockito argument matchers.",
+                "For example you might have used anyObject() argument matcher outside of verification or stubbing.",
+                "Here are examples of correct usage of argument matchers:",
+                "    when(mock.get(anyInt())).thenReturn(null);",
+                "    doThrow(new RuntimeException()).when(mock).someVoidMethod(anyObject());",
+                "    verify(mock).someMethod(contains(\"foo\"));"
+                ));
     }
 }

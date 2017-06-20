@@ -5,16 +5,21 @@
 package org.mockito.internal.progress;
 
 import org.mockito.exceptions.Reporter;
+import org.mockito.internal.configuration.GlobalConfiguration;
+import org.mockito.internal.debugging.DebuggingInfo;
+import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.verification.api.VerificationMode;
 
 @SuppressWarnings("unchecked")
 public class MockingProgressImpl implements MockingProgress {
     
     private final Reporter reporter = new Reporter();
+    private final ArgumentMatcherStorage argumentMatcherStorage = new ArgumentMatcherStorageImpl();
     
-    private OngoingStubbing ongoingStubbing;
+    private final DebuggingInfo debuggingInfo = new DebuggingInfo();
+
+    OngoingStubbing ongoingStubbing;
     private VerificationMode verificationMode;
-    private int invocationSequenceNumber = 1;
     private boolean stubbingInProgress = false;
 
     public void reportOngoingStubbing(OngoingStubbing ongoingStubbing) {
@@ -29,7 +34,15 @@ public class MockingProgressImpl implements MockingProgress {
     
     public void verificationStarted(VerificationMode verify) {
         validateState();
+        resetOngoingStubbing();
         verificationMode = (VerificationMode) verify;
+    }
+
+    /* (non-Javadoc)
+     * @see org.mockito.internal.progress.MockingProgress#resetOngoingStubbing()
+     */
+    public void resetOngoingStubbing() {
+        ongoingStubbing = null;
     }
 
     public VerificationMode pullVerificationMode() {
@@ -38,16 +51,16 @@ public class MockingProgressImpl implements MockingProgress {
         return temp;
     }
 
-    public int nextSequenceNumber() {
-        return invocationSequenceNumber++;
-    }
-
     public void stubbingStarted() {
         validateState();
         stubbingInProgress = true;
     }
 
     public void validateState() {
+        //State is cool when GlobalConfiguration is already loaded
+        //this cannot really be tested functionally because I cannot dynamically mess up org.mockito.configuration.MockitoConfiguration class 
+        GlobalConfiguration.validate();
+        
         if (verificationMode != null) {
             verificationMode = null;
             reporter.unfinishedVerificationException();
@@ -57,22 +70,32 @@ public class MockingProgressImpl implements MockingProgress {
             stubbingInProgress = false;
             reporter.unfinishedStubbing();
         }
+      
+        getArgumentMatcherStorage().validateState();
     }
 
-    public void stubbingCompleted() {
+    public void stubbingCompleted(Invocation invocation) {
+        debuggingInfo.addStubbedInvocation(invocation);        
         stubbingInProgress = false;
     }
     
     public String toString() {
         return  "ongoingStubbing: " + ongoingStubbing + 
         ", verificationMode: " + verificationMode +
-        ", invocationSequenceNumber: " + invocationSequenceNumber +
         ", stubbingInProgress: " + stubbingInProgress;
     }
 
     public void reset() {
         stubbingInProgress = false;
         verificationMode = null;
-        invocationSequenceNumber = 1;
+        getArgumentMatcherStorage().reset();
+    }
+
+    public ArgumentMatcherStorage getArgumentMatcherStorage() {
+        return argumentMatcherStorage;
+    }
+
+    public DebuggingInfo getDebuggingInfo() {
+        return debuggingInfo;
     }
 }

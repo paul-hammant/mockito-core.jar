@@ -39,9 +39,10 @@ public class MockitoStubber {
     }
     
     private void addAnswer(Answer answer, boolean isConsecutive) {
-        mockingProgress.stubbingCompleted();
+        Invocation invocation = invocationForStubbing.getInvocation();
+        mockingProgress.stubbingCompleted(invocation);
         AnswersValidator answersValidator = new AnswersValidator();
-        answersValidator.validate(answer, invocationForStubbing.getInvocation());
+        answersValidator.validate(answer, invocation);
         
         if (isConsecutive) {
             stubbed.getFirst().addAnswer(answer);
@@ -54,7 +55,7 @@ public class MockitoStubber {
         return findAnswerFor(invocation).answer(invocation);
     }
 
-    public Answer findAnswerFor(Invocation invocation) {
+    public Answer<?> findAnswerFor(Invocation invocation) {
         for (StubbedInvocationMatcher s : stubbed) {
             if (s.matches(invocation)) {
                 return s;
@@ -83,5 +84,10 @@ public class MockitoStubber {
             addAnswer(answersForStubbing.get(i), i != 0);
         }
         answersForStubbing.clear();
+    }
+    
+    @Override
+    public String toString() {
+        return "invocationForStubbing: " + invocationForStubbing;
     }
 }

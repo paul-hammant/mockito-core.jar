@@ -24,7 +24,10 @@ import org.mockito.stubbing.Answer;
  * when(mock.someMethod("some arg"))
  *  .thenThrow(new RuntimeException())
  *  .thenReturn("foo");
- *
+ * 
+ * //There is a shorter way of consecutive stubbing:
+ * when(mock.someMethod()).thenReturn(1,2,3);
+ * when(mock.otherMethod()).thenThrow(exc1, exc2);
  * </pre>
  *
  * See examples in javadoc for {@link Mockito#when}
@@ -46,21 +49,43 @@ public interface NewOngoingStubbing<T> {
     NewOngoingStubbing<T> thenReturn(T value);
 
     /**
-     * Sets a Throwable to be thrown when the method is called. E.g:
+     * Sets consecutive return values to be returned when the method is called. E.g:
+     * <pre>
+     * when(mock.someMethod()).thenReturn(1, 2, 3);
+     * </pre>
+     *
+     * Last return value in the sequence (in example: 3) determines the behavior of further consecutive calls.
+     * <p>
+     * See examples in javadoc for {@link Mockito#when}
+     *
+     * @param value first return value
+     * @param values next return values
+     *
+     * @return ongoingStubbing object that allows stubbing consecutive calls
+     */
+    NewOngoingStubbing<T> thenReturn(T value, T... values);
+
+    /**
+     * Sets Throwable objects to be thrown when the method is called. E.g:
      * <pre>
      * when(mock.someMethod()).thenThrow(new RuntimeException());
      * </pre>
      *
-     * If throwable is a checked exception then it has to
+     * If throwables contain a checked exception then it has to
      * match one of the checked exceptions of method signature.
-     *
+     * <p>
+     * You can specify throwables to be thrown for consecutive calls. 
+     * In that case the last throwable determines the behavior of further consecutive calls.
+     * <p>
+     * if throwable is null then exception will be thrown.
+     * <p>
      * See examples in javadoc for {@link Mockito#when}
      *
-     * @param throwable to be thrown on method invocation
+     * @param throwables to be thrown on method invocation
      *
      * @return ongoingStubbing object that allows stubbing consecutive calls
      */
-    NewOngoingStubbing<T> thenThrow(Throwable throwable);
+    NewOngoingStubbing<T> thenThrow(Throwable... throwables);
 
     /**
      * Sets a generic Answer for the method. E.g:

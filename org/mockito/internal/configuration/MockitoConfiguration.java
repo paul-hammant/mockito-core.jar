@@ -4,7 +4,7 @@
  */
 package org.mockito.internal.configuration;
 
-import org.mockito.configuration.ReturnValues;
+import org.mockito.ReturnValues;
 import org.mockito.configuration.experimental.ConfigurationSupport;
 
 /**
@@ -12,6 +12,7 @@ import org.mockito.configuration.experimental.ConfigurationSupport;
  * <p>
  * See examples in javadoc for {@link ConfigurationSupport}
  */
+@Deprecated
 public interface MockitoConfiguration {
 
     /**
@@ -31,7 +32,7 @@ public interface MockitoConfiguration {
     void setReturnValues(ReturnValues returnValues);
 
     /**
-     * Resets {@link ReturnValues} implementation to the default one: {@link MockitoProperties#DEFAULT_RETURN_VALUES}
+     * Resets {@link ReturnValues} implementation to the default one
      */
     void resetReturnValues();
 }

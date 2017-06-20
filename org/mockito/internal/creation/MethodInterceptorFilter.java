@@ -6,6 +6,8 @@ package org.mockito.internal.creation;
 
 import java.lang.reflect.Method;
 
+import org.mockito.internal.creation.cglib.CGLIBHacker;
+
 import net.sf.cglib.proxy.MethodProxy;
 
 @SuppressWarnings("unchecked")
@@ -25,22 +27,21 @@ public class MethodInterceptorFilter<T extends MockAwareInterceptor> implements 
             equalsMethod = toMock.getMethod("equals", new Class[] { Object.class });
             hashCodeMethod = toMock.getMethod("hashCode", (Class[]) null);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("An Object method could not be found!");
+            throw new RuntimeException("\nSomething went really wrong. Object method could not be found!" +
+                "\n please report it to the mocking mailing list at http://mockito.org");
         }
         this.delegate = delegate;
     }
 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy)
             throws Throwable {
-        if (method.isBridge()) {
-            return methodProxy.invokeSuper(proxy, args);
-        }
-        
         if (equalsMethod.equals(method)) {
             return Boolean.valueOf(proxy == args[0]);
         } else if (hashCodeMethod.equals(method)) {
             return hashCodeForMock(proxy);
         }
+        
+        new CGLIBHacker().setMockitoNamingPolicy(methodProxy);
         
         return delegate.intercept(proxy, method, args, methodProxy);
     }

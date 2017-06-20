@@ -57,14 +57,15 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
                 && !args[args.length - 1].getClass().isArray()) {
             return args == null ? new Object[0] : args;
         }
-        
-        //in case someone deliberately passed null varArg array
-        if (args[args.length - 1] == null) {
-            return new Object[] {null};
-        }
             
         final int nonVarArgsCount = args.length - 1;
-        Object[] varArgs = ArrayEquals.createObjectArray(args[nonVarArgsCount]);
+        Object[] varArgs;  
+        if (args[nonVarArgsCount] == null) {
+            //in case someone deliberately passed null varArg array
+            varArgs = new Object[] {null};
+        } else {
+            varArgs = ArrayEquals.createObjectArray(args[nonVarArgsCount]);
+        }
         final int varArgsCount = varArgs.length;
         Object[] newArgs = new Object[nonVarArgsCount + varArgsCount];
         System.arraycopy(args, 0, newArgs, 0, nonVarArgsCount);
@@ -143,7 +144,7 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
     protected String toString(List<Matcher> matchers, boolean forceMultiline) {
         String method = qualifiedMethodName();
         String invocation = method + getArgumentsLine(matchers);
-        if (forceMultiline || invocation.length() > MAX_LINE_LENGTH) {
+        if (forceMultiline || (!matchers.isEmpty() && invocation.length() > MAX_LINE_LENGTH)) {
             return method + getArgumentsBlock(matchers);
         } else {
             return invocation;
@@ -179,9 +180,13 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
     }
 
     public static boolean isToString(InvocationOnMock invocation) {
-        return invocation.getMethod().getReturnType() == String.class 
-            && invocation.getMethod().getParameterTypes().length == 0 
-            && invocation.getMethod().getName().equals("toString");
+        return isToString(invocation.getMethod());
+    }
+    
+    public static boolean isToString(Method method) {
+        return method.getReturnType() == String.class 
+        && method.getParameterTypes().length == 0 
+        && method.getName().equals("toString");
     }
 
     public boolean isValidException(Throwable throwable) {
