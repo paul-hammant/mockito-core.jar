@@ -7,7 +7,7 @@ package org.mockito.internal.invocation.realmethod;
 import org.mockito.cglib.proxy.MethodProxy;
 import org.mockito.internal.exceptions.base.ConditionalStackTraceFilter;
 
-public class FilteredCGLIBProxyRealMethod implements RealMethod, HasCGLIBMethodProxy {
+public class FilteredCGLIBProxyRealMethod implements RealMethod {
 
     private final RealMethod realMethod;
 
@@ -26,9 +26,5 @@ public class FilteredCGLIBProxyRealMethod implements RealMethod, HasCGLIBMethodP
             new ConditionalStackTraceFilter().filter(t);
             throw t;
         }
-    }
-
-    public MethodProxy getMethodProxy() {
-        return ((HasCGLIBMethodProxy) realMethod).getMethodProxy();
     }
 }

@@ -14,22 +14,16 @@ import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.util.MockitoLogger;
 
-public class WarningsPrinterImpl {
+public class WarningsPrinter {
 
     private final List<Invocation> unusedStubs;
     private final List<InvocationMatcher> unstubbedInvocations;
-    private final boolean warnAboutUnstubbed;
 
-    public WarningsPrinterImpl(List<Invocation> unusedStubs, List<InvocationMatcher> unstubbedInvocations) {
-        this(unusedStubs, unstubbedInvocations, false);
-    }
-
-    public WarningsPrinterImpl(List<Invocation> unusedStubs, List<InvocationMatcher> unstubbedInvocations, boolean warnAboutUnstubbed) {
-        this.warnAboutUnstubbed = warnAboutUnstubbed;
+    public WarningsPrinter(List<Invocation> unusedStubs, List<InvocationMatcher> unstubbedInvocations) {
         this.unusedStubs = new LinkedList<Invocation>(unusedStubs);
         this.unstubbedInvocations = new LinkedList<InvocationMatcher>(unstubbedInvocations);
     }
-    
+
     public void print(MockitoLogger logger) {
         Iterator<Invocation> unusedIterator = unusedStubs.iterator();
         while(unusedIterator.hasNext()) {
@@ -49,20 +43,22 @@ public class WarningsPrinterImpl {
             logger.log(thisStubWasNotUsed(i));
         }
 
-        if (warnAboutUnstubbed) {
-            for (InvocationMatcher i1 : unstubbedInvocations) {
-                logger.log(thisMethodWasNotStubbed(i1));
-            }
+        for (InvocationMatcher i1 : unstubbedInvocations) {
+            logger.log(thisMethodWasNotStubbed(i1));
         }
     }
 
     private String thisStubWasNotUsed(Invocation i) {
-        return "This stubbing was never used " + i.getLocation() + "\n";
+        return join(
+            "[Mockito] Warning - this stub was not used:",
+            i,
+            i.getLocation(),
+            "");
     }
 
     private String thisMethodWasNotStubbed(InvocationMatcher i) {
         return join(
-            "[Mockito hint] This method was not stubbed:",
+            "[Mockito] Warning - this method was not stubbed:",
             i,
             i.getInvocation().getLocation(),
             "");
@@ -70,9 +66,14 @@ public class WarningsPrinterImpl {
 
     private String stubbedMethodCalledWithDifferentArguments(Invocation unused, InvocationMatcher unstubbed) {
         return join(
-                " *** Verbose stubbing warnings from Mockito *** ",
-                "stubbed here " + unused.getLocation(),
-                "BUT called with different arguments here " + unstubbed.getInvocation().getLocation(),
+                "[Mockito] Warning - stubbed method called with different arguments.",
+                "Stubbed this way:",
+                unused,
+                unused.getLocation(),
+                "",
+                "But called with different arguments:",
+                unstubbed,
+                unstubbed.getInvocation().getLocation(),
                 "");
     }
 }

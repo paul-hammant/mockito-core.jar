@@ -16,6 +16,10 @@ public class ArgumentMatchingTool {
 
     /**
      * Suspiciously not matching arguments are those that don't much, the toString() representation is the same but types are different.
+     * 
+     * @param matchers
+     * @param arguments
+     * @return
      */
     public Integer[] getSuspiciouslyNotMatchingArgsIndexes(List<Matcher> matchers, Object[] arguments) {
         if (matchers.size() != arguments.length) {
@@ -45,6 +49,6 @@ public class ArgumentMatchingTool {
     }
 
     private boolean toStringEquals(Matcher m, Object arg) {
-        return StringDescription.toString(m).equals(arg == null? "null" : arg.toString());
+        return StringDescription.toString(m).equals(arg.toString());
     }
 }

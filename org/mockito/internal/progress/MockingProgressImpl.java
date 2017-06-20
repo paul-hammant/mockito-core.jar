@@ -20,17 +20,17 @@ public class MockingProgressImpl implements MockingProgress {
     
     private final DebuggingInfo debuggingInfo = new DebuggingInfo();
 
-    IOngoingStubbing iOngoingStubbing;
+    OngoingStubbing ongoingStubbing;
     private Localized<VerificationMode> verificationMode;
     private Location stubbingInProgress = null;
 
-    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
-        this.iOngoingStubbing = iOngoingStubbing;
+    public void reportOngoingStubbing(OngoingStubbing ongoingStubbing) {
+        this.ongoingStubbing = ongoingStubbing;
     }
 
-    public IOngoingStubbing pullOngoingStubbing() {
-        IOngoingStubbing temp = iOngoingStubbing;
-        iOngoingStubbing = null;
+    public OngoingStubbing pullOngoingStubbing() {
+        OngoingStubbing temp = ongoingStubbing;
+        ongoingStubbing = null;
         return temp;
     }
     
@@ -44,7 +44,7 @@ public class MockingProgressImpl implements MockingProgress {
      * @see org.mockito.internal.progress.MockingProgress#resetOngoingStubbing()
      */
     public void resetOngoingStubbing() {
-        iOngoingStubbing = null;
+        ongoingStubbing = null;
     }
 
     public VerificationMode pullVerificationMode() {
@@ -88,7 +88,7 @@ public class MockingProgressImpl implements MockingProgress {
     }
     
     public String toString() {
-        return  "iOngoingStubbing: " + iOngoingStubbing + 
+        return  "ongoingStubbing: " + ongoingStubbing + 
         ", verificationMode: " + verificationMode +
         ", stubbingInProgress: " + stubbingInProgress;
     }

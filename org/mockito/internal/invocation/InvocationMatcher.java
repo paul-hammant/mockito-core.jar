@@ -11,12 +11,11 @@ import java.util.List;
 import org.hamcrest.Matcher;
 import org.mockito.exceptions.PrintableInvocation;
 import org.mockito.internal.debugging.Location;
-import org.mockito.internal.matchers.CapturesArguments;
 import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.internal.reporting.PrintingFriendlyInvocation;
 
 @SuppressWarnings("unchecked")
-public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyInvocation, CapturesArgumensFromInvocation {
+public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyInvocation {
 
     private final Invocation invocation;
     private final List<Matcher> matchers;
@@ -53,7 +52,7 @@ public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyI
     public boolean matches(Invocation actual) {
         return invocation.getMock().equals(actual.getMock())
                 && hasSameMethod(actual)
-                && (argumentsMatch(actual.getArguments()));
+                && (argumentsMatch(actual.getArguments()) || argumentsMatch(actual.getRawArguments()));
     }
 
     private boolean argumentsMatch(Object[] actualArgs) {
@@ -107,15 +106,5 @@ public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyI
 
     public String toString(PrintSettings printSettings) {
         return invocation.toString(matchers, printSettings);
-    }
-
-    public void captureArgumentsFrom(Invocation i) {
-        int k = 0;
-        for (Matcher m : matchers) {
-            if (m instanceof CapturesArguments) {
-                ((CapturesArguments) m).captureFrom(i.getArguments()[k]);
-            }
-            k++;
-        }
     }
 }

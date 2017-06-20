@@ -13,7 +13,6 @@ import org.mockito.internal.stubbing.answers.Returns;
 import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.Stubber;
 
 @SuppressWarnings("unchecked")
 public class StubberImpl implements Stubber {

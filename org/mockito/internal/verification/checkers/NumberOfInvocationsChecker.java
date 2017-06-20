@@ -11,14 +11,12 @@ import org.mockito.exceptions.Reporter;
 import org.mockito.internal.debugging.Location;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
-import org.mockito.internal.invocation.InvocationMarker;
 import org.mockito.internal.invocation.InvocationsFinder;
 
 public class NumberOfInvocationsChecker {
     
     private final Reporter reporter;
     private final InvocationsFinder finder;
-    private final InvocationMarker invocationMarker = new InvocationMarker();
 
     public NumberOfInvocationsChecker() {
         this(new Reporter(), new InvocationsFinder());
@@ -44,6 +42,8 @@ public class NumberOfInvocationsChecker {
             reporter.tooManyActualInvocations(wantedCount, actualCount, wanted, firstUndesired);
         }
         
-        invocationMarker.markVerified(actualInvocations, wanted);
+        for (Invocation i : actualInvocations) {
+            i.markVerified();
+        }
     }
 }

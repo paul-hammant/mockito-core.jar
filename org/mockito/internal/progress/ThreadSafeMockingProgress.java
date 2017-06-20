@@ -19,11 +19,11 @@ public class ThreadSafeMockingProgress implements MockingProgress {
         return mockingProgress.get();
     }
     
-    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
-        threadSafely().reportOngoingStubbing(iOngoingStubbing);
+    public void reportOngoingStubbing(OngoingStubbing ongoingStubbing) {
+        threadSafely().reportOngoingStubbing(ongoingStubbing);
     }
 
-    public IOngoingStubbing pullOngoingStubbing() {
+    public OngoingStubbing pullOngoingStubbing() {
         return threadSafely().pullOngoingStubbing();
     }
     

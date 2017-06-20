@@ -6,6 +6,10 @@ package org.mockito;
 
 import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
+import org.mockito.internal.progress.DeprecatedOngoingStubbing;
+import org.mockito.internal.progress.NewOngoingStubbing;
+import org.mockito.internal.stubbing.Stubber;
+import org.mockito.internal.stubbing.VoidMethodStubbable;
 import org.mockito.internal.stubbing.answers.AnswerReturnValuesAdapter;
 import org.mockito.internal.stubbing.answers.CallsRealMethods;
 import org.mockito.internal.stubbing.answers.DoesNothing;
@@ -20,10 +24,6 @@ import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.api.VerificationMode;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.DeprecatedOngoingStubbing;
-import org.mockito.stubbing.OngoingStubbing;
-import org.mockito.stubbing.Stubber;
-import org.mockito.stubbing.VoidMethodStubbable;
 
 /**
  * <p align="left"><img src="logo.jpg"/></p>
@@ -54,7 +54,6 @@ import org.mockito.stubbing.VoidMethodStubbable;
  *      <a href="#16">16. (**New**) Real partial mocks</a><br/>
  *      <a href="#17">17. (**New**) Resetting mocks</a><br/>
  *      <a href="#18">18. (**New**) Troubleshooting & validating framework usage</a><br/>
- *      <a href="#19">19. (**New**) Aliases for behavior driven development</a><br/>
  * </b>
  * 
  * <p>
@@ -481,7 +480,7 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * In some situations though, it is helpful to assert on certain arguments after the actual verification.
  * For example:
  * <pre>
- *   ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class);
+ *   ArgumentCaptor&lt;Person&gt; argument = new ArgumentCaptor&lt;Person&gt;();
  *   verify(mock).doSomething(argument.capture());
  *   assertEquals("John", argument.getValue().getName());
  * </pre>
@@ -564,39 +563,6 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * <p>
  * Next, you should know that Mockito validates if you use it correctly <b>all the time</b>. 
  * However, there's a gotcha so please read the javadoc for {@link Mockito#validateMockitoUsage()}
- * 
- * <h3 id="19">19. (**New**) Aliases for behavior driven development</h3>
- * 
- * Behavior Driven Development style of writing tests uses <b>//given //when //then</b> comments as fundamental parts of your test methods.
- * This is exactly how we write our tests and we warmly encourage you to do so!
- * <p>
- * Start learning about BDD here: <a href="http://en.wikipedia.org/wiki/Behavior_Driven_Development">http://en.wikipedia.org/wiki/Behavior_Driven_Development</a>
- * <p>
- * The problem is that current stubbing api with canonical role of <b>when</b> word does not integrate nicely with <b>//given //when //then</b> comments.
- * It's because stubbing belongs to <b>given</b> component of the test and not to the <b>when</b> component of the test. 
- * Hence {@link BDDMockito} class introduces an alias so that you stub method calls with {@link BDDMockito#given(Object)} method. 
- * Now it really nicely integrates with the <b>given</b> component of a BDD style test!  
- * <p>
- * Here is how the test might look like: 
- * <pre>
- * import static org.mockito.BDDMockito.*;
- * 
- * Seller seller = mock(Seller.class);
- * Shop shop = new Shop(seller);
- * 
- * public void shouldBuyBread() throws Exception {
- *   //given  
- *   given(seller.askForBread()).willReturn(new Bread());
- *   
- *   //when
- *   Goods goods = shop.buyBread();
- *   
- *   //then
- *   assertThat(goods, containBread());
- * }  
- * </pre>
- * 
- * 
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
@@ -971,7 +937,7 @@ public class Mockito extends Matchers {
      * See examples in javadoc for {@link Mockito} class
      * @param methodCall method to be stubbed
      */
-    public static <T> OngoingStubbing<T> when(T methodCall) {
+    public static <T> NewOngoingStubbing<T> when(T methodCall) {
         return MOCKITO_CORE.when(methodCall);
     }
 

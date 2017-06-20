@@ -4,34 +4,22 @@
  */
 package org.mockito;
 
+import org.mockito.internal.progress.NewOngoingStubbing;
+import org.mockito.internal.stubbing.Stubber;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.OngoingStubbing;
-import org.mockito.stubbing.Stubber;
 
 /**
- * Behavior Driven Development style of writing tests uses <b>//given //when //then</b> comments as fundamental parts of your test methods.
- * This is exactly how we write our tests and we warmly encourage you to do so!
+ * Behavior Driven Development style of stubbing that integrates nicely with //given //when //then comments.
+ * Start learning about BDD here: <link href="http://en.wikipedia.org/wiki/Behavior_Driven_Development">http://en.wikipedia.org/wiki/Behavior_Driven_Development</link>
  * <p>
- * Start learning about BDD here: <a href="http://en.wikipedia.org/wiki/Behavior_Driven_Development">http://en.wikipedia.org/wiki/Behavior_Driven_Development</a>
- * <p>
- * The problem is that current stubbing api with canonical role of <b>when</b> word does not integrate nicely with <b>//given //when //then</b> comments.
- * It's because stubbing belongs to <b>given</b> component of the test and not to the <b>when</b> component of the test. 
- * Hence {@link BDDMockito} class introduces an alias so that you stub method calls with {@link BDDMockito#given(Object)} method. 
- * Now it really nicely integrates with the <b>given</b> component of a BDD style test!    
- * <p>
- * Here is how the test might look like: 
+ * The entire test can look like:  
  * <pre>
- * import static org.mockito.BDDMockito.*;
- * 
- * Seller seller = mock(Seller.class);
- * Shop shop = new Shop(seller);
- * 
  * public void shouldBuyBread() throws Exception {
- *   //given  
+ *   //given
  *   given(seller.askForBread()).willReturn(new Bread());
  *   
  *   //when
- *   Goods goods = shop.buyBread();
+ *   Goods goods = shopping.shopForBread();
  *   
  *   //then
  *   assertThat(goods, containBread());
@@ -50,47 +38,47 @@ import org.mockito.stubbing.Stubber;
  *   assertEquals(failure, result);
  * </pre>
  * <p>
- * One of the purposes of BDDMockito is also to show how to tailor the mocking syntax to a different programming style. 
+ * BDDMockito also shows how you can adjust the mocking syntax if you feel like 
  */
 @SuppressWarnings("unchecked")
 public class BDDMockito extends Mockito {
     
     /**
-     * See original {@link OngoingStubbing}
+     * See original {@link NewOngoingStubbing}
      */
     public static interface BDDMyOngoingStubbing<T> {
         
         /**
-         * See original {@link OngoingStubbing#thenAnswer(Answer)}
+         * See original {@link NewOngoingStubbing#thenAnswer(Answer)}
          */
         BDDMyOngoingStubbing<T> willAnswer(Answer<?> answer);
         
         /**
-         * See original {@link OngoingStubbing#thenReturn(Object)}
+         * See original {@link NewOngoingStubbing#thenReturn(Object)}
          */
         BDDMyOngoingStubbing<T> willReturn(T value);
         
         /**
-         * See original {@link OngoingStubbing#thenReturn(Object, Object...)}
+         * See original {@link NewOngoingStubbing#thenReturn(Object, Object...)}
          */
         BDDMyOngoingStubbing<T> willReturn(T value, T... values);
         
         /**
-         * See original {@link OngoingStubbing#thenThrow(Throwable...)}
+         * See original {@link NewOngoingStubbing#thenThrow(Throwable...)}
          */
         BDDMyOngoingStubbing<T> willThrow(Throwable... throwables);
 
         /**
-         * See original {@link OngoingStubbing#thenCallRealMethod()}
+         * See original {@link NewOngoingStubbing#thenCallRealMethod()}
          */
         BDDMyOngoingStubbing<T> willCallRealMethod();
     }
     
     public static class BDDOngoingStubbingImpl<T> implements BDDMyOngoingStubbing<T> {
 
-        private final OngoingStubbing<T> mockitoOngoingStubbing;
+        private final NewOngoingStubbing<T> mockitoOngoingStubbing;
 
-        public BDDOngoingStubbingImpl(OngoingStubbing<T> ongoingStubbing) {
+        public BDDOngoingStubbingImpl(NewOngoingStubbing<T> ongoingStubbing) {
             this.mockitoOngoingStubbing = ongoingStubbing;
         }
 

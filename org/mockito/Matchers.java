@@ -201,7 +201,6 @@ public class Matchers {
     public static <T> T anyObject() {
         return (T) reportMatcher(Any.ANY).returnNull();
     }
-    //TODO: after 1.8 check out Jay Fields' idea on any() matcher
     
     /**
      * any object of specified class. 

@@ -30,6 +30,7 @@ public class GlobalConfiguration implements IMockitoConfiguration {
         }
     }
     
+    @SuppressWarnings("deprecation")
     private IMockitoConfiguration createConfig() {
         IMockitoConfiguration defaultConfiguration = new DefaultMockitoConfiguration();
         IMockitoConfiguration config = new ClassPathLoader().loadConfiguration();
