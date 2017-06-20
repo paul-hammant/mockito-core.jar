@@ -2,10 +2,10 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockito.internal.progress;
+package org.mockito.stubbing;
 
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
+import org.mockito.internal.progress.IOngoingStubbing;
 
 /**
  * Simply put: "<b>When</b> the x method is called <b>then</b> return y". E.g:
@@ -32,7 +32,7 @@ import org.mockito.stubbing.Answer;
  *
  * See examples in javadoc for {@link Mockito#when}
  */
-public interface NewOngoingStubbing<T> {
+public interface OngoingStubbing<T> extends IOngoingStubbing {
 
     /**
      * Sets a return value to be returned when the method is called. E.g:
@@ -44,9 +44,9 @@ public interface NewOngoingStubbing<T> {
      *
      * @param value return value
      *
-     * @return ongoingStubbing object that allows stubbing consecutive calls
+     * @return iOngoingStubbing object that allows stubbing consecutive calls
      */
-    NewOngoingStubbing<T> thenReturn(T value);
+    OngoingStubbing<T> thenReturn(T value);
 
     /**
      * Sets consecutive return values to be returned when the method is called. E.g:
@@ -61,9 +61,9 @@ public interface NewOngoingStubbing<T> {
      * @param value first return value
      * @param values next return values
      *
-     * @return ongoingStubbing object that allows stubbing consecutive calls
+     * @return iOngoingStubbing object that allows stubbing consecutive calls
      */
-    NewOngoingStubbing<T> thenReturn(T value, T... values);
+    OngoingStubbing<T> thenReturn(T value, T... values);
 
     /**
      * Sets Throwable objects to be thrown when the method is called. E.g:
@@ -83,9 +83,9 @@ public interface NewOngoingStubbing<T> {
      *
      * @param throwables to be thrown on method invocation
      *
-     * @return ongoingStubbing object that allows stubbing consecutive calls
+     * @return iOngoingStubbing object that allows stubbing consecutive calls
      */
-    NewOngoingStubbing<T> thenThrow(Throwable... throwables);
+    OngoingStubbing<T> thenThrow(Throwable... throwables);
 
     /**     
      * Sets the real implementation to be called when the method is called on a mock object.
@@ -114,9 +114,9 @@ public interface NewOngoingStubbing<T> {
      * <p>
      * See examples in javadoc for {@link Mockito#when}
      *
-     * @return ongoingStubbing object that allows stubbing consecutive calls
+     * @return iOngoingStubbing object that allows stubbing consecutive calls
      */
-    NewOngoingStubbing<T> thenCallRealMethod();
+    OngoingStubbing<T> thenCallRealMethod();
 
     /**
      * Sets a generic Answer for the method. E.g:
@@ -130,7 +130,7 @@ public interface NewOngoingStubbing<T> {
      *
      * @param answer the custom answer to execute.
      *
-     * @return ongoingStubbing object that allows stubbing consecutive calls
+     * @return iOngoingStubbing object that allows stubbing consecutive calls
      */
-    NewOngoingStubbing<T> thenAnswer(Answer<?> answer);
+    OngoingStubbing<T> thenAnswer(Answer<?> answer);
 }

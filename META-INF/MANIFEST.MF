@@ -1,19 +1,19 @@
 Manifest-Version: 1.0
-Export-Package: org.mockito.exceptions.base;version="1.8.0.rc1",org.mo
+Export-Package: org.mockito.exceptions.base;version="1.8.0.rc2",org.mo
  ckito.exceptions;uses:="org.mockito.exceptions.verification.junit,org
  .mockito.exceptions.base,org.mockito.exceptions.misusing,org.mockito.
- exceptions.verification";version="1.8.0.rc1",org.mockito.exceptions.v
- erification;uses:="org.mockito.exceptions.base";version="1.8.0.rc1",o
+ exceptions.verification";version="1.8.0.rc2",org.mockito.exceptions.v
+ erification;uses:="org.mockito.exceptions.base";version="1.8.0.rc2",o
  rg.mockito.configuration;uses:="org.mockito,org.mockito.stubbing";ver
- sion="1.8.0.rc1",org.mockito.invocation;version="1.8.0.rc1",org.mocki
+ sion="1.8.0.rc2",org.mockito.invocation;version="1.8.0.rc2",org.mocki
  to.exceptions.verification.junit;uses:="junit.framework,org.mockito.e
- xceptions.verification";version="1.8.0.rc1",org.mockito;uses:="org.ha
+ xceptions.verification";version="1.8.0.rc2",org.mockito;uses:="org.ha
  mcrest,org.mockito.stubbing,org.mockito.exceptions.base,org.mockito.c
- onfiguration,org.mockito.invocation";version="1.8.0.rc1",org.mockito.
+ onfiguration,org.mockito.invocation";version="1.8.0.rc2",org.mockito.
  runners;uses:="org.junit.runner.notification,org.junit.runner";versio
- n="1.8.0.rc1",org.mockito.exceptions.misusing;uses:="org.mockito.exce
- ptions.base";version="1.8.0.rc1",org.mockito.stubbing;uses:="org.mock
- ito.invocation";version="1.8.0.rc1"
+ n="1.8.0.rc2",org.mockito.exceptions.misusing;uses:="org.mockito.exce
+ ptions.base";version="1.8.0.rc2",org.mockito.stubbing;uses:="org.mock
+ ito.invocation";version="1.8.0.rc2"
 Private-Package: org.mockito.internal.matchers,org.mockito.cglib.beans
  ,org.mockito.cglib.proxy,org.mockito.asm,org.mockito.internal.creatio
  n,org.mockito.internal.verification.argumentmatching,org.mockito.cgli
@@ -31,10 +31,11 @@ Private-Package: org.mockito.internal.matchers,org.mockito.cglib.beans
  org.mockito.cglib.transform,org.mockito.internal.verification.api,org
  .mockito.internal.stubbing.defaultanswers,org.mockito.internal.invoca
  tion.realmethod,org.mockito.internal.util
-Bundle-Version: 1.8.0.rc1
+Bundle-Version: 1.8.0.rc2
 Tool: Bnd-0.0.313
-Bnd-LastModified: 1244559589843
-Bundle-Name: Mockito Mock Library for Java
+Bnd-LastModified: 1245349691031
+Bundle-Name: Mockito Mock Library for Java. Core bundle requires Hamcr
+ est-core and Objenesis. 
 Bundle-ManifestVersion: 2
 Created-By: 1.6.0_06 (Sun Microsystems Inc.)
 Import-Package: junit.framework;resolution:=optional,org.apache.tools.
@@ -50,5 +51,5 @@ Import-Package: junit.framework;resolution:=optional,org.apache.tools.
  ="[1.8,2)",org.mockito.invocation;version="[1.8,2)",org.mockito.runne
  rs;version="[1.8,2)",org.mockito.stubbing;version="[1.8,2)",org.objen
  esis
-Bundle-SymbolicName: org.mockito
+Bundle-SymbolicName: org.mockito.mockito-core
 

@@ -4,9 +4,9 @@
  */
 package org.mockito;
 
-import org.mockito.internal.progress.NewOngoingStubbing;
-import org.mockito.internal.stubbing.Stubber;
 import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.OngoingStubbing;
+import org.mockito.stubbing.Stubber;
 
 /**
  * Behavior Driven Development style of stubbing that integrates nicely with //given //when //then comments.
@@ -44,41 +44,41 @@ import org.mockito.stubbing.Answer;
 public class BDDMockito extends Mockito {
     
     /**
-     * See original {@link NewOngoingStubbing}
+     * See original {@link OngoingStubbing}
      */
     public static interface BDDMyOngoingStubbing<T> {
         
         /**
-         * See original {@link NewOngoingStubbing#thenAnswer(Answer)}
+         * See original {@link OngoingStubbing#thenAnswer(Answer)}
          */
         BDDMyOngoingStubbing<T> willAnswer(Answer<?> answer);
         
         /**
-         * See original {@link NewOngoingStubbing#thenReturn(Object)}
+         * See original {@link OngoingStubbing#thenReturn(Object)}
          */
         BDDMyOngoingStubbing<T> willReturn(T value);
         
         /**
-         * See original {@link NewOngoingStubbing#thenReturn(Object, Object...)}
+         * See original {@link OngoingStubbing#thenReturn(Object, Object...)}
          */
         BDDMyOngoingStubbing<T> willReturn(T value, T... values);
         
         /**
-         * See original {@link NewOngoingStubbing#thenThrow(Throwable...)}
+         * See original {@link OngoingStubbing#thenThrow(Throwable...)}
          */
         BDDMyOngoingStubbing<T> willThrow(Throwable... throwables);
 
         /**
-         * See original {@link NewOngoingStubbing#thenCallRealMethod()}
+         * See original {@link OngoingStubbing#thenCallRealMethod()}
          */
         BDDMyOngoingStubbing<T> willCallRealMethod();
     }
     
     public static class BDDOngoingStubbingImpl<T> implements BDDMyOngoingStubbing<T> {
 
-        private final NewOngoingStubbing<T> mockitoOngoingStubbing;
+        private final OngoingStubbing<T> mockitoOngoingStubbing;
 
-        public BDDOngoingStubbingImpl(NewOngoingStubbing<T> ongoingStubbing) {
+        public BDDOngoingStubbingImpl(OngoingStubbing<T> ongoingStubbing) {
             this.mockitoOngoingStubbing = ongoingStubbing;
         }
 
