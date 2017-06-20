@@ -1,31 +1,31 @@
 Manifest-Version: 1.0
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
-Export-Package: org.mockito;version="2.0.90.beta";uses:="org.mockito.i
+Export-Package: org.mockito;version="2.0.91.beta";uses:="org.mockito.i
  nvocation,org.mockito.listeners,org.mockito.mock,org.mockito.stubbing
- ,org.mockito.verification",org.mockito.configuration;version="2.0.90.
+ ,org.mockito.verification",org.mockito.configuration;version="2.0.91.
  beta";uses:="org.mockito.stubbing",org.mockito.exceptions.base;versio
- n="2.0.90.beta",org.mockito.exceptions.misusing;version="2.0.90.beta"
+ n="2.0.91.beta",org.mockito.exceptions.misusing;version="2.0.91.beta"
  ;uses:="org.mockito.exceptions.base",org.mockito.exceptions.stacktrac
- e;version="2.0.90.beta",org.mockito.exceptions.verification;version="
- 2.0.90.beta";uses:="org.mockito.exceptions.base",org.mockito.exceptio
- ns.verification.junit;version="2.0.90.beta";uses:="junit.framework",o
- rg.mockito.hamcrest;version="2.0.90.beta";uses:="org.hamcrest",org.mo
- ckito.invocation;version="2.0.90.beta",org.mockito.junit;version="2.0
- .90.beta";uses:="org.junit.rules,org.mockito.exceptions.base",org.moc
- kito.listeners;version="2.0.90.beta";uses:="org.mockito,org.mockito.i
- nvocation",org.mockito.mock;version="2.0.90.beta";uses:="org.mockito,
+ e;version="2.0.91.beta",org.mockito.exceptions.verification;version="
+ 2.0.91.beta";uses:="org.mockito.exceptions.base",org.mockito.exceptio
+ ns.verification.junit;version="2.0.91.beta";uses:="junit.framework",o
+ rg.mockito.hamcrest;version="2.0.91.beta";uses:="org.hamcrest",org.mo
+ ckito.invocation;version="2.0.91.beta",org.mockito.junit;version="2.0
+ .91.beta";uses:="org.junit.rules,org.mockito.exceptions.base",org.moc
+ kito.listeners;version="2.0.91.beta";uses:="org.mockito,org.mockito.i
+ nvocation",org.mockito.mock;version="2.0.91.beta";uses:="org.mockito,
  org.mockito.listeners,org.mockito.stubbing",org.mockito.plugins;versi
- on="2.0.90.beta";uses:="org.mockito,org.mockito.exceptions.stacktrace
+ on="2.0.91.beta";uses:="org.mockito,org.mockito.exceptions.stacktrace
  ,org.mockito.invocation,org.mockito.mock",org.mockito.runners;version
- ="2.0.90.beta";uses:="org.junit.runner,org.junit.runner.manipulation,
- org.junit.runner.notification",org.mockito.stubbing;version="2.0.90.b
+ ="2.0.91.beta";uses:="org.junit.runner,org.junit.runner.manipulation,
+ org.junit.runner.notification",org.mockito.stubbing;version="2.0.91.b
  eta";uses:="org.mockito.invocation",org.mockito.verification;version=
- "2.0.90.beta"
-Bundle-Version: 2.0.90.beta
+ "2.0.91.beta"
+Bundle-Version: 2.0.91.beta
 Tool: Bnd-2.4.0.201411031534
 Bundle-Name: Mockito Mock Library for Java. Core bundle requires Hamcr
  est-core and Objenesis.
-Bnd-LastModified: 1469471276000
+Bnd-LastModified: 1469671021000
 Created-By: 1.6.0_37 (Sun Microsystems Inc.)
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.mockito.mockito-core
