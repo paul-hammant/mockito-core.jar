@@ -5,15 +5,13 @@
 
 package org.mockito.internal.matchers;
 
-import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
+import org.mockito.internal.matchers.text.ValuePrinter;
 
 import java.io.Serializable;
 
+public class Same implements ArgumentMatcher<Object>, Serializable {
 
-public class Same extends ArgumentMatcher<Object> implements Serializable {
-
-    private static final long serialVersionUID = -1226959355938572597L;
     private final Object wanted;
 
     public Same(Object wanted) {
@@ -24,19 +22,7 @@ public class Same extends ArgumentMatcher<Object> implements Serializable {
         return wanted == actual;
     }
 
-    public void describeTo(Description description) {
-        description.appendText("same(");
-        appendQuoting(description);
-        description.appendText("" + wanted);
-        appendQuoting(description);
-        description.appendText(")");
-    }
-
-    private void appendQuoting(Description description) {
-        if (wanted instanceof String) {
-            description.appendText("\"");
-        } else if (wanted instanceof Character) {
-            description.appendText("'");
-        }
+    public String toString() {
+        return "same(" + ValuePrinter.print(wanted) + ")";
     }
 }
