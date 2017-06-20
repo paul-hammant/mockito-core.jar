@@ -6,6 +6,7 @@ package org.mockito.internal.stubbing;
 
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.StubInfoImpl;
+import org.mockito.internal.progress.MockingProgress;
 import org.mockito.internal.stubbing.answers.AnswersValidator;
 import org.mockito.internal.verification.DefaultRegisteredInvocations;
 import org.mockito.internal.verification.RegisteredInvocations;
@@ -19,19 +20,19 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
-
 @SuppressWarnings("unchecked")
 public class InvocationContainerImpl implements InvocationContainer, Serializable {
 
     private static final long serialVersionUID = -5334301962749537177L;
     private final LinkedList<StubbedInvocationMatcher> stubbed = new LinkedList<StubbedInvocationMatcher>();
-    private final List<Answer<?>> answersForStubbing = new ArrayList<Answer<?>>();
+    private final MockingProgress mockingProgress;
+    private final List<Answer> answersForStubbing = new ArrayList<Answer>();
     private final RegisteredInvocations registeredInvocations;
 
     private InvocationMatcher invocationForStubbing;
 
-    public InvocationContainerImpl(MockCreationSettings mockSettings) {
+    public InvocationContainerImpl(MockingProgress mockingProgress, MockCreationSettings mockSettings) {
+        this.mockingProgress = mockingProgress;
         this.registeredInvocations = createRegisteredInvocations(mockSettings);
     }
 
@@ -55,7 +56,7 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
 
     public void addAnswer(Answer answer, boolean isConsecutive) {
         Invocation invocation = invocationForStubbing.getInvocation();
-        mockingProgress().stubbingCompleted(invocation);
+        mockingProgress.stubbingCompleted(invocation);
         AnswersValidator answersValidator = new AnswersValidator();
         answersValidator.validate(answer, invocation);
 
@@ -90,7 +91,7 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
         answersForStubbing.add(answer);
     }
 
-    public void setAnswersForStubbing(List<Answer<?>> answers) {
+    public void setAnswersForStubbing(List<Answer> answers) {
         answersForStubbing.addAll(answers);
     }
 
@@ -118,10 +119,6 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
 
     public List<Invocation> getInvocations() {
         return registeredInvocations.getAll();
-    }
-
-    public void clearInvocations() {
-        registeredInvocations.clear();
     }
 
     public List<StubbedInvocationMatcher> getStubbedInvocations() {

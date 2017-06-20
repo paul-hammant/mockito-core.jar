@@ -5,9 +5,17 @@
 package org.mockito.internal.configuration;
 
 import org.mockito.configuration.IMockitoConfiguration;
+import org.mockito.exceptions.base.MockitoException;
 import org.mockito.exceptions.misusing.MockitoConfigurationException;
 import org.mockito.plugins.MockMaker;
+import org.mockito.plugins.StackTraceCleanerProvider;
 
+import java.io.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * Loads configuration or extension points available in the classpath.
@@ -54,10 +62,10 @@ public class ClassPathLoader {
      */
     @SuppressWarnings({"unchecked"})
     public IMockitoConfiguration loadConfiguration() {
-        // Trying to get config from classpath
-        Class<?> configClass;
+        //Trying to get config from classpath
+        Class configClass;
         try {
-            configClass = Class.forName(MOCKITO_CONFIGURATION_CLASS_NAME);
+            configClass = (Class) Class.forName(MOCKITO_CONFIGURATION_CLASS_NAME);
         } catch (ClassNotFoundException e) {
             //that's ok, it means there is no global config, using default one.
             return null;

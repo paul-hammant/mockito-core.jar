@@ -25,7 +25,6 @@ public class LocationImpl implements Location, Serializable {
 
     @Override
     public String toString() {
-        //TODO SF perhaps store the results after invocation?
         StackTraceElement[] filtered = stackTraceFilter.filter(stackTraceHolder.getStackTrace(), false);
         if (filtered.length == 0) {
             return "-> at <<unknown line>>";

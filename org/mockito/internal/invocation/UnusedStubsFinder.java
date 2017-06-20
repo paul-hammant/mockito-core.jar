@@ -17,12 +17,12 @@ public class UnusedStubsFinder {
     /**
      * Finds all unused stubs for given mocks
      * 
-     * @param mocks full list of mocks
+     * @param mocks
      */
     public List<Invocation> find(List<?> mocks) {
         List<Invocation> unused = new LinkedList<Invocation>();
         for (Object mock : mocks) {
-            InternalMockHandler<Object> handler = MockUtil.getMockHandler(mock);
+            InternalMockHandler<Object> handler = new MockUtil().getMockHandler(mock);
             List<StubbedInvocationMatcher> fromSingleMock = handler.getInvocationContainer().getStubbedInvocations();
             for(StubbedInvocationMatcher s : fromSingleMock) {
                 if (!s.wasUsed()) {

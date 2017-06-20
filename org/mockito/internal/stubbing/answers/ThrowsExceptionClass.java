@@ -10,8 +10,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.objenesis.ObjenesisHelper;
 
-import static org.mockito.internal.exceptions.Reporter.notAnException;
-
 import java.io.Serializable;
 
 public class ThrowsExceptionClass implements Answer<Object>, Serializable {
@@ -20,19 +18,12 @@ public class ThrowsExceptionClass implements Answer<Object>, Serializable {
     private final ConditionalStackTraceFilter filter = new ConditionalStackTraceFilter();
 
     public ThrowsExceptionClass(Class<? extends Throwable> throwableClass) {
-        this.throwableClass = checkNonNullThrowable(throwableClass);
-    }
-
-    private Class<? extends Throwable> checkNonNullThrowable(Class<? extends Throwable> throwableClass) {
-        if(throwableClass == null || !Throwable.class.isAssignableFrom(throwableClass)) {
-            throw notAnException();
-        }
-        return throwableClass;
+        this.throwableClass = throwableClass;
     }
 
     public Object answer(InvocationOnMock invocation) throws Throwable {
         //TODO centralize the use of Objenesis. Why do we use ObjenesisHelper?
-        Throwable throwable = ObjenesisHelper.newInstance(throwableClass);
+        Throwable throwable = (Throwable) ObjenesisHelper.newInstance(throwableClass);
         throwable.fillInStackTrace();
         filter.filter(throwable);
         throw throwable;

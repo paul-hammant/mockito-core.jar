@@ -1,8 +1,6 @@
 package org.mockito.verification;
 
-import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.VerificationOverTimeImpl;
-import org.mockito.internal.verification.VerificationWrapper;
 
 /**
  * See the javadoc for {@link VerificationAfterDelay}
@@ -35,8 +33,4 @@ public class After extends VerificationWrapper<VerificationOverTimeImpl> impleme
         return new After(wrappedVerification.copyWithVerificationMode(verificationMode));
     }
 
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
-    }
 }

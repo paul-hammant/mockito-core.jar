@@ -6,8 +6,6 @@ package org.mockito.internal.util.reflection;
 
 import org.mockito.internal.util.Checks;
 
-import static org.mockito.internal.util.reflection.FieldSetter.setField;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
@@ -50,7 +48,7 @@ public class InstanceField {
      * @see FieldSetter
      */
     public void set(Object value) {
-        setField(instance, field,value);
+        new FieldSetter(instance, field).set(value);
     }
 
     /**
@@ -70,15 +68,6 @@ public class InstanceField {
      */
     public boolean isAnnotatedBy(Class<? extends Annotation> annotationClass) {
         return field.isAnnotationPresent(annotationClass);
-    }
-
-    /**
-     * Check if the field is synthetic.
-     *
-     * @return <code>true</code> if the field is synthetic, else <code>false</code>.
-     */
-    public boolean isSynthetic() {
-        return field.isSynthetic();
     }
 
     /**
@@ -115,11 +104,6 @@ public class InstanceField {
      */
     public String name() {
         return field.getName();
-    }
-
-    @Override
-    public String toString() {
-        return name();
     }
 
     @Override

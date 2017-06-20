@@ -22,7 +22,8 @@ class FriendlyExceptionMaker {
 
         try {
             Class<?> clazz = Class.forName("org.mockito.exceptions.verification.junit.ArgumentsAreDifferent");
-            return (AssertionError) clazz.getConstructors()[0].newInstance(message, wanted, actual);
+            AssertionError throwable = (AssertionError) clazz.getConstructors()[0].newInstance(message, wanted, actual);
+            return throwable;
         } catch (Throwable t) {
 //            throw the default exception in case of problems
             return new ArgumentsAreDifferent(message);
