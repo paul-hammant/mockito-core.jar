@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016 Mockito contributors
- * This program is made available under the terms of the MIT License.
- */
 package org.mockito.internal.util;
 
 import java.util.regex.Matcher;
@@ -20,8 +16,7 @@ public abstract class Platform {
     public static final String OS_NAME = System.getProperty("os.name");
     public static final String OS_VERSION = System.getProperty("os.version");
 
-    private Platform() {
-    }
+    private Platform() {}
 
     public static String describe() {
         return String.format("Java               : %s\n" +
@@ -60,26 +55,10 @@ public abstract class Platform {
         }
 
         matcher = Pattern.compile("1\\.8\\.0-b\\d+").matcher(jvmVersion);
-        return matcher.matches();
-
-    }
-
-    public static String warnForVM(String vmName1, String warnMessage1,
-                                   String vmName2, String warnMessage2) {
-        return warnForVM(JVM_NAME,
-                         vmName1, warnMessage1,
-                         vmName2, warnMessage2);
-    }
-
-    static String warnForVM(String current,
-                            String vmName1, String warnMessage1,
-                            String vmName2, String warnMessage2) {
-        if (vmName1 != null && current.contains(vmName1)) {
-            return warnMessage1;
+        if (matcher.matches()) {
+            return true;
         }
-        if (vmName2 != null && current.contains(vmName2)) {
-            return warnMessage2;
-        }
-        return "";
+
+        return false;
     }
 }

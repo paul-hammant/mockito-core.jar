@@ -8,21 +8,17 @@ import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.debugging.MockitoDebuggerImpl;
 import org.mockito.internal.framework.DefaultMockitoFramework;
+import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
+import org.mockito.internal.stubbing.defaultanswers.ReturnsMoreEmptyValues;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 import org.mockito.mock.SerializableMode;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.Answer1;
 import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.stubbing.Stubber;
-import org.mockito.stubbing.VoidAnswer1;
-import org.mockito.verification.After;
-import org.mockito.verification.Timeout;
-import org.mockito.verification.VerificationAfterDelay;
-import org.mockito.verification.VerificationMode;
-import org.mockito.verification.VerificationWithTimeout;
+import org.mockito.verification.*;
 
 /**
  * <p align="left"><img src="logo.png" srcset="logo@2x.png 2x" alt="Mockito logo"/></p>
@@ -63,7 +59,7 @@ import org.mockito.verification.VerificationWithTimeout;
  *      <a href="#23">23. Automatic instantiation of <code>&#064;Spies</code>, <code>&#064;InjectMocks</code> and constructor injection goodness (Since 1.9.0)</a><br/>
  *      <a href="#24">24. One-liner stubs (Since 1.9.0)</a><br/>
  *      <a href="#25">25. Verification ignoring stubs (Since 1.9.0)</a><br/>
- *      <a href="#26">26. Mocking details (Improved in 2.2.x)</a><br/>
+ *      <a href="#26">26. Mocking details (Improved in 2.2.0)</a><br/>
  *      <a href="#27">27. Delegate calls to real instance (Since 1.9.5)</a><br/>
  *      <a href="#28">28. <code>MockMaker</code> API (Since 1.9.5)</a><br/>
  *      <a href="#29">29. BDD style verification (Since 1.10.0)</a><br/>
@@ -183,7 +179,7 @@ import org.mockito.verification.VerificationWithTimeout;
  * verify(mockedList).get(anyInt());
  *
  * //<b>argument matchers can also be written as Java 8 Lambdas</b>
- * verify(mockedList).add(argThat(someString -> someString.length() > 5));
+ * verify(mockedList).add(someString -> someString.length() > 5);
  *
  * </code></pre>
  *
@@ -893,7 +889,7 @@ import org.mockito.verification.VerificationWithTimeout;
  *
  *
  *
- * <h3 id="26">26. <a class="meaningful_link" href="#mocking_details">Mocking details</a> (Improved in 2.2.x)</h3>
+ * <h3 id="26">26. <a class="meaningful_link" href="#mocking_details">Mocking details</a> (Improved in 2.2.0)</h3>
  * <p>
  *
  * Mockito offers API to inspect the details of a mock object.
@@ -905,17 +901,14 @@ import org.mockito.verification.VerificationWithTimeout;
  *   Mockito.mockingDetails(someObject).isSpy();
  *
  *   //Getting details like type to mock or default answer:
- *   MockingDetails details = mockingDetails(mock);
+ *   MockingDetails details = mockingDetails(someObject)
  *   details.getMockCreationSettings().getTypeToMock();
  *   details.getMockCreationSettings().getDefaultAnswer();
  *
  *   //Getting interactions and stubbings of the mock:
- *   MockingDetails details = mockingDetails(mock);
+ *   MockingDetails details = mockingDetails(someObject)
  *   details.getInteractions();
  *   details.getStubbings();
- *
- *   //Printing all interactions (including stubbing, unused stubs)
- *   System.out.println(mockingDetails(mock).printInvocations());
  * </code></pre>
  *
  * For more information see javadoc for {@link MockingDetails}.
@@ -1158,9 +1151,9 @@ import org.mockito.verification.VerificationWithTimeout;
  * as Java 8 lambdas. Even in Java 7 and lower these custom answers based on a typed interface can reduce boilerplate.
  * In particular, this approach will make it easier to test functions which use callbacks.
  *
- * The methods {@link AdditionalAnswers#answer(Answer1) answer} and {@link AdditionalAnswers#answerVoid(VoidAnswer1) answerVoid}
- * can be used to create the answer. They rely on the related answer interfaces in {@link org.mockito.stubbing} that
- * support answers up to 5 parameters.
+ * The functions answer and answerVoid can be found in {@link AdditionalAnswers} to create the answer object
+ * using the interfaces in {@link org.mockito.internal.stubbing.answers.AnswerFunctionalInterfaces} support is provided
+ * for functions with up to 5 parameters
  *
  * <p>
  * Examples:
@@ -1191,7 +1184,7 @@ import org.mockito.verification.VerificationWithTimeout;
  *     .when(mock).execute(anyString(), any(Callback.class));
  *
  * // Java 7
- * doAnswer(answerVoid(new VoidAnswer2<String, Callback>() {
+ * doAnswer(answerVoid(new AnswerFunctionalInterfaces.VoidAnswer2<String, Callback>() {
  *     public void answer(String operation, Callback callback) {
  *         callback.receive("dummy");
  *     }})).when(mock).execute(anyString(), any(Callback.class));
@@ -1207,7 +1200,7 @@ import org.mockito.verification.VerificationWithTimeout;
  *     .when(mock).execute(anyString(), anyString());
  *
  * // Java 7
- * doAnswer(answer(new Answer2<String, String, String>() {
+ * doAnswer(answer(new AnswerFunctionalInterfaces.Answer2<String, String, String>() {
  *     public String answer(String input1, String input2) {
  *         return input1 + input2;
  *     }})).when(mock).execute(anyString(), anyString());
@@ -1291,13 +1284,12 @@ public class Mockito extends ArgumentMatchers {
 
     /**
      * The default <code>Answer</code> of every mock <b>if</b> the mock was not stubbed.
-     *
      * Typically it just returns some empty value.
      * <p>
      * {@link Answer} can be used to define the return values of unstubbed invocations.
      * <p>
-     * This implementation first tries the global configuration and if there is no global configuration then
-     * it will use a default answer that returns zeros, empty collections, nulls, etc.
+     * This implementation first tries the global configuration.
+     * If there is no global configuration then it uses {@link ReturnsEmptyValues} (returns zeros, empty collections, nulls, etc.)
      */
     public static final Answer<Object> RETURNS_DEFAULTS = Answers.RETURNS_DEFAULTS;
 
@@ -1311,8 +1303,8 @@ public class Mockito extends ArgumentMatchers {
      * This implementation of Answer <b>returns SmartNull instead of null</b>.
      * <code>SmartNull</code> gives nicer exception message than NPE because it points out the line where unstubbed method was called. You just click on the stack trace.
      * <p>
-     * <code>ReturnsSmartNulls</code> first tries to return ordinary values (zeros, empty collections, empty string, etc.)
-     * then it tries to return SmartNull. If the return type is final then plain <code>null</code> is returned.
+     * <code>ReturnsSmartNulls</code> first tries to return ordinary return values (see {@link ReturnsMoreEmptyValues})
+     * then it tries to return SmartNull. If the return type is final then plain null is returned.
      * <p>
      * <code>ReturnsSmartNulls</code> will be probably the default return values strategy in Mockito 3.0.0
      * <p>
@@ -1340,8 +1332,8 @@ public class Mockito extends ArgumentMatchers {
      * <p>
      * This implementation can be helpful when working with legacy code.
      * <p>
-     * ReturnsMocks first tries to return ordinary values (zeros, empty collections, empty string, etc.)
-     * then it tries to return mocks. If the return type cannot be mocked (e.g. is final) then plain <code>null</code> is returned.
+     * ReturnsMocks first tries to return ordinary return values (see {@link ReturnsMoreEmptyValues})
+     * then it tries to return mocks. If the return type cannot be mocked (e.g. is final) then plain null is returned.
      * <p>
      */
     public static final Answer<Object> RETURNS_MOCKS = Answers.RETURNS_MOCKS;
@@ -2657,7 +2649,9 @@ public class Mockito extends ArgumentMatchers {
     }
 
     /**
-     * @deprecated - please use {@link MockingDetails#printInvocations()}.
+     * This API will move soon to a different place.
+     * See <a href="https://github.com/mockito/mockito/issues/577">issue 577</a>.
+     * See also <a href="https://github.com/mockito/mockito/issues/542">issue 542</a>.
      */
     @Deprecated
     static MockitoDebugger debug() {

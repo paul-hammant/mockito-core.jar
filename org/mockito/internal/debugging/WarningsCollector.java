@@ -12,7 +12,6 @@ import org.mockito.invocation.Invocation;
 import java.util.LinkedList;
 import java.util.List;
 
-@Deprecated
 public class WarningsCollector {
    
     private final List<Object> createdMocks;

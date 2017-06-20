@@ -13,7 +13,6 @@ import static org.mockito.internal.invocation.InvocationsFinder.findInvocations;
 import java.util.List;
 
 import org.mockito.internal.invocation.InvocationMatcher;
-import org.mockito.invocation.MatchableInvocation;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.invocation.Invocation;
 import org.mockito.verification.VerificationMode;
@@ -22,17 +21,17 @@ public class Only implements VerificationMode {
 
     @SuppressWarnings("unchecked")
     public void verify(VerificationData data) {
-        MatchableInvocation target = data.getTarget();
+        InvocationMatcher wantedMatcher = data.getWanted();
         List<Invocation> invocations = data.getAllInvocations();
-        List<Invocation> chunk = findInvocations(invocations,target);
+        List<Invocation> chunk = findInvocations(invocations,wantedMatcher);
         if (invocations.size() != 1 && chunk.size() > 0) {            
             Invocation unverified = findFirstUnverified(invocations);
             throw noMoreInteractionsWanted(unverified, (List) invocations);
         } 
         if (invocations.size() != 1 || chunk.size() == 0) {
-            throw wantedButNotInvoked(target);
+            throw wantedButNotInvoked(wantedMatcher);
         }
-        markVerified(chunk.get(0), target);
+        markVerified(chunk.get(0), wantedMatcher);
     }
 
     public VerificationMode description(String description) {

@@ -8,13 +8,12 @@ import java.util.List;
 
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.invocation.Invocation;
-import org.mockito.invocation.MatchableInvocation;
 
 public interface VerificationDataInOrder {
 
     List<Invocation> getAllInvocations();
 
-    MatchableInvocation getWanted();
+    InvocationMatcher getWanted();   
     
     InOrderContext getOrderingContext(); 
     

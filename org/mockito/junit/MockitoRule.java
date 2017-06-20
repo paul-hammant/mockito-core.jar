@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016 Mockito contributors
- * This program is made available under the terms of the MIT License.
- */
 package org.mockito.junit;
 
 import org.junit.rules.MethodRule;
@@ -9,7 +5,7 @@ import org.junit.rules.MethodRule;
 /**
  * Since 2.1.0, JUnit rule emits stubbing warnings and hints to System output
  * (see also {@link org.mockito.quality.MockitoHint}).
- * The JUnit rule can be used instead of {@link MockitoJUnitRunner}.
+ * The JUnit rule can be used instead of {@link org.mockito.runners.MockitoJUnitRunner}.
  * It requires JUnit at least 4.7.
  *
  * This rule adds following behavior:

@@ -8,15 +8,14 @@ import java.util.List;
 
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.invocation.Invocation;
-import org.mockito.invocation.MatchableInvocation;
 
 public class VerificationDataInOrderImpl implements VerificationDataInOrder {
 
     private final InOrderContext inOrder;
     private final List<Invocation> allInvocations;
-    private final MatchableInvocation wanted;
+    private final InvocationMatcher wanted;
 
-    public VerificationDataInOrderImpl(InOrderContext inOrder, List<Invocation> allInvocations, MatchableInvocation wanted) {
+    public VerificationDataInOrderImpl(InOrderContext inOrder, List<Invocation> allInvocations, InvocationMatcher wanted) {
         this.inOrder = inOrder;
         this.allInvocations = allInvocations;
         this.wanted = wanted;        
@@ -30,7 +29,7 @@ public class VerificationDataInOrderImpl implements VerificationDataInOrder {
         return inOrder;
     }
 
-    public MatchableInvocation getWanted() {
+    public InvocationMatcher getWanted() {
         return wanted;
     }
 }

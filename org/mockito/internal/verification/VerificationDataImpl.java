@@ -6,7 +6,6 @@ package org.mockito.internal.verification;
 
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.stubbing.InvocationContainer;
-import org.mockito.invocation.MatchableInvocation;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.invocation.Invocation;
 
@@ -29,11 +28,6 @@ public class VerificationDataImpl implements VerificationData {
     @Override
     public List<Invocation> getAllInvocations() {
         return invocations.getInvocations();
-    }
-
-    @Override
-    public MatchableInvocation getTarget() {
-        return wanted;
     }
 
     @Override

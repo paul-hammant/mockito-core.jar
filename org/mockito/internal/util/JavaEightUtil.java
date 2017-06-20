@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016 Mockito contributors
- * This program is made available under the terms of the MIT License.
- */
 package org.mockito.internal.util;
 
 import org.mockito.internal.creation.instance.InstantiationException;
@@ -14,18 +10,16 @@ import java.lang.reflect.Method;
  */
 public final class JavaEightUtil {
 
-    // No need for volatile, these optionals are already safe singletons.
+    // No need for volatile, Optional#empty() is already a safe singleton.
     private static Object emptyOptional;
-    private static Object emptyOptionalDouble;
-    private static Object emptyOptionalInt;
-    private static Object emptyOptionalLong;
 
     private JavaEightUtil() {
         // utility class
     }
 
     /**
-     * Creates an empty Optional using reflection to stay backwards-compatible with older JDKs.
+     * Creates an empty Optional using reflection to stay backwards-compatible with older
+     * JDKs (see issue 191).
      *
      * @return an empty Optional.
      */
@@ -35,110 +29,35 @@ public final class JavaEightUtil {
             return emptyOptional;
         }
 
-        return emptyOptional = invokeNullaryFactoryMethod("java.util.Optional", "empty");
-    }
+        try {
+            final Class<?> optionalClass = Class.forName("java.util.Optional");
+            final Method emptyMethod = optionalClass.getMethod("empty");
 
-
-    /**
-     * Creates an empty OptionalDouble using reflection to stay backwards-compatible with older JDKs.
-     *
-     * @return an empty OptionalDouble.
-     */
-    public static Object emptyOptionalDouble() {
-        // no need for double-checked locking
-        if (emptyOptionalDouble != null) {
-            return emptyOptionalDouble;
+            return emptyOptional = emptyMethod.invoke(null);
+            // any exception is really unexpected since the type name has
+            // already been verified to be java.util.Optional
+        } catch (Exception e) {
+            throw new InstantiationException("Could not create java.util.Optional#empty(): " + e, e);
         }
-
-        return emptyOptionalDouble = invokeNullaryFactoryMethod("java.util.OptionalDouble", "empty");
     }
 
     /**
-     * Creates an empty OptionalInt using reflection to stay backwards-compatible with older JDKs.
-     *
-     * @return an empty OptionalInt.
-     */
-    public static Object emptyOptionalInt() {
-        // no need for double-checked locking
-        if (emptyOptionalInt != null) {
-            return emptyOptionalInt;
-        }
-
-        return emptyOptionalInt = invokeNullaryFactoryMethod("java.util.OptionalInt", "empty");
-    }
-
-    /**
-     * Creates an empty OptionalLong using reflection to stay backwards-compatible with older JDKs.
-     *
-     * @return an empty OptionalLong.
-     */
-    public static Object emptyOptionalLong() {
-        // no need for double-checked locking
-        if (emptyOptionalLong != null) {
-            return emptyOptionalLong;
-        }
-
-        return emptyOptionalLong = invokeNullaryFactoryMethod("java.util.OptionalLong", "empty");
-    }
-
-    /**
-     * Creates an empty Stream using reflection to stay backwards-compatible with older JDKs.
+     * Creates an empty Stream using reflection to stay backwards-compatible with older
+     * JDKs.
      *
      * @return an empty Stream.
      */
     public static Object emptyStream() {
         // note: the empty stream can not be stored as a singleton.
-        return invokeNullaryFactoryMethod("java.util.stream.Stream", "empty");
-    }
-
-    /**
-     * Creates an empty DoubleStream using reflection to stay backwards-compatible with older JDKs.
-     *
-     * @return an empty DoubleStream.
-     */
-    public static Object emptyDoubleStream() {
-        // note: the empty stream can not be stored as a singleton.
-        return invokeNullaryFactoryMethod("java.util.stream.DoubleStream", "empty");
-    }
-
-    /**
-     * Creates an empty IntStream using reflection to stay backwards-compatible with older JDKs.
-     *
-     * @return an empty IntStream.
-     */
-    public static Object emptyIntStream() {
-        // note: the empty stream can not be stored as a singleton.
-        return invokeNullaryFactoryMethod("java.util.stream.IntStream", "empty");
-    }
-
-    /**
-     * Creates an empty LongStream using reflection to stay backwards-compatible with older JDKs.
-     *
-     * @return an empty LongStream.
-     */
-    public static Object emptyLongStream() {
-        // note: the empty stream can not be stored as a singleton.
-        return invokeNullaryFactoryMethod("java.util.stream.LongStream", "empty");
-    }
-
-    /**
-     * Invokes a nullary static factory method using reflection to stay backwards-compatible with older JDKs.
-     *
-     * @param fqcn The fully qualified class name of the type to be produced.
-     * @param methodName The name of the factory method.
-     * @return the object produced.
-     */
-    private static Object invokeNullaryFactoryMethod(final String fqcn, final String methodName) {
         try {
-            final Class<?> type = Class.forName(fqcn);
-            final Method method = type.getMethod(methodName);
+            final Class<?> optionalClass = Class.forName("java.util.stream.Stream");
+            final Method emptyMethod = optionalClass.getMethod("empty");
 
-            return method.invoke(null);
+            return emptyMethod.invoke(null);
             // any exception is really unexpected since the type name has
             // already been verified
-        } catch (final Exception e) {
-            throw new InstantiationException(
-                    String.format("Could not create %s#%s(): %s", fqcn, methodName, e), e);
+        } catch (Exception e) {
+            throw new InstantiationException("Could not create java.util.stream.Stream#empty(): " + e, e);
         }
     }
 }

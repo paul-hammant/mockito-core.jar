@@ -1,17 +1,5 @@
-/*
- * Copyright (c) 2016 Mockito contributors
- * This program is made available under the terms of the MIT License.
- */
 package org.mockito.internal.creation.bytebuddy;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Modifier;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import org.mockito.Incubating;
@@ -23,6 +11,15 @@ import org.mockito.internal.util.Platform;
 import org.mockito.internal.util.concurrent.WeakConcurrentMap;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Modifier;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 
 import static org.mockito.internal.creation.bytebuddy.InlineBytecodeGenerator.EXCLUDES;
 import static org.mockito.internal.util.StringJoiner.join;
@@ -209,10 +206,7 @@ public class InlineByteBuddyMockMaker implements ClassCreatingMockMaker {
                 "",
                 "If you're not sure why you're getting this error, please report to the mailing list.",
                 "",
-                Platform.warnForVM(
-                        "IBM J9 VM", "Early IBM virtual machine are known to have issues with Mockito, please upgrade to an up-to-date version.\n",
-                        "Hotspot", Platform.isJava8BelowUpdate45() ? "Java 8 early builds have bugs that were addressed in Java 1.8.0_45, please update your JDK!\n" : ""
-                ),
+                Platform.isJava8BelowUpdate45() ? "Java 8 early builds have bugs that were addressed in Java 1.8.0_45, please update your JDK!\n" : "",
                 Platform.describe(),
                 "",
                 "You are seeing this disclaimer because Mockito is configured to create inlined mocks.",

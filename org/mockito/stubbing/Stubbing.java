@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016 Mockito contributors
- * This program is made available under the terms of the MIT License.
- */
 package org.mockito.stubbing;
 
 import org.mockito.MockingDetails;
@@ -11,7 +7,7 @@ import org.mockito.invocation.Invocation;
  * Stubbing declared on the mock object.
  * See detailed description including sample code and use cases see javadoc for {@link MockingDetails#getStubbings()}.
  *
- * @since 2.2.3
+ * @since 2.2.0
  */
 public interface Stubbing {
 
@@ -25,7 +21,7 @@ public interface Stubbing {
      * <p>
      * To understand how this method is useful, see the description at {@link MockingDetails#getStubbings()}.
      *
-     * @since 2.2.3
+     * @since 2.2.0
      */
     Invocation getInvocation();
 
@@ -41,7 +37,7 @@ public interface Stubbing {
      * <p>
      * To understand how this method is useful, see the description at {@link MockingDetails#getStubbings()}.
      *
-     * @since 2.2.3
+     * @since 2.2.0
      */
     boolean wasUsed();
 }

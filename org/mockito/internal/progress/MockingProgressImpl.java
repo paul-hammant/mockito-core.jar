@@ -108,7 +108,7 @@ public class MockingProgressImpl implements MockingProgress {
         getArgumentMatcherStorage().validateState();
     }
 
-    public void stubbingCompleted() {
+    public void stubbingCompleted(Invocation invocation) {
         stubbingInProgress = null;
     }
 
