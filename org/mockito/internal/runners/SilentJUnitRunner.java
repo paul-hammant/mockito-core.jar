@@ -15,12 +15,14 @@ import org.junit.runners.model.Statement;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.runners.util.FrameworkUsageValidator;
 
-public class JUnit45AndHigherRunnerImpl implements RunnerImpl {
+public class SilentJUnitRunner implements RunnerImpl {
 
     private final BlockJUnit4ClassRunner runner;
+    private final Class<?> testClass;
 
-    public JUnit45AndHigherRunnerImpl(Class<?> klass) throws InitializationError {
-        runner = new BlockJUnit4ClassRunner(klass) {
+    public SilentJUnitRunner(Class<?> testClass) throws InitializationError {
+        this.testClass = testClass;
+        runner = new BlockJUnit4ClassRunner(testClass) {
             protected Statement withBefores(FrameworkMethod method, Object target,
                     Statement statement) {
                 // init annotated mocks before tests
@@ -31,9 +33,9 @@ public class JUnit45AndHigherRunnerImpl implements RunnerImpl {
     }
 
     public void run(final RunNotifier notifier) {
+        FrameworkUsageValidator listener = new FrameworkUsageValidator(notifier);
         // add listener that validates framework usage at the end of each test
-        notifier.addListener(new FrameworkUsageValidator(notifier));
-
+        notifier.addListener(listener);
         runner.run(notifier);
     }
 

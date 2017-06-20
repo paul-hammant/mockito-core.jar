@@ -7,16 +7,7 @@ package org.mockito.internal.exceptions;
 
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.exceptions.misusing.CannotStubVoidMethodWithReturnValue;
-import org.mockito.exceptions.misusing.CannotVerifyStubOnlyMock;
-import org.mockito.exceptions.misusing.FriendlyReminderException;
-import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
-import org.mockito.exceptions.misusing.MissingMethodInvocationException;
-import org.mockito.exceptions.misusing.NotAMockException;
-import org.mockito.exceptions.misusing.NullInsteadOfMockException;
-import org.mockito.exceptions.misusing.UnfinishedStubbingException;
-import org.mockito.exceptions.misusing.UnfinishedVerificationException;
-import org.mockito.exceptions.misusing.WrongTypeOfReturnValue;
+import org.mockito.exceptions.misusing.*;
 import org.mockito.exceptions.verification.NeverWantedButInvoked;
 import org.mockito.exceptions.verification.NoInteractionsWanted;
 import org.mockito.exceptions.verification.SmartNullPointerException;
@@ -842,5 +833,19 @@ public class Reporter {
 
     private static MockName safelyGetMockName(Object mock) {
         return new MockUtil().getMockName(mock);
+    }
+
+    public static UnnecessaryStubbingException formatUnncessaryStubbingException(Class<?> testClass, Collection<Invocation> unnecessaryStubbings) {
+        StringBuilder stubbings = new StringBuilder();
+        int count = 1;
+        for (Invocation u : unnecessaryStubbings) {
+            stubbings.append("\n  ").append(count++).append(". ").append(u.getLocation());
+        }
+        return new UnnecessaryStubbingException(join(
+                "Unnecessary stubbings detected in test class: " + testClass.getSimpleName(),
+                "To keep the tests clean it is important to remove unnecessary code.",
+                "Following stubbings are declared in test but not realized during test execution:" + stubbings,
+                "Please remove unnecessary stubbings. More info: javadoc for UnnecessaryStubbingException class."
+        ));
     }
 }
