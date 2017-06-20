@@ -2,7 +2,6 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito;
 
 import org.hamcrest.BaseMatcher;
@@ -20,7 +19,7 @@ import org.mockito.internal.util.Decamelizer;
  * <p>
  * Use {@link Matchers#argThat} method and pass an instance of hamcrest {@link Matcher}, e.g:
  * 
- * <pre class="code"><code class="java">
+ * <pre>
  * class IsListOfTwoElements extends ArgumentMatcher&lt;List&gt; {
  *     public boolean matches(Object list) {
  *         return ((List) list).size() == 2;
@@ -29,37 +28,31 @@ import org.mockito.internal.util.Decamelizer;
  * 
  * List mock = mock(List.class);
  * 
- * when(mock.addAll(argThat(new IsListOfTwoElements()))).thenReturn(true);
+ * stub(mock.addAll(argThat(new IsListOfTwoElements()))).toReturn(true);
  * 
  * mock.addAll(Arrays.asList(&quot;one&quot;, &quot;two&quot;));
  * 
  * verify(mock).addAll(argThat(new IsListOfTwoElements()));
- * </code></pre>
+ * </pre>
  * 
  * To keep it readable you may want to extract method, e.g:
  * 
- * <pre class="code"><code class="java">
+ * <pre>
  *   verify(mock).addAll(<b>argThat(new IsListOfTwoElements())</b>);
  *   //becomes
  *   verify(mock).addAll(<b>listOfTwoElements()</b>);
- * </code></pre>
+ * </pre>
  *
- * <b>Warning:</b> Be reasonable with using complicated argument matching, especially custom argument matchers, as it can make the test less readable. 
+ * Custom argument matchers can make the test less readable. 
  * Sometimes it's better to implement equals() for arguments that are passed to mocks 
  * (Mockito naturally uses equals() for argument matching). 
- * This can make the test cleaner. 
+ * This can make the test cleaner.
  * <p>
- * Also, <b>sometimes {@link ArgumentCaptor} may be a better fit</b> than custom matcher.
- * For example, if custom argument matcher is not likely to be reused
- * or you just need it to assert on argument values to complete verification of behavior.
- * <p>
- * Read more about other matchers in javadoc for {@link Matchers} class
+ * Read more about {@link Matchers}
  * 
  * @param <T> type of argument
  */
 public abstract class ArgumentMatcher<T> extends BaseMatcher<T> {
-
-    private static final long serialVersionUID = -2145234737829370369L;
 
     /**
      * Returns whether this matcher accepts the given argument.
@@ -73,8 +66,8 @@ public abstract class ArgumentMatcher<T> extends BaseMatcher<T> {
      */
     public abstract boolean matches(Object argument);
 
-    /**
-     * By default this method decamelizes matchers name to promote meaningful names for matchers.
+    /* 
+     * By default this method decamlizes matchers name to promote meaningful names for matchers.
      * <p>
      * For example <b>StringWithStrongLanguage</b> matcher will generate 'String with strong language' description in case of failure.
      * <p>

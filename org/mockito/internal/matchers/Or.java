@@ -2,10 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,9 +12,8 @@ import org.hamcrest.Matcher;
 import org.mockito.ArgumentMatcher;
 
 @SuppressWarnings("unchecked")
-public class Or extends ArgumentMatcher implements Serializable {
+public class Or extends ArgumentMatcher {
 
-    private static final long serialVersionUID = 5888739035212283087L;
     private final List<Matcher> matchers;
 
     public Or(List<Matcher> matchers) {

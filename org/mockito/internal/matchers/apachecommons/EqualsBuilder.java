@@ -3,8 +3,24 @@
  * This program is made available under the terms of the MIT License.
  */
 
-//NON-STANDARD LICENCE HEADER HERE - THAT'S OK
-//Class comes from Apache Commons Lang, added some tiny changes
+//Class comes from Apache Commons Lang, added some tiny changes  
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.mockito.internal.matchers.apachecommons;
 
 import java.lang.reflect.AccessibleObject;
@@ -34,7 +50,7 @@ import java.util.List;
  * versa.</p>
  *
  * <p>Typical use for the code is as follows:</p>
- * <pre class="code"><code class="java">
+ * <pre>
  * public boolean equals(Object obj) {
  *   if (obj == null) { return false; }
  *   if (obj == this) { return true; }
@@ -49,7 +65,7 @@ import java.util.List;
  *                 .append(field3, rhs.field3)
  *                 .isEquals();
  *  }
- * </code></pre>
+ * </pre>
  *
  * <p> Alternatively, there is a method that uses reflection to determine
  * the fields to test. Because these fields are usually private, the method,
@@ -59,11 +75,11 @@ import java.util.List;
  * also slower than testing explicitly.</p>
  *
  * <p> A typical invocation for this method would look like:</p>
- * <pre class="code"><code class="java">
+ * <pre>
  * public boolean equals(Object obj) {
  *   return EqualsBuilder.reflectionEquals(this, obj);
  * }
- * </code></pre>
+ * </pre>
  *
  * @author <a href="mailto:steve.downey@netfolio.com">Steve Downey</a>
  * @author Stephen Colebourne
@@ -315,7 +331,10 @@ class EqualsBuilder {
      * @since 2.0
      */
     public EqualsBuilder appendSuper(boolean superEquals) {
-        isEquals &= superEquals;
+        if (isEquals == false) {
+            return this;
+        }
+        isEquals = superEquals;
         return this;
     }
 
@@ -330,7 +349,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(Object lhs, Object rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -389,7 +408,10 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(long lhs, long rhs) {
-        isEquals &= (lhs == rhs);
+        if (isEquals == false) {
+            return this;
+        }
+        isEquals = (lhs == rhs);
         return this;
     }
 
@@ -401,7 +423,10 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(int lhs, int rhs) {
-        isEquals &= (lhs == rhs);
+        if (isEquals == false) {
+            return this;
+        }
+        isEquals = (lhs == rhs);
         return this;
     }
 
@@ -413,7 +438,10 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(short lhs, short rhs) {
-        isEquals &= (lhs == rhs);
+        if (isEquals == false) {
+            return this;
+        }
+        isEquals = (lhs == rhs);
         return this;
     }
 
@@ -425,7 +453,10 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(char lhs, char rhs) {
-        isEquals &= (lhs == rhs);
+        if (isEquals == false) {
+            return this;
+        }
+        isEquals = (lhs == rhs);
         return this;
     }
 
@@ -437,7 +468,10 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(byte lhs, byte rhs) {
-        isEquals &= (lhs == rhs);
+        if (isEquals == false) {
+            return this;
+        }
+        isEquals = (lhs == rhs);
         return this;
     }
 
@@ -455,7 +489,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(double lhs, double rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         return append(Double.doubleToLongBits(lhs), Double.doubleToLongBits(rhs));
@@ -475,7 +509,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(float lhs, float rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         return append(Float.floatToIntBits(lhs), Float.floatToIntBits(rhs));
@@ -489,7 +523,10 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
       */
     public EqualsBuilder append(boolean lhs, boolean rhs) {
-        isEquals &= (lhs == rhs);
+        if (isEquals == false) {
+            return this;
+        }
+        isEquals = (lhs == rhs);
         return this;
     }
 
@@ -504,7 +541,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(Object[] lhs, Object[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -535,7 +572,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(long[] lhs, long[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -566,7 +603,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(int[] lhs, int[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -597,7 +634,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(short[] lhs, short[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -628,7 +665,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(char[] lhs, char[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -659,7 +696,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(byte[] lhs, byte[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -690,7 +727,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(double[] lhs, double[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -721,7 +758,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(float[] lhs, float[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {
@@ -752,7 +789,7 @@ class EqualsBuilder {
      * @return EqualsBuilder - used to chain calls.
      */
     public EqualsBuilder append(boolean[] lhs, boolean[] rhs) {
-        if (!isEquals) {
+        if (isEquals == false) {
             return this;
         }
         if (lhs == rhs) {

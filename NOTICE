@@ -2,10 +2,8 @@ Mockito license - MIT.
 
 Libraries used:
 
-Cglib - Apache License 2.0
-ASM - BSD license
-
-Mockito all distribution:
-
-Objenesis - MIT license
-Hamcrest - BSD license
+EasyMock - MIT license.
+Cglib - Apache License 2.0.
+Objenesis - MIT license.
+Apache Commons Lang - Apache License 2.0.
+Hamcrest - BSD License

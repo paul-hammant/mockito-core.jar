@@ -2,18 +2,14 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.matchers;
-
-import java.io.Serializable;
 
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
 
-public class InstanceOf extends ArgumentMatcher<Object> implements Serializable {
+public class InstanceOf extends ArgumentMatcher<Object> {
 
-    private static final long serialVersionUID = 517358915876138366L;
     private final Class<?> clazz;
 
     public InstanceOf(Class<?> clazz) {

@@ -2,18 +2,14 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.matchers;
 
 import org.hamcrest.Description;
-import org.hamcrest.SelfDescribing;
 import org.mockito.ArgumentMatcher;
 
-import java.io.Serializable;
 
-public class Equals extends ArgumentMatcher<Object> implements ContainsExtraTypeInformation, Serializable {
+public class Equals extends ArgumentMatcher<Object> {
 
-    private static final long serialVersionUID = -3395637450058086891L;
     private final Object wanted;
 
     public Equals(Object wanted) {
@@ -21,24 +17,27 @@ public class Equals extends ArgumentMatcher<Object> implements ContainsExtraType
     }
 
     public boolean matches(Object actual) {
-        return Equality.areEqual(this.wanted, actual);
+        if (this.wanted == null) {
+            return actual == null;
+        }
+        return wanted.equals(actual);
     }
 
     public void describeTo(Description description) {
-        description.appendText(describe(wanted));
-    }
-
-    public String describe(Object object) {
-        return quoting() + object + quoting();
-    }
-
-    private String quoting() {
-        if (wanted instanceof String) {
-            return "\"";
-        } else if (wanted instanceof Character) {
-            return "'";
+        appendQuoting(description);
+        if (wanted == null) {
+            description.appendText("null");
         } else {
-            return "";
+            description.appendText(wanted.toString());
+        }
+        appendQuoting(description);
+    }
+
+    private void appendQuoting(Description description) {
+        if (wanted instanceof String) {
+            description.appendText("\"");
+        } else if (wanted instanceof Character) {
+            description.appendText("'");
         }
     }
 
@@ -52,22 +51,13 @@ public class Equals extends ArgumentMatcher<Object> implements ContainsExtraType
             return false;
         }
         Equals other = (Equals) o;
-        return this.wanted == null && other.wanted == null || this.wanted != null && this.wanted.equals(other.wanted);
+        return this.wanted == null && other.wanted == null
+                || this.wanted != null
+                && this.wanted.equals(other.wanted);
     }
 
     @Override
     public int hashCode() {
-        return 1;
-    }
-
-    public SelfDescribing withExtraTypeInfo() {
-        return new SelfDescribing() {
-            public void describeTo(Description description) {
-                description.appendText(describe("("+ wanted.getClass().getSimpleName() +") " + wanted));
-            }};
-    }
-
-    public boolean typeMatches(Object object) {
-        return wanted != null && object != null && object.getClass() == wanted.getClass();
+        throw new UnsupportedOperationException("hashCode() is not supported");
     }
 }

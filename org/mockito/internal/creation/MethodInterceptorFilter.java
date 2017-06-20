@@ -2,84 +2,58 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.creation;
 
-import org.mockito.cglib.proxy.MethodInterceptor;
-import org.mockito.cglib.proxy.MethodProxy;
-import org.mockito.internal.InternalMockHandler;
-import org.mockito.internal.creation.cglib.CGLIBHacker;
-import org.mockito.internal.invocation.InvocationImpl;
-import org.mockito.internal.invocation.MockitoMethod;
-import org.mockito.internal.invocation.SerializableMethod;
-import org.mockito.internal.invocation.realmethod.FilteredCGLIBProxyRealMethod;
-import org.mockito.internal.progress.SequenceNumber;
-import org.mockito.internal.util.ObjectMethodsGuru;
-import org.mockito.invocation.Invocation;
-import org.mockito.invocation.MockHandler;
-import org.mockito.mock.MockCreationSettings;
-
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
-/**
- * Should be one instance per mock instance, see CglibMockMaker.
- *
- *
- */
-public class MethodInterceptorFilter implements MethodInterceptor, Serializable {
+import net.sf.cglib.proxy.MethodProxy;
 
-    private static final long serialVersionUID = 6182795666612683784L;
-    private final InternalMockHandler handler;
-    CGLIBHacker cglibHacker = new CGLIBHacker();
-    final ObjectMethodsGuru objectMethodsGuru = new ObjectMethodsGuru();
-    private final MockCreationSettings mockSettings;
-    private final AcrossJVMSerializationFeature acrossJVMSerializationFeature = new AcrossJVMSerializationFeature();
+@SuppressWarnings("unchecked")
+public class MethodInterceptorFilter<T extends MockAwareInterceptor> implements MockAwareInterceptor {
+    
+    private final Method equalsMethod;
+    private final Method hashCodeMethod;
 
-    public MethodInterceptorFilter(InternalMockHandler handler, MockCreationSettings mockSettings) {
-        this.handler = handler;
-        this.mockSettings = mockSettings;
+    private final T delegate;
+
+    @SuppressWarnings("unchecked")
+    public MethodInterceptorFilter(Class toMock, T delegate) {
+        try {
+            if (toMock.isInterface()) {
+                toMock = Object.class;
+            }
+            equalsMethod = toMock.getMethod("equals", new Class[] { Object.class });
+            hashCodeMethod = toMock.getMethod("hashCode", (Class[]) null);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("An Object method could not be found!");
+        }
+        this.delegate = delegate;
     }
 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy)
             throws Throwable {
-        if (objectMethodsGuru.isEqualsMethod(method)) {
-            return proxy == args[0];
-        } else if (objectMethodsGuru.isHashCodeMethod(method)) {
-            return hashCodeForMock(proxy);
-        } else if (acrossJVMSerializationFeature.isWriteReplace(method)) {
-            return acrossJVMSerializationFeature.writeReplace(proxy);
+        if (method.isBridge()) {
+            return methodProxy.invokeSuper(proxy, args);
         }
         
-        MockitoMethodProxy mockitoMethodProxy = createMockitoMethodProxy(methodProxy);
-        cglibHacker.setMockitoNamingPolicy(mockitoMethodProxy);
+        if (equalsMethod.equals(method)) {
+            return Boolean.valueOf(proxy == args[0]);
+        } else if (hashCodeMethod.equals(method)) {
+            return hashCodeForMock(proxy);
+        }
         
-        MockitoMethod mockitoMethod = createMockitoMethod(method);
-        
-        FilteredCGLIBProxyRealMethod realMethod = new FilteredCGLIBProxyRealMethod(mockitoMethodProxy);
-        Invocation invocation = new InvocationImpl(proxy, mockitoMethod, args, SequenceNumber.next(), realMethod);
-        return handler.handle(invocation);
-    }
-   
-    public MockHandler getHandler() {
-        return handler;
+        return delegate.intercept(proxy, method, args, null);
     }
 
     private int hashCodeForMock(Object mock) {
-        return System.identityHashCode(mock);
+        return new Integer(System.identityHashCode(mock));
     }
 
-    public MockitoMethodProxy createMockitoMethodProxy(MethodProxy methodProxy) {
-        if (mockSettings.isSerializable())
-            return new SerializableMockitoMethodProxy(methodProxy);
-        return new DelegatingMockitoMethodProxy(methodProxy);
+    public T getDelegate() {
+        return delegate;
     }
-    
-    public MockitoMethod createMockitoMethod(Method method) {
-        if (mockSettings.isSerializable()) {
-            return new SerializableMethod(method);
-        } else {
-            return new DelegatingMethod(method); 
-        }
+
+    public void setMock(Object mock) {
+        delegate.setMock(mock);
     }
 }

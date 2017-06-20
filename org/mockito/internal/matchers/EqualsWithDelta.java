@@ -2,18 +2,13 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.matchers;
 
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-import java.io.Serializable;
 
-
-public class EqualsWithDelta extends ArgumentMatcher<Number> implements Serializable {
-    private static final long serialVersionUID = 5066980489920383664L;
-
+public class EqualsWithDelta extends ArgumentMatcher<Number>{
     private final Number wanted;
 
     private final Number delta;
@@ -25,14 +20,6 @@ public class EqualsWithDelta extends ArgumentMatcher<Number> implements Serializ
 
     public boolean matches(Object actual) {
         Number actualNumber = (Number) actual;
-        if (wanted == null ^ actual == null) {
-            return false;
-        }
-
-        if (wanted == actual) {
-            return true;
-        }
-
         return wanted.doubleValue() - delta.doubleValue() <= actualNumber.doubleValue()
                 && actualNumber.doubleValue() <= wanted.doubleValue()
                         + delta.doubleValue();

@@ -4,88 +4,62 @@
  */
 package org.mockito.internal.util;
 
-import java.lang.reflect.Modifier;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
 
+import org.mockito.exceptions.base.MockitoException;
 import org.mockito.exceptions.misusing.NotAMockException;
-import org.mockito.internal.InternalMockHandler;
-import org.mockito.internal.configuration.ClassPathLoader;
-import org.mockito.internal.creation.settings.CreationSettings;
-import org.mockito.internal.handler.MockHandlerFactory;
-import org.mockito.internal.util.reflection.LenientCopyTool;
-import org.mockito.invocation.MockHandler;
-import org.mockito.mock.MockCreationSettings;
-import org.mockito.mock.MockName;
-import org.mockito.plugins.MockMaker;
+import org.mockito.internal.MockHandler;
+import org.mockito.internal.creation.MethodInterceptorFilter;
+import org.mockito.internal.creation.MockFactory;
+import org.mockito.internal.invocation.MatchersBinder;
+import org.mockito.internal.progress.MockingProgress;
 
-@SuppressWarnings("unchecked")
 public class MockUtil {
-
-    private static final MockMaker mockMaker = ClassPathLoader.getMockMaker();
-
-    public boolean isTypeMockable(Class<?> type) {
-      return !type.isPrimitive() && !Modifier.isFinal(type.getModifiers());
+    
+    public static <T> T createMock(Class<T> classToMock, String mockName, MockingProgress progress) {
+        MockFactory<T> proxyFactory = new MockFactory<T>();
+        MockHandler<T> mockHandler = new MockHandler<T>(mockName, progress, new MatchersBinder());
+        MethodInterceptorFilter<MockHandler<T>> filter = new MethodInterceptorFilter<MockHandler<T>>(classToMock, mockHandler);
+        return proxyFactory.createMock(classToMock, filter);
     }
-
-    public <T> T createMock(MockCreationSettings<T> settings) {
-        MockHandler mockHandler = new MockHandlerFactory().create(settings);
-
-        T mock = mockMaker.createMock(settings, mockHandler);
-
-        Object spiedInstance = settings.getSpiedInstance();
-        if (spiedInstance != null) {
-            new LenientCopyTool().copyToMock(spiedInstance, mock);
-        }
-
-        return mock;
-    }
-
-    public <T> void resetMock(T mock) {
-        InternalMockHandler oldHandler = (InternalMockHandler) getMockHandler(mock);
-        MockCreationSettings settings = oldHandler.getMockSettings();
-        MockHandler newHandler = new MockHandlerFactory().create(settings);
-
-        mockMaker.resetMock(mock, newHandler, settings);
-    }
-
-    public <T> InternalMockHandler<T> getMockHandler(T mock) {
+    
+    public static <T> MockHandler<T> getMockHandler(T mock) {
         if (mock == null) {
             throw new NotAMockException("Argument should be a mock, but is null!");
         }
-
-        if (isMockitoMock(mock)) {
-            MockHandler handler = mockMaker.getHandler(mock);
-            return (InternalMockHandler) handler;
-        } else {
+        
+        try {
+            if (Enhancer.isEnhanced(mock.getClass())) {
+                return ((MethodInterceptorFilter<MockHandler<T>>) getInterceptor(mock)).getDelegate();
+            } else {
+                throw new NotAMockException("Argument should be a mock, but is: " + mock.getClass());
+            }
+        } catch (ClassCastException e) {
             throw new NotAMockException("Argument should be a mock, but is: " + mock.getClass());
         }
     }
-
-    public boolean isMock(Object mock) {
-        // double check to avoid classes that have the same interfaces, could be great to have a custom mockito field in the proxy instead of relying on instance fields
-        return isMockitoMock(mock);
+    
+    @SuppressWarnings("unchecked")
+    private static <T> MethodInterceptorFilter<MockHandler<T>> getInterceptor(T mock) {
+        Factory factory = (Factory) mock;
+        return (MethodInterceptorFilter) factory.getCallback(0);
     }
-
-    public boolean isSpy(Object mock) {
-        return isMockitoMock(mock) && getMockSettings(mock).getSpiedInstance() != null;
+    
+    public static void validateMock(Object mock) {
+        getMockHandler(mock);
     }
-
-    private <T> boolean isMockitoMock(T mock) {
-        return mockMaker.getHandler(mock) != null;
-    }
-
-    public MockName getMockName(Object mock) {
-        return getMockHandler(mock).getMockSettings().getMockName();
-    }
-
-    public void maybeRedefineMockName(Object mock, String newName) {
-        MockName mockName = getMockName(mock);
-        //TODO SF hacky...
-        if (mockName.isDefault() && getMockHandler(mock).getMockSettings() instanceof CreationSettings) {
-            ((CreationSettings) getMockHandler(mock).getMockSettings()).setMockName(new MockNameImpl(newName));
+    
+    public static boolean isMock(Object mock) {
+        try {
+            getMockHandler(mock);
+            return true;
+        } catch (MockitoException e) {
+            return false;
         }
     }
 
-    public MockCreationSettings getMockSettings(Object mock) {
-        return getMockHandler(mock).getMockSettings();
+    public static String getMockName(Object mock) {
+        return getMockHandler(mock).getMockName();
     }
 }
