@@ -5,10 +5,9 @@
 
 package org.mockito.internal.invocation.finder;
 
-import org.mockito.internal.invocation.InvocationComparator;
-import org.mockito.stubbing.Stubbing;
-import org.mockito.internal.stubbing.StubbingComparator;
-import org.mockito.internal.util.DefaultMockingDetails;
+import org.mockito.internal.InternalMockHandler;
+import org.mockito.internal.stubbing.StubbedInvocationMatcher;
+import org.mockito.internal.util.MockUtil;
 import org.mockito.invocation.Invocation;
 
 import java.util.*;
@@ -24,9 +23,11 @@ public class AllInvocationsFinder {
      * @return invocations
      */
     public static List<Invocation> find(Iterable<?> mocks) {
-        Set<Invocation> invocationsInOrder = new TreeSet<Invocation>(new InvocationComparator());
+        //TODO 542 use the MockingDetails interface
+        Set<Invocation> invocationsInOrder = new TreeSet<Invocation>(new SequenceNumberComparator());
         for (Object mock : mocks) {
-            Collection<Invocation> fromSingleMock = new DefaultMockingDetails(mock).getInvocations();
+            InternalMockHandler<Object> handler = MockUtil.getMockHandler(mock);
+            List<Invocation> fromSingleMock = handler.getInvocationContainer().getInvocations();
             invocationsInOrder.addAll(fromSingleMock);
         }
         
@@ -39,13 +40,27 @@ public class AllInvocationsFinder {
      * @param mocks mocks
      * @return stubbings
      */
-    public static Set<Stubbing> findStubbings(Iterable<?> mocks) {
-        Set<Stubbing> stubbings = new TreeSet<Stubbing>(new StubbingComparator());
+    public static Set<StubbedInvocationMatcher> findStubbings(Iterable<?> mocks) {
+        Set<StubbedInvocationMatcher> stubbings = new TreeSet<StubbedInvocationMatcher>(new SequenceNumberComparator2());
         for (Object mock : mocks) {
-            Collection<? extends Stubbing> fromSingleMock = new DefaultMockingDetails(mock).getStubbings();
+            InternalMockHandler<Object> handler = MockUtil.getMockHandler(mock);
+            //TODO 542 use the MockingDetails interface, add getStubbings() method
+            List<StubbedInvocationMatcher> fromSingleMock = handler.getInvocationContainer().getStubbedInvocations();
             stubbings.addAll(fromSingleMock);
         }
 
         return stubbings;
+    }
+
+    private static final class SequenceNumberComparator implements Comparator<Invocation> {
+        public int compare(Invocation o1, Invocation o2) {
+            return Integer.valueOf(o1.getSequenceNumber()).compareTo(o2.getSequenceNumber());
+        }
+    }
+
+    private static final class SequenceNumberComparator2 implements Comparator<StubbedInvocationMatcher> {
+        public int compare(StubbedInvocationMatcher o1, StubbedInvocationMatcher o2) {
+            return new SequenceNumberComparator().compare(o1.getInvocation(), o2.getInvocation());
+        }
     }
 }

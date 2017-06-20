@@ -28,9 +28,9 @@ public class AtLeast implements VerificationInOrderMode, VerificationMode {
     @Override
     public void verify(VerificationData data) {
         if (wantedCount == 1) {
-             checkMissingInvocation(data.getAllInvocations(), data.getTarget());
+             checkMissingInvocation(data.getAllInvocations(), data.getWanted());
         }
-        checkAtLeastNumberOfInvocations(data.getAllInvocations(), data.getTarget(), wantedCount);
+        checkAtLeastNumberOfInvocations(data.getAllInvocations(), data.getWanted(), wantedCount);
     }
     
     @Override

@@ -17,10 +17,6 @@ public class MockitoDebuggerImpl implements MockitoDebugger {
 
     private final UnusedStubsFinder unusedStubsFinder = new UnusedStubsFinder();
 
-    /**
-     * TODO: when MockitoDebugger is deleted, delete this implementation, too
-     */
-    @Deprecated
     public String printInvocations(Object ... mocks) {
         String out = "";
         List<Invocation> invocations = AllInvocationsFinder.find(asList(mocks));

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016 Mockito contributors
- * This program is made available under the terms of the MIT License.
- */
 package org.mockito.internal.creation.bytebuddy;
 
 import org.mockito.exceptions.base.MockitoException;
@@ -100,7 +96,7 @@ public class SubclassByteBuddyMockMaker implements ClassCreatingMockMaker {
         throw new MockitoException(join(
                 "Mockito cannot mock this class: " + mockFeatures.getTypeToMock() + ".",
                 "",
-                "Mockito can only mock non-private & non-final classes.",
+                "Mockito can only non-private & non-final classes.",
                 "If you're not sure why you're getting this error, please report to the mailing list.",
                 "",
                 Platform.isJava8BelowUpdate45() ? "Java 8 early builds have bugs that were addressed in Java 1.8.0_45, please update your JDK!\n" : "",

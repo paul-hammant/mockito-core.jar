@@ -59,7 +59,7 @@ import org.mockito.verification.*;
  *      <a href="#23">23. Automatic instantiation of <code>&#064;Spies</code>, <code>&#064;InjectMocks</code> and constructor injection goodness (Since 1.9.0)</a><br/>
  *      <a href="#24">24. One-liner stubs (Since 1.9.0)</a><br/>
  *      <a href="#25">25. Verification ignoring stubs (Since 1.9.0)</a><br/>
- *      <a href="#26">26. Mocking details (Improved in 2.2.x)</a><br/>
+ *      <a href="#26">26. Mocking details (Since 1.9.5)</a><br/>
  *      <a href="#27">27. Delegate calls to real instance (Since 1.9.5)</a><br/>
  *      <a href="#28">28. <code>MockMaker</code> API (Since 1.9.5)</a><br/>
  *      <a href="#29">29. BDD style verification (Since 1.10.0)</a><br/>
@@ -179,7 +179,7 @@ import org.mockito.verification.*;
  * verify(mockedList).get(anyInt());
  *
  * //<b>argument matchers can also be written as Java 8 Lambdas</b>
- * verify(mockedList).add(argThat(someString -> someString.length() > 5));
+ * verify(mockedList).add(someString -> someString.length() > 5);
  *
  * </code></pre>
  *
@@ -889,32 +889,20 @@ import org.mockito.verification.*;
  *
  *
  *
- * <h3 id="26">26. <a class="meaningful_link" href="#mocking_details">Mocking details</a> (Improved in 2.2.x)</h3>
+ * <h3 id="26">26. <a class="meaningful_link" href="#mocking_details">Mocking details</a> (Since 1.9.5)</h3>
  * <p>
- *
- * Mockito offers API to inspect the details of a mock object.
- * This API is useful for advanced users and mocking framework integrators.
- *
+ * To identify whether a particular object is a mock or a spy:
  * <pre class="code"><code class="java">
- *   //To identify whether a particular object is a mock or a spy:
- *   Mockito.mockingDetails(someObject).isMock();
- *   Mockito.mockingDetails(someObject).isSpy();
- *
- *   //Getting details like type to mock or default answer:
- *   MockingDetails details = mockingDetails(mock);
- *   details.getMockCreationSettings().getTypeToMock();
- *   details.getMockCreationSettings().getDefaultAnswer();
- *
- *   //Getting interactions and stubbings of the mock:
- *   MockingDetails details = mockingDetails(mock);
- *   details.getInteractions();
- *   details.getStubbings();
- *
- *   //Printing all interactions (including stubbing, unused stubs)
- *   System.out.println(mockingDetails(mock).printInvocations());
+ *     Mockito.mockingDetails(someObject).isMock();
+ *     Mockito.mockingDetails(someObject).isSpy();
  * </code></pre>
+ * Both the {@link MockingDetails#isMock} and {@link MockingDetails#isSpy()} methods return <code>boolean</code>.
+ * As a spy is just a different kind of mock, <code>isMock()</code> returns true if the object is a spy.
+ * In future Mockito versions MockingDetails may grow and provide other useful information about the mock,
+ * e.g. invocations, stubbing info, etc.
  *
- * For more information see javadoc for {@link MockingDetails}.
+ *
+ *
  *
  * <h3 id="27">27. <a class="meaningful_link" href="#delegating_call_to_real_instance">Delegate calls to real instance</a> (Since 1.9.5)</h3>
  *
@@ -2652,7 +2640,9 @@ public class Mockito extends ArgumentMatchers {
     }
 
     /**
-     * @deprecated - please use {@link MockingDetails#printInvocations()}.
+     * This API will move soon to a different place.
+     * See <a href="https://github.com/mockito/mockito/issues/577">issue 577</a>.
+     * See also <a href="https://github.com/mockito/mockito/issues/542">issue 542</a>.
      */
     @Deprecated
     static MockitoDebugger debug() {
