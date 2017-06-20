@@ -4,6 +4,8 @@
  */
 package org.mockito.invocation;
 
+import org.mockito.Incubating;
+
 import java.io.Serializable;
 
 /**
@@ -13,6 +15,7 @@ import java.io.Serializable;
  * This api is work in progress. Do not provide your own implementations.
  * Mockito will provide you with the implementation via other {@link org.mockito.plugins.MockMaker} methods.
  */
+@Incubating
 public interface MockHandler extends Serializable {
     /**
      * Takes an invocation object and handles it.
@@ -25,5 +28,6 @@ public interface MockHandler extends Serializable {
      * @return Result
      * @throws Throwable Throwable
      */
+    @Incubating
     Object handle(Invocation invocation) throws Throwable;
 }

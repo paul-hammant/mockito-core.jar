@@ -4,12 +4,10 @@
  */
 package org.mockito.internal.stubbing.answers;
 
-import org.mockito.Answers;
+import java.io.Serializable;
+
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import java.io.Serializable;
-import java.lang.reflect.Modifier;
 
 /**
  * Optional Answer that adds partial mocking support
@@ -35,9 +33,6 @@ public class CallsRealMethods implements Answer<Object>, Serializable {
     private static final long serialVersionUID = 9057165148930624087L;
 
     public Object answer(InvocationOnMock invocation) throws Throwable {
-    	if (Modifier.isAbstract(invocation.getMethod().getModifiers())) {
-    		return Answers.RETURNS_DEFAULTS.get().answer(invocation);
-    	}
         return invocation.callRealMethod();
     }
 }

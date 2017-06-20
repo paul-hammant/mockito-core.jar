@@ -5,11 +5,21 @@
 package org.mockito.internal.util.reflection;
 
 
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import org.mockito.Incubating;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.Checks;
-
-import java.lang.reflect.*;
-import java.util.*;
 
 
 /**
@@ -53,6 +63,7 @@ import java.util.*;
  * @see #resolveGenericReturnType(Method)
  * @see org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs
  */
+@Incubating
 public abstract class GenericMetadataSupport {
 
     // public static MockitoLogger logger = new ConsoleMockitoLogger();
@@ -76,7 +87,7 @@ public abstract class GenericMetadataSupport {
 
             if (actualTypeArgument instanceof WildcardType) {
                 contextualActualTypeParameters.put(typeParameter, boundsOf((WildcardType) actualTypeArgument));
-            } else if (typeParameter != actualTypeArgument) {
+            } else {
                 contextualActualTypeParameters.put(typeParameter, actualTypeArgument);
             }
             // logger.log("For '" + parameterizedType + "' found type variable : { '" + typeParameter + "(" + System.identityHashCode(typeParameter) + ")" + "' : '" + actualTypeArgument + "(" + System.identityHashCode(typeParameter) + ")" + "' }");
@@ -84,8 +95,8 @@ public abstract class GenericMetadataSupport {
     }
 
     protected void registerTypeParametersOn(TypeVariable[] typeParameters) {
-        for (TypeVariable type : typeParameters) {
-            registerTypeVariableIfNotPresent(type);
+        for (TypeVariable typeVariable : typeParameters) {
+            registerTypeVariableIfNotPresent(typeVariable);
         }
     }
 
@@ -376,7 +387,6 @@ public abstract class GenericMetadataSupport {
             for (Type type : typeVariable.getBounds()) {
                 registerTypeVariablesOn(type);
             }
-            registerTypeParametersOn(new TypeVariable[] { typeVariable });
             registerTypeVariablesOn(getActualTypeArgumentFor(typeVariable));
         }
 

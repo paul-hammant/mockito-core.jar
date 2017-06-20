@@ -22,10 +22,8 @@ import org.mockito.invocation.Invocation;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.invocation.Location;
 import org.mockito.listeners.InvocationListener;
-import org.mockito.mock.SerializableMode;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -301,7 +299,11 @@ public class Reporter {
                 ""
         );
 
-        throw JUnitTool.createArgumentsAreDifferentException(message, wanted, actual);
+        if (JUnitTool.hasJUnit()) {
+            throw JUnitTool.createArgumentsAreDifferentException(message, wanted, actual);
+        } else {
+            throw new ArgumentsAreDifferent(message);
+        }
     }
 
     public void wantedButNotInvoked(DescribedInvocation wanted) {
@@ -764,29 +766,5 @@ public class Reporter {
                 "i.e. the top-most superclass has to implements Serializable.",
                 ""
         ));
-    }
-    
-    public void delegatedMethodHasWrongReturnType(Method mockMethod, Method delegateMethod, Object mock, Object delegate) {
-    	throw new MockitoException(join(
-    	        "Methods called on delegated instance must have compatible return types with the mock.",
-    	        "When calling: " + mockMethod + " on mock: " + new MockUtil().getMockName(mock),
-    	        "return type should be: " + mockMethod.getReturnType().getSimpleName() + ", but was: " + delegateMethod.getReturnType().getSimpleName(),
-    	        "Check that the instance passed to delegatesTo() is of the correct type or contains compatible methods",
-    	        "(delegate instance had type: " + delegate.getClass().getSimpleName() + ")"
-    	));
-    }
-
-	public void delegatedMethodDoesNotExistOnDelegate(Method mockMethod, Object mock, Object delegate) {
-		throw new MockitoException(join(
-    	        "Methods called on mock must exist in delegated instance.",
-    	        "When calling: " + mockMethod + " on mock: " + new MockUtil().getMockName(mock),
-    	        "no such method was found.",
-    	        "Check that the instance passed to delegatesTo() is of the correct type or contains compatible methods",
-    	        "(delegate instance had type: " + delegate.getClass().getSimpleName() + ")"
-    	));
-	}
-
-    public void usingConstructorWithFancySerializable(SerializableMode mode) {
-        throw new MockitoException("Mocks instantiated with constructor cannot be combined with " + mode + " serialization mode.");
     }
 }

@@ -31,8 +31,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
     protected SerializableMode serializableMode = SerializableMode.NONE;
     protected List<InvocationListener> invocationListeners = new ArrayList<InvocationListener>();
     protected boolean stubOnly;
-    private boolean useConstructor;
-    private Object outerClassInstance;
 
     public CreationSettings() {}
 
@@ -47,8 +45,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         this.serializableMode = copy.serializableMode;
         this.invocationListeners = copy.invocationListeners;
         this.stubOnly = copy.stubOnly;
-        this.useConstructor = copy.isUsingConstructor();
-        this.outerClassInstance = copy.getOuterClassInstance();
     }
 
     public Class<T> getTypeToMock() {
@@ -100,14 +96,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
 
     public List<InvocationListener> getInvocationListeners() {
         return invocationListeners;
-    }
-
-    public boolean isUsingConstructor() {
-        return useConstructor;
-    }
-
-    public Object getOuterClassInstance() {
-        return outerClassInstance;
     }
 
     public boolean isStubOnly() {

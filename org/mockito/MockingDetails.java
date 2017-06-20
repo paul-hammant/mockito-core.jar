@@ -4,9 +4,9 @@
  */
 package org.mockito;
 
-import org.mockito.invocation.Invocation;
-
 import java.util.Collection;
+
+import org.mockito.invocation.Invocation;
 
 /**
  * Provides mocking information.
@@ -14,10 +14,11 @@ import java.util.Collection;
  *
  * @since 1.9.5
  */
+@Incubating
 public interface MockingDetails {
     
     /**
-     * Informs if the object is a mock. isMock() for null input returns false.
+     * Informs if the object is a mock.
      * @return true if the object is a mock or a spy.
      *
      * @since 1.9.5
@@ -25,7 +26,7 @@ public interface MockingDetails {
     boolean isMock();
 
     /**
-     * Informs if the object is a spy. isSpy() for null input returns false.
+     * Informs if the object is a spy.
      * @return true if the object is a spy.
      *
      * @since 1.9.5

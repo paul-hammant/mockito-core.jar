@@ -11,10 +11,14 @@ import org.mockito.internal.stubbing.answers.*;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsMoreEmptyValues;
 import org.mockito.internal.verification.VerificationModeFactory;
+import org.mockito.junit.MockitoJUnitRule;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.*;
-import org.mockito.verification.*;
-import org.mockito.junit.*;
+import org.mockito.verification.After;
+import org.mockito.verification.Timeout;
+import org.mockito.verification.VerificationAfterDelay;
+import org.mockito.verification.VerificationMode;
+import org.mockito.verification.VerificationWithTimeout;
 
 /**
  * <p align="left"><img src="logo.jpg"/></p>
@@ -55,8 +59,7 @@ import org.mockito.junit.*;
  *      <a href="#26">26. Mocking details (Since 1.9.5)</a><br/>
  *      <a href="#27">27. Delegate calls to real instance (Since 1.9.5)</a><br/>
  *      <a href="#28">28. <code>MockMaker</code> API (Since 1.9.5)</a><br/>
- *      <a href="#29">29. (new) BDD style verification (Since 1.10.0)</a><br/>
- *      <a href="#30">30. (new) Spying or mocking abstract classes (Since 1.10.12)</a><br/>
+ *      <a href="#29">29. BDD style verification (Since 1.9.8)</a><br/>
  * </b>
  *
  * <p>
@@ -371,7 +374,7 @@ import org.mockito.junit.*;
  * MockitoAnnotations.initMocks(testClass);
  * </code></pre>
  *
- * You can use built-in runner: {@link MockitoJUnitRunner} or a rule: {@link MockitoRule}.
+ * You can use built-in runner: {@link MockitoJUnitRunner} or a rule: {@link MockitoJUnitRule}.
  * <p>
  * Read more here: {@link MockitoAnnotations}
  *
@@ -766,7 +769,7 @@ import org.mockito.junit.*;
  * <p>
  * All new annotations are <b>*only*</b> processed on {@link MockitoAnnotations#initMocks(Object)}.
  * Just like for &#064;{@link Mock} annotation you can use the built-in runner: {@link MockitoJUnitRunner} or rule:
- * {@link MockitoRule}.
+ * {@link MockitoJUnitRule}.
  * <p>
  *
  *
@@ -812,7 +815,7 @@ import org.mockito.junit.*;
  * using <b>constructor</b> injection, <b>setter</b> injection, or <b>field</b> injection.
  * <p>
  * To take advantage of this feature you need to use {@link MockitoAnnotations#initMocks(Object)}, {@link MockitoJUnitRunner}
- * or {@link MockitoRule}.
+ * or {@link MockitoJUnitRule}.
  * <p>
  * Read more about available tricks and the rules of injection in the javadoc for {@link InjectMocks}
  * <pre class="code"><code class="java">
@@ -891,10 +894,7 @@ import org.mockito.junit.*;
  * <h3 id="27">27. <a class="meaningful_link" href="#delegating_call_to_real_instance">Delegate calls to real instance</a> (Since 1.9.5)</h3>
  *
  * <p>Useful for spies or partial mocks of objects <strong>that are difficult to mock or spy</strong> using the usual spy API.
- * Since Mockito 1.10.11, the delegate may or may not be of the same type as the mock.
- * If the type is different, a matching method needs to be found on delegate type otherwise an exception is thrown.
- *
- * Possible use cases for this feature:
+ * Possible use cases:
  * <ul>
  *     <li>Final classes but with an interface</li>
  *     <li>Already custom proxied object</li>
@@ -935,39 +935,11 @@ import org.mockito.junit.*;
  *
  *
  *
- * <h3 id="29">29. <a class="meaningful_link" href="#BDD_behavior_verification">(new) BDD style verification</a> (Since 1.10.0)</h3>
+ * <h3 id="29">29. <a class="meaningful_link" href="#BDD_behavior_verification">BDD style verification</a> (Since 1.9.8)</h3>
  *
  * Enables Behavior Driven Development (BDD) style verification by starting verification with the BDD <b>then</b> keyword.
  *
- * <pre class="code"><code class="java">
- *   then(person).should(times(2)).ride(bike);
- * </code></pre>
- *
- * For more information and an example see {@link BDDMockito#then(Object)}}
- *
- * <h3 id="30">30. <a class="meaningful_link" href="#spying_abstract_classes">(new) Spying or mocking abstract classes (Since 1.10.12)</a></h3>
- *
- * It is now possible to conveniently spy on abstract classes. Note that overusing spies hints at code design smells (see {@link #spy(Object)}).
- * <p>
- * Previously, spying was only possible on instances of objects.
- * New API makes it possible to use constructor when creating an instance of the mock.
- * This is particularly useful for mocking abstract classes because the user is no longer required to provide an instance of the abstract class.
- * At the moment, only parameter-less constructor is supported, let us know if it is not enough.
- *
- * <pre class="code"><code class="java">
- *   //convenience API, new overloaded spy() method:
- *   SomeAbstract spy = spy(SomeAbstract.class);
- *
- *   //Robust API, via settings builder:
- *   OtherAbstract spy = mock(OtherAbstract.class, withSettings()
- *      .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
- *
- *   //Mocking a non-static inner abstract class:
- *   InnerAbstract spy = mock(InnerAbstract.class, withSettings()
- *      .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
- * </code></pre>
- *
- * For more information please see {@link MockSettings#useConstructor()}.
+ * For more information and an example see {@link BDDMockito}.
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
@@ -1192,10 +1164,11 @@ public class Mockito extends Matchers {
      * In future Mockito versions MockingDetails may grow and provide other useful information about the mock,
      * e.g. invocations, stubbing info, etc.
      *
-     * @param toInspect - object to inspect. null input is allowed.
+     * @param toInspect - object to inspect
      * @return A {@link org.mockito.MockingDetails} instance.
      * @since 1.9.5
      */
+    @Incubating
     public static MockingDetails mockingDetails(Object toInspect) {
         return MOCKITO_CORE.mockingDetails(toInspect);
     }
@@ -1367,40 +1340,6 @@ public class Mockito extends Matchers {
     public static <T> T spy(T object) {
         return MOCKITO_CORE.mock((Class<T>) object.getClass(), withSettings()
                 .spiedInstance(object)
-                .defaultAnswer(CALLS_REAL_METHODS));
-    }
-
-    /**
-     * Please refer to the documentation of {@link #spy(Object)}.
-     * Overusing spies hints at code design smells.
-     * <p>
-     * This method, in contrast to the original {@link #spy(Object)}, creates a spy based on class instead of an object.
-     * Sometimes it is more convenient to create spy based on the class and avoid providing an instance of a spied object.
-     * This is particularly useful for spying on abstract classes because they cannot be instantiated.
-     * See also {@link MockSettings#useConstructor()}.
-     * <p>
-     * Examples:
-     * <pre class="code"><code class="java">
-     *   SomeAbstract spy = spy(SomeAbstract.class);
-     *
-     *   //Robust API, via settings builder:
-     *   OtherAbstract spy = mock(OtherAbstract.class, withSettings()
-     *      .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
-     *
-     *   //Mocking a non-static inner abstract class:
-     *   InnerAbstract spy = mock(InnerAbstract.class, withSettings()
-     *      .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
-     * </code></pre>
-     *
-     * @param classToSpy the class to spy
-     * @param <T> type of the spy
-     * @return a spy of the provided class
-     * @since 1.10.12
-     */
-    @Incubating
-    public static <T> T spy(Class<T> classToSpy) {
-        return MOCKITO_CORE.mock(classToSpy, withSettings()
-                .useConstructor()
                 .defaultAnswer(CALLS_REAL_METHODS));
     }
 
@@ -2239,7 +2178,7 @@ public class Mockito extends Matchers {
      * But even though JUnit might report next test as red, don't worry about it
      * and just click at navigable stack trace element in the exception message to instantly locate the place where you misused mockito.
      * <p>
-     * <b>Both built-in runner: {@link MockitoJUnitRunner} and rule: {@link MockitoRule}</b> do validateMockitoUsage() after each test method.
+     * <b>Both built-in runner: {@link MockitoJUnitRunner} and rule: {@link MockitoJUnitRule}</b> do validateMockitoUsage() after each test method.
      * <p>
      * Bear in mind that <b>usually you don't have to <code>validateMockitoUsage()</code></b>
      * and framework validation triggered on next-time basis should be just enough,

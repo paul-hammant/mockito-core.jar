@@ -4,6 +4,8 @@
  */
 package org.mockito.invocation;
 
+import org.mockito.Incubating;
+
 /**
  * A method call on a mock object. Contains all information and state needed for the Mockito framework to operate.
  * This API might be useful for developers who extend Mockito.
@@ -14,6 +16,7 @@ package org.mockito.invocation;
  *
  * @since 1.9.5
  */
+@Incubating
 public interface Invocation extends InvocationOnMock, DescribedInvocation {
 
     /**

@@ -15,6 +15,7 @@ import java.util.Set;
 /**
  * Informs about the mock settings. An immutable view of {@link org.mockito.MockSettings}.
  */
+@Incubating
 public interface MockCreationSettings<T> {
 
     /**
@@ -60,24 +61,7 @@ public interface MockCreationSettings<T> {
     boolean isStubOnly();
 
     /**
-     * The invocation listeners attached to this mock, see {@link org.mockito.MockSettings#invocationListeners}.
+     * the invocation listeners attached to this mock, see {@link org.mockito.MockSettings#invocationListeners}.
      */
     List<InvocationListener> getInvocationListeners();
-
-    /**
-     * Informs whether the mock instance should be created via constructor
-     *
-     * @since 1.10.12
-     */
-    @Incubating
-    boolean isUsingConstructor();
-
-    /**
-     * Used when mocking non-static inner classes in conjunction with {@link #isUsingConstructor()}
-     *
-     * @return the outer class instance used for creation of the mock object via the constructor.
-     * @since 1.10.12
-     */
-    @Incubating
-    Object getOuterClassInstance();
 }

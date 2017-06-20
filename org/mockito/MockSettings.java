@@ -176,7 +176,7 @@ public interface MockSettings extends Serializable {
      *
      * @param mode serialization mode
      * @return settings instance so that you can fluently specify other settings
-     * @since 1.10.0
+     * @since 1.9.8
      */
     MockSettings serializable(SerializableMode mode);
 
@@ -230,40 +230,4 @@ public interface MockSettings extends Serializable {
      * @return settings instance so that you can fluently specify other settings
      */
     MockSettings stubOnly();
-
-    /**
-     * Mockito attempts to use constructor when creating instance of the mock.
-     * This is particularly useful for spying on abstract classes. See also {@link Mockito#spy(Class)}.
-     * <p>
-     * Example:
-     * <pre class="code"><code class="java">
-     * //Robust API, via settings builder:
-     * OtherAbstract spy = mock(OtherAbstract.class, withSettings()
-     *   .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
-     *
-     * //Mocking a non-static inner abstract class:
-     * InnerAbstract spy = mock(InnerAbstract.class, withSettings()
-     *   .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
-     * </code></pre>
-     *
-     * @return settings instance so that you can fluently specify other settings
-     * @since 1.10.12
-     */
-    @Incubating
-    MockSettings useConstructor();
-
-    /**
-     * Makes it possible to mock non-static inner classes in conjunction with {@link #useConstructor()}.
-     * <p>
-     * Example:
-     * <pre class="code"><code class="java">
-     * InnerClass mock = mock(InnerClass.class, withSettings()
-     *   .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
-     * </code></pre>
-     *
-     * @return settings instance so that you can fluently specify other settings
-     * @since 1.10.12
-     */
-    @Incubating
-    MockSettings outerInstance(Object outerClassInstance);
 }

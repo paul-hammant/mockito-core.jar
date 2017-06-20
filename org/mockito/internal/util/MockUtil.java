@@ -4,10 +4,11 @@
  */
 package org.mockito.internal.util;
 
-import org.mockito.Mockito;
+import java.lang.reflect.Modifier;
+
 import org.mockito.exceptions.misusing.NotAMockException;
 import org.mockito.internal.InternalMockHandler;
-import org.mockito.internal.configuration.plugins.Plugins;
+import org.mockito.internal.configuration.ClassPathLoader;
 import org.mockito.internal.creation.settings.CreationSettings;
 import org.mockito.internal.handler.MockHandlerFactory;
 import org.mockito.internal.util.reflection.LenientCopyTool;
@@ -16,12 +17,10 @@ import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
 import org.mockito.plugins.MockMaker;
 
-import java.lang.reflect.Modifier;
-
 @SuppressWarnings("unchecked")
 public class MockUtil {
 
-    private static final MockMaker mockMaker = Plugins.getMockMaker();
+    private static final MockMaker mockMaker = ClassPathLoader.getMockMaker();
 
     public boolean isTypeMockable(Class<?> type) {
       return !type.isPrimitive() && !Modifier.isFinal(type.getModifiers());
@@ -67,7 +66,7 @@ public class MockUtil {
     }
 
     public boolean isSpy(Object mock) {
-        return isMockitoMock(mock) && getMockSettings(mock).getDefaultAnswer() == Mockito.CALLS_REAL_METHODS;
+        return isMockitoMock(mock) && getMockSettings(mock).getSpiedInstance() != null;
     }
 
     private <T> boolean isMockitoMock(T mock) {

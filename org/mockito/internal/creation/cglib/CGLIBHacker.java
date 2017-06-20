@@ -4,15 +4,19 @@
  */
 package org.mockito.internal.creation.cglib;
 
-import org.mockito.cglib.proxy.MethodProxy;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
-class CGLIBHacker {
+import org.mockito.internal.creation.MockitoMethodProxy;
+import org.mockito.cglib.proxy.MethodProxy;
 
-    public void setMockitoNamingPolicy(MethodProxy methodProxy) {
+public class CGLIBHacker implements Serializable {
+
+    private static final long serialVersionUID = -4389233991416356668L;
+
+    public void setMockitoNamingPolicy(MockitoMethodProxy mockitoMethodProxy) {
         try {
+            MethodProxy methodProxy = mockitoMethodProxy.getMethodProxy();
             Field createInfoField = reflectOnCreateInfo(methodProxy);
             createInfoField.setAccessible(true);
             Object createInfo = createInfoField.get(methodProxy);
