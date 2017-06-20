@@ -11,26 +11,22 @@ import org.mockito.internal.stubbing.answers.*;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsMoreEmptyValues;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.mock.SerializableMode;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.*;
 import org.mockito.verification.*;
 import org.mockito.junit.*;
 
 /**
- * <p align="left"><img src="logo.png" srcset="logo@2x.png 2x" alt="Mockito logo"/></p>
- * The Mockito library enables mock creation, verification and stubbing.
+ * <p align="left"><img src="logo.jpg"/></p>
+ * Mockito library enables mocks creation, verification and stubbing.
  * <p>
  * This javadoc content is also available on the <a href="http://mockito.org">http://mockito.org</a> web page.
  * All documentation is kept in javadocs because it guarantees consistency between what's on the web and what's in the source code.
- * It allows access to documentation straight from the IDE even if you work offline.
- * It motivates Mockito developers to keep documentation up-to-date with the code that they write,
- * every day, with every commit.
+ * Also, it makes possible to access documentation straight from the IDE even if you work offline.
  *
  * <h1>Contents</h1>
  *
  * <b>
- *      <a href="#0">0. Migrating to 2.0</a><br/>
  *      <a href="#1">1. Let's verify some behaviour! </a><br/>
  *      <a href="#2">2. How about some stubbing? </a><br/>
  *      <a href="#3">3. Argument matchers </a><br/>
@@ -61,34 +57,12 @@ import org.mockito.junit.*;
  *      <a href="#28">28. <code>MockMaker</code> API (Since 1.9.5)</a><br/>
  *      <a href="#29">29. (new) BDD style verification (Since 1.10.0)</a><br/>
  *      <a href="#30">30. (new) Spying or mocking abstract classes (Since 1.10.12)</a><br/>
- *      <a href="#31">31. (new) Mockito mocks can be <em>serialized</em> / <em>deserialized</em> across classloaders (Since 1.10.0)</a></h3><br/>
- *      <a href="#32">32. (new) Better generic support with deep stubs (Since 1.10.0)</a></h3><br/>
- *      <a href="#32">33. (new) Mockito JUnit rule (Since 1.10.17)</a><br/>
- *      <a href="#34">34. (new) Switch <em>on</em> or <em>off</em> plugins (Since 1.10.15)</a><br/>
- *      <a href="#35">35. (new) Custom verification failure message (Since 2.0.0)</a><br/>
  * </b>
  *
- * <h3 id="0">0. <a class="meaningful_link" href="#verification">Migrating to 2.0</a></h3>
- *
- * In order to continue improving Mockito and further improve the unit testing experience, we want you to upgrade to 2.0.
- * Mockito follows <a href="http://semver.org/">semantic versioning</a>
- * and contains breaking changes only on major version upgrades.
- * In the lifecycle of a library, breaking changes are necessary
- * to roll out a set of brand new features that alter the existing behavior or even change the API.
- * We hope that you enjoy Mockito 2.0!
  * <p>
- * List of breaking changes:
- * <ul>
- *     <li>Mockito is decoupled from Hamcrest and custom matchers API has changed, see {@link ArgumentMatcher}
- *     for rationale and migration guide</li>.
- *     <li>Stubbing API has been tweaked to avoid unavoidable compilation warnings that appeared on JDK7+ platform.
- *     This will only affect binary compatibility, compilation compatibility remains unaffected.</li>
- * </ul>
- *
- * <p>
- * The following examples mock a List, because most people are familiar with the interface (such as the
- * <code>add()</code>, <code>get()</code>, <code>clear()</code> methods). <br>
- * In reality, please don't mock the List class. Use a real instance instead.
+ * Following examples mock a List, because everyone knows its interface (methods
+ * like <code>add()</code>, <code>get()</code>, <code>clear()</code> will be used). <br>
+ * You probably wouldn't mock List class 'in real'.
  *
  *
  *
@@ -112,8 +86,8 @@ import org.mockito.junit.*;
  * </code></pre>
  *
  * <p>
- * Once created, a mock will remember all interactions. Then you can selectively
- * verify whatever interactions you are interested in.
+ * Once created, mock will remember all interactions. Then you can selectively
+ * verify whatever interaction you are interested in.
  *
  *
  *
@@ -121,7 +95,7 @@ import org.mockito.junit.*;
  * <h3 id="2">2. <a class="meaningful_link" href="#stubbing">How about some stubbing?</a></h3>
  *
  * <pre class="code"><code class="java">
- * //You can mock concrete classes, not just interfaces
+ * //You can mock concrete classes, not only interfaces
  * LinkedList mockedList = mock(LinkedList.class);
  *
  * //stubbing
@@ -138,21 +112,21 @@ import org.mockito.junit.*;
  * System.out.println(mockedList.get(999));
  *
  * //Although it is possible to verify a stubbed invocation, usually <b>it's just redundant</b>
- * //If your code cares what get(0) returns, then something else breaks (often even before verify() gets executed).
- * //If your code doesn't care what get(0) returns, then it should not be stubbed. Not convinced? See <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling">here</a>.
+ * //If your code cares what get(0) returns then something else breaks (often before even verify() gets executed).
+ * //If your code doesn't care what get(0) returns then it should not be stubbed. Not convinced? See <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling">here</a>.
  * verify(mockedList).get(0);
  * </code></pre>
  *
  * <ul>
- * <li> By default, for all methods that return a value, a mock will return either null, a
- * a primitive/primitive wrapper value, or an empty collection, as appropriate.
- * For example 0 for an int/Integer and false for a boolean/Boolean. </li>
+ * <li> By default, for all methods that return value, mock returns null, an
+ * empty collection or appropriate primitive/primitive wrapper value (e.g: 0,
+ * false, ... for int/Integer, boolean/Boolean, ...). </li>
  *
  * <li> Stubbing can be overridden: for example common stubbing can go to
  * fixture setup but the test methods can override it.
  * Please note that overridding stubbing is a potential code smell that points out too much stubbing</li>
  *
- * <li> Once stubbed, the method will always return a stubbed value, regardless
+ * <li> Once stubbed, the method will always return stubbed value regardless
  * of how many times it is called. </li>
  *
  * <li> Last stubbing is more important - when you stubbed the same method with
@@ -173,7 +147,7 @@ import org.mockito.junit.*;
  * //stubbing using built-in anyInt() argument matcher
  * when(mockedList.get(anyInt())).thenReturn("element");
  *
- * //stubbing using custom matcher (let's say isValid() returns your own matcher implementation):
+ * //stubbing using hamcrest (let's say isValid() returns your own hamcrest matcher):
  * when(mockedList.contains(argThat(isValid()))).thenReturn("element");
  *
  * //following prints "element"
@@ -202,7 +176,7 @@ import org.mockito.junit.*;
  * If you are using argument matchers, <b>all arguments</b> have to be provided
  * by matchers.
  * <p>
- The following example shows verification but the same applies to stubbing:
+ * E.g: (example shows verification but the same applies to stubbing):
  *
  * <pre class="code"><code class="java">
  *   verify(mock).someMethod(anyInt(), anyString(), <b>eq("third argument")</b>);
@@ -215,7 +189,7 @@ import org.mockito.junit.*;
  * <p>
  * Matcher methods like <code>anyObject()</code>, <code>eq()</code> <b>do not</b> return matchers.
  * Internally, they record a matcher on a stack and return a dummy value (usually null).
- * This implementation is due to static type safety imposed by the java compiler.
+ * This implementation is due static type safety imposed by java compiler.
  * The consequence is that you cannot use <code>anyObject()</code>, <code>eq()</code> methods outside of verified/stubbed method.
  *
  *
@@ -272,7 +246,7 @@ import org.mockito.junit.*;
  * Read more about doThrow|doAnswer family of methods in paragraph 12.
  * <p>
  * Initially, {@link Mockito#stubVoid(Object)} was used for stubbing voids.
- * Currently <code>stubVoid()</code> is deprecated in favor of {@link Mockito#doThrow(Throwable...)}.
+ * Currently <code>stubVoid()</code> is deprecated in favor of {@link Mockito#doThrow(Throwable)}.
  * This is because of improved readability and consistency with the family of {@link Mockito#doAnswer(Answer)} methods.
  *
  *
@@ -317,7 +291,7 @@ import org.mockito.junit.*;
  * interactions</b> one-by-one but only those that you are interested in
  * testing in order.
  * <p>
- * Also, you can create an InOrder object passing only the mocks that are relevant for
+ * Also, you can create InOrder object passing only mocks that are relevant for
  * in-order verification.
  *
  *
@@ -445,9 +419,9 @@ import org.mockito.junit.*;
  * Allows stubbing with generic {@link Answer} interface.
  * <p>
  * Yet another controversial feature which was not included in Mockito
- * originally. We recommend simply stubbing with <code>thenReturn()</code> or
- * <code>thenThrow()</code>, which should be enough to test/test-drive
- * any clean & simple code. However, if you do have a need to stub with the generic Answer interface, here is an example:
+ * originally. We recommend using simple stubbing with <code>thenReturn()</code> or
+ * <code>thenThrow()</code> only. Those two should be <b>just enough</b> to test/test-drive
+ * any clean & simple code.
  *
  * <pre class="code"><code class="java">
  * when(mock.someMethod(anyString())).thenAnswer(new Answer() {
@@ -458,7 +432,7 @@ import org.mockito.junit.*;
  *     }
  * });
  *
- * //the following prints "called with arguments: foo"
+ * //Following prints "called with arguments: foo"
  * System.out.println(mock.someMethod("foo"));
  * </code></pre>
  *
@@ -468,10 +442,10 @@ import org.mockito.junit.*;
  * <h3 id="12">12. <a class="meaningful_link" href="#do_family_methods_stubs"><code>doReturn()</code>|<code>doThrow()</code>|
  * <code>doAnswer()</code>|<code>doNothing()</code>|<code>doCallRealMethod()</code> family of methods</a></h3>
  *
- * Stubbing void methods requires a different approach from {@link Mockito#when(Object)} because the compiler does not
+ * Stubbing voids requires different approach from {@link Mockito#when(Object)} because the compiler does not
  * like void methods inside brackets...
  * <p>
- * {@link Mockito#doThrow(Throwable...)} replaces the {@link Mockito#stubVoid(Object)} method for stubbing voids.
+ * {@link Mockito#doThrow(Throwable)} replaces the {@link Mockito#stubVoid(Object)} method for stubbing voids.
  * The main reason is improved readability and consistency with the family of <code>doAnswer()</code> methods.
  * <p>
  * Use <code>doThrow()</code> when you want to stub a void method with an exception:
@@ -497,7 +471,7 @@ import org.mockito.junit.*;
  * <p>
  * {@link Mockito#doReturn(Object)}
  * <p>
- * {@link Mockito#doThrow(Throwable...)}
+ * {@link Mockito#doThrow(Throwable)}
  * <p>
  * {@link Mockito#doThrow(Class)}
  * <p>
@@ -586,7 +560,7 @@ import org.mockito.junit.*;
  * <h3 id="14">14. Changing <a class="meaningful_link" href="#defaultreturn">default return values of unstubbed invocations</a> (Since 1.7)</h3>
  *
  * You can create a mock with specified strategy for its return values.
- * It's quite an advanced feature and typically you don't need it to write decent tests.
+ * It's quite advanced feature and typically you don't need it to write decent tests.
  * However, it can be helpful for working with <b>legacy systems</b>.
  * <p>
  * It is the default answer so it will be used <b>only when you don't</b> stub the method call.
@@ -966,18 +940,10 @@ import org.mockito.junit.*;
  * Enables Behavior Driven Development (BDD) style verification by starting verification with the BDD <b>then</b> keyword.
  *
  * <pre class="code"><code class="java">
- * given(dog.bark()).willReturn(2);
- *
- * // when
- * ...
- *
- * then(person).should(times(2)).ride(bike);
+ *   then(person).should(times(2)).ride(bike);
  * </code></pre>
  *
  * For more information and an example see {@link BDDMockito#then(Object)}}
- *
- *
- *
  *
  * <h3 id="30">30. <a class="meaningful_link" href="#spying_abstract_classes">(new) Spying or mocking abstract classes (Since 1.10.12)</a></h3>
  *
@@ -989,113 +955,19 @@ import org.mockito.junit.*;
  * At the moment, only parameter-less constructor is supported, let us know if it is not enough.
  *
  * <pre class="code"><code class="java">
- * //convenience API, new overloaded spy() method:
- * SomeAbstract spy = spy(SomeAbstract.class);
+ *   //convenience API, new overloaded spy() method:
+ *   SomeAbstract spy = spy(SomeAbstract.class);
  *
- * //Robust API, via settings builder:
- * OtherAbstract spy = mock(OtherAbstract.class, withSettings()
- *    .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
+ *   //Robust API, via settings builder:
+ *   OtherAbstract spy = mock(OtherAbstract.class, withSettings()
+ *      .useConstructor().defaultAnswer(CALLS_REAL_METHODS));
  *
- * //Mocking a non-static inner abstract class:
- * InnerAbstract spy = mock(InnerAbstract.class, withSettings()
- *    .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
+ *   //Mocking a non-static inner abstract class:
+ *   InnerAbstract spy = mock(InnerAbstract.class, withSettings()
+ *      .useConstructor().outerInstance(outerInstance).defaultAnswer(CALLS_REAL_METHODS));
  * </code></pre>
  *
  * For more information please see {@link MockSettings#useConstructor()}.
- *
- *
- *
- *
- * <h3 id="31">31. <a class="meaningful_link" href="#serilization_across_classloader">(new) Mockito mocks can be <em>serialized</em> / <em>deserialized</em> across classloaders (Since 1.10.0)</a></h3>
- *
- * Mockito introduces serialization across classloader.
- *
- * Like with any other form of serialization, all types in the mock hierarchy have to serializable, inclusing answers.
- * As this serialization mode require considerably more work, this is an opt-in setting.
- *
- * <pre class="code"><code class="java">
- * // use regular serialization
- * mock(Book.class, withSettings().serializable());
- *
- * // use serialization across classloaders
- * mock(Book.class, withSettings().serializable(ACROSS_CLASSLOADERS));
- * </code></pre>
- *
- * For more details see {@link MockSettings#serializable(SerializableMode)}.
- *
- *
- *
- *
- * <h3 id="32">32. <a class="meaningful_link" href="#better_generic_support_with_deep_stubs">(new) Better generic support with deep stubs (Since 1.10.0)</a></h3>
- *
- * Deep stubbing has been improved to find generic information if available in the class.
- * That means that classes like this can be used without having to mock the behavior.
- *
- * <pre class="code"><code class="java">
- * class Lines extends List&lt;Line&gt; {
- *     // ...
- * }
- *
- * lines = mock(Lines.class, RETURNS_DEEP_STUBS);
- *
- * // Now Mockito understand this is not an Object but a Line
- * Line line = lines.iterator().next();
- * </code></pre>
- *
- * Please note that in most scenarios a mock returning a mock is wrong.
- *
- *
- *
- *
- * <h3 id="33">33. <a class="meaningful_link" href="#mockito_junit_rule">(new) Mockito JUnit rule (Since 1.10.17)</a></h3>
- *
- * Mockito now offers a JUnit rule. Until now in JUnit there was two wasy to initialize fields annotated by Mockito annotations
- * such as <code>&#064;{@link Mock}</code>, <code>&#064;{@link Spy}</code>, <code>&#064;{@link InjectMocks}</code>, etc.
- *
- * <ul>
- *     <li>Annotating the JUnit test class with a <code>&#064;{@link org.junit.runner.RunWith}({@link MockitoJUnitRunner}.class)</code></li>
- *     <li>Invoking <code>{@link MockitoAnnotations#initMocks(Object)}</code> in the <code>&#064;{@link org.junit.Before}</code> method</li>
- * </ul>
- *
- * Now you can choose to use a rule :
- *
- * <pre class="code"><code class="java">
- * &#064;RunWith(YetAnotherRunner.class)
- * public class TheTest {
- *     &#064;Rule public MockitoRule mockito = MockitoJUnit.rule();
- *     // ...
- * }
- * </code></pre>
- *
- * For more information see {@link MockitoJUnit#rule()}.
- *
- *
- *
- *
- * <h3 id="34">34. <a class="meaningful_link" href="#plugin_switch">(new) Switch <em>on</em> or <em>off</em> plugins (Since 1.10.15)</a></h3>
- *
- * An incubating feature made it's way in mockito that will allow to toggle a mockito-plugin.
- *
- * More information here {@link org.mockito.plugins.PluginSwitch}.
- *
- *
- * <h3 id="35">35. <a class="meaningful_link" href="#BDD_behavior_verification">Custom verification failure message</a> (Since 2.0.0)</h3>
- * <p>
- * Allows specifying a custom message to be printed if verification fails.
- * <p>
- * Examples:
- * <p>
- * <pre class="code"><code class="java">
- *
- * // will print a custom message on verification failure
- * verify(mock, description("This will print on failure")).someMethod();
- *
- * // will work with any verification mode
- * verify(mock, times(2).description("someMethod should be called twice")).someMethod();
- * </code></pre>
- *
- * TODO rework the documentation, write about hamcrest.
- *
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
@@ -1130,7 +1002,7 @@ public class Mockito extends Matchers {
      * <p>
      * Example:
      * <pre class="code"><code class="java">
-     *   Foo mock = mock(Foo.class, RETURNS_SMART_NULLS);
+     *   Foo mock = (Foo.class, RETURNS_SMART_NULLS);
      *
      *   //calling unstubbed method here:
      *   Stuff stuff = mock.getStuff();
@@ -1278,78 +1150,6 @@ public class Mockito extends Matchers {
      * </code></pre>
      */
     public static final Answer<Object> CALLS_REAL_METHODS = Answers.CALLS_REAL_METHODS;
-
-    /**
-     * Optional <code>Answer</code> to be used with {@link Mockito#mock(Class, Answer)}.
-     *
-     * Allows Builder mocks to return itself whenever a method is invoked that returns a Type equal
-     * to the class or a superclass.
-     *
-     * <p><b>Keep in mind this answer uses the return type of a method.
-     * If this type is assignable to the class of the mock, it will return the mock.
-     * Therefore if you have a method returning a superclass (for example {@code Object}) it will match and return the mock.</b></p>
-     *
-     * Consider a HttpBuilder used in a HttpRequesterWithHeaders.
-     *
-     * <pre class="code"><code class="java">
-     * public class HttpRequesterWithHeaders {
-     *
-     *      private HttpBuilder builder;
-     *
-     *      public HttpRequesterWithHeaders(HttpBuilder builder) {
-     *          this.builder = builder;
-     *      }
-     *
-     *      public String request(String uri) {
-     *          return builder.withUrl(uri)
-     *                  .withHeader("Content-type: application/json")
-     *                  .withHeader("Authorization: Bearer")
-     *                  .request();
-     *      }
-     *  }
-     *
-     *  private static class HttpBuilder {
-     *
-     *      private String uri;
-     *      private List&lt;String&gt; headers;
-     *
-     *      public HttpBuilder() {
-     *          this.headers = new ArrayList&lt;String&gt;();
-     *      }
-     *
-     *       public HttpBuilder withUrl(String uri) {
-     *           this.uri = uri;
-     *           return this;
-     *       }
-     *
-     *       public HttpBuilder withHeader(String header) {
-     *           this.headers.add(header);
-     *           return this;
-     *       }
-     *
-     *       public String request() {
-     *          return uri + headers.toString();
-     *       }
-     *  }
-     * </code></pre>
-     *
-     * The following test will succeed
-     *
-     * <pre><code>
-     * &#064;Test
-     *  public void use_full_builder_with_terminating_method() {
-     *      HttpBuilder builder = mock(HttpBuilder.class, RETURNS_SELF);
-     *      HttpRequesterWithHeaders requester = new HttpRequesterWithHeaders(builder);
-     *      String response = "StatusCode: 200";
-     *
-     *      when(builder.request()).thenReturn(response);
-     *
-     *      assertThat(requester.request("URI")).isEqualTo(response);
-     *  }
-     * </code></pre>
-     */
-    public static final Answer<Object> RETURNS_SELF = Answers.RETURNS_SELF;
-
     /**
      * Creates mock object of given class or interface.
      * <p>
@@ -1400,8 +1200,43 @@ public class Mockito extends Matchers {
     }
 
     /**
+     * <b>Deprecated : Please use mock(Foo.class, defaultAnswer);</b>
+     * <p>
+     * See {@link Mockito#mock(Class, Answer)}
+     * <p>
+     * Why it is deprecated? ReturnValues is being replaced by Answer
+     * for better consistency & interoperability of the framework.
+     * Answer interface has been in Mockito for a while and it has the same responsibility as ReturnValues.
+     * There's no point in mainting exactly the same interfaces.
+     * <p>
+     * Creates mock with a specified strategy for its return values.
+     * It's quite advanced feature and typically you don't need it to write decent tests.
+     * However it can be helpful when working with legacy systems.
+     * <p>
+     * Obviously return values are used only when you don't stub the method call.
+     *
+     * <pre class="code"><code class="java">
+     *   Foo mock = mock(Foo.class, Mockito.RETURNS_SMART_NULLS);
+     *   Foo mockTwo = mock(Foo.class, new YourOwnReturnValues());
+     * </code></pre>
+     *
+     * <p>See examples in javadoc for {@link Mockito} class</p>
+     *
+     * @param classToMock class or interface to mock
+     * @param returnValues default return values for unstubbed methods
+     *
+     * @return mock object
+     *
+     * @deprecated <b>Please use mock(Foo.class, defaultAnswer);</b>
+     */
+    @Deprecated
+    public static <T> T mock(Class<T> classToMock, ReturnValues returnValues) {
+        return mock(classToMock, withSettings().defaultAnswer(new AnswerReturnValuesAdapter(returnValues)));
+    }
+
+    /**
      * Creates mock with a specified strategy for its answers to interactions.
-     * It's quite an advanced feature and typically you don't need it to write decent tests.
+     * It's quite advanced feature and typically you don't need it to write decent tests.
      * However it can be helpful when working with legacy systems.
      * <p>
      * It is the default answer so it will be used <b>only when you don't</b> stub the method call.
@@ -1455,7 +1290,7 @@ public class Mockito extends Matchers {
      * Real spies should be used <b>carefully and occasionally</b>, for example when dealing with legacy code.
      * <p>
      * As usual you are going to read <b>the partial mock warning</b>:
-     * Object oriented programming tackles complexity by dividing the complexity into separate, specific, SRPy objects.
+     * Object oriented programming is more less tackling complexity by dividing the complexity into separate, specific, SRPy objects.
      * How does partial mock fit into this paradigm? Well, it just doesn't...
      * Partial mock usually means that the complexity has been moved to a different method on the same object.
      * In most cases, this is not the way you want to design your application.
@@ -1595,7 +1430,7 @@ public class Mockito extends Matchers {
      *   //You can do:
      *   when(mock.count()).thenReturn(10);
      * </code></pre>
-     * For stubbing void methods with throwables see: {@link Mockito#doThrow(Throwable...)}
+     * For stubbing void methods with throwables see: {@link Mockito#doThrow(Throwable)}
      * <p>
      * Stubbing can be overridden: for example common stubbing can go to fixture
      * setup but the test methods can override it.
@@ -1659,7 +1494,7 @@ public class Mockito extends Matchers {
      *
      * </code></pre>
      *
-     * For stubbing void methods with throwables see: {@link Mockito#doThrow(Throwable...)}
+     * For stubbing void methods with throwables see: {@link Mockito#doThrow(Throwable)}
      * <p>
      * Stubbing can be overridden: for example common stubbing can go to fixture
      * setup but the test methods can override it.
@@ -1776,21 +1611,6 @@ public class Mockito extends Matchers {
     }
 
     /**
-     * Use this method in order to only clear invocations, when stubbing is non-trivial. Use-cases can be:
-     * <ul>
-     *     <li>You are using a dependency injection framework to inject your mocks.</li>
-     *     <li>The mock is used in a stateful scenario. For example a class is Singleton which depends on your mock.</li>
-     * </ul>
-     *
-     * <b>Try to avoid this method at all costs. Only clear invocations if you are unable to efficiently test your program.</b>
-     * @param <T> The type of the mocks
-     * @param mocks The mocks to clear the invocations for
-     */
-    public static <T> void clearInvocations(T ... mocks) {
-        MOCKITO_CORE.clearInvocations(mocks);
-    }
-
-    /**
      * Checks if any of given mocks has any unverified interaction.
      * <p>
      * You can use this method after you verified your mocks - to make sure that nothing
@@ -1880,7 +1700,7 @@ public class Mockito extends Matchers {
      *
      * See examples in javadoc for {@link Mockito} class
      *
-     * @deprecated Use {@link Mockito#doThrow(Throwable...)} method for stubbing voids
+     * @deprecated Use {@link Mockito#doThrow(Throwable)} method for stubbing voids
      *
      * @param mock
      *            to stub
@@ -1893,8 +1713,7 @@ public class Mockito extends Matchers {
     /**
      * Use <code>doThrow()</code> when you want to stub the void method with an exception.
      * <p>
-     * Stubbing voids requires different approach from {@link Mockito#when(Object)} because the compiler
-     * does not like void methods inside brackets...
+     * Stubbing voids requires different approach from {@link Mockito#when(Object)} because the compiler does not like void methods inside brackets...
      * <p>
      * Example:
      *
@@ -1905,17 +1724,16 @@ public class Mockito extends Matchers {
      * @param toBeThrown to be thrown when the stubbed method is called
      * @return stubber - to select a method for stubbing
      */
-    public static Stubber doThrow(Throwable... toBeThrown) {
-        return MOCKITO_CORE.stubber().doThrow(toBeThrown);
+    public static Stubber doThrow(Throwable toBeThrown) {
+        return MOCKITO_CORE.doAnswer(new ThrowsException(toBeThrown));
     }
 
     /**
-     * Use <code>doThrow()</code> when you want to stub the void method with an exception.
+     * Use <code>doThrow()</code> when you want to stub the void method to throw exception of specified class.
      * <p>
      * A new exception instance will be created for each method invocation.
      * <p>
-     * Stubbing voids requires different approach from {@link Mockito#when(Object)} because the compiler
-     * does not like void methods inside brackets...
+     * Stubbing voids requires different approach from {@link Mockito#when(Object)} because the compiler does not like void methods inside brackets...
      * <p>
      * Example:
      *
@@ -1925,36 +1743,10 @@ public class Mockito extends Matchers {
      *
      * @param toBeThrown to be thrown when the stubbed method is called
      * @return stubber - to select a method for stubbing
-     * @since 2.0.0
+     * @since 1.9.0
      */
     public static Stubber doThrow(Class<? extends Throwable> toBeThrown) {
-        return MOCKITO_CORE.stubber().doThrow(toBeThrown);
-    }
-
-    /**
-     * Same as {@link #doThrow(Class)} but sets consecutive exception classes to be thrown. Remember to use
-     * <code>doThrow()</code> when you want to stub the void method to throw several exception of specified class.
-     * <p>
-     * A new exception instance will be created for each method invocation.
-     * <p>
-     * Stubbing voids requires different approach from {@link Mockito#when(Object)} because the compiler
-     * does not like void methods inside brackets...
-     * <p>
-     * Example:
-     *
-     * <pre class="code"><code class="java">
-     *   doThrow(RuntimeException.class, BigFailure.class).when(mock).someVoidMethod();
-     * </code></pre>
-     *
-     * @param toBeThrown to be thrown when the stubbed method is called
-     * @param toBeThrownNext next to be thrown when the stubbed method is called
-     * @return stubber - to select a method for stubbing
-     * @since 2.0.0
-     */
-    // Additional method helps users of JDK7+ to hide heap pollution / unchecked generics array creation
-    @SuppressWarnings ({"unchecked", "varargs"})
-    public static Stubber doThrow(Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... toBeThrownNext) {
-        return MOCKITO_CORE.stubber().doThrow(toBeThrown, toBeThrownNext);
+        return MOCKITO_CORE.doAnswer(new ThrowsExceptionClass(toBeThrown));
     }
 
 
@@ -1990,7 +1782,7 @@ public class Mockito extends Matchers {
      * @since 1.9.5
      */
     public static Stubber doCallRealMethod() {
-        return MOCKITO_CORE.stubber().doCallRealMethod();
+        return MOCKITO_CORE.doAnswer(new CallsRealMethods());
     }
 
     /**
@@ -2016,7 +1808,7 @@ public class Mockito extends Matchers {
      * @return stubber - to select a method for stubbing
      */
     public static Stubber doAnswer(Answer answer) {
-        return MOCKITO_CORE.stubber().doAnswer(answer);
+        return MOCKITO_CORE.doAnswer(answer);
     }
 
     /**
@@ -2058,7 +1850,7 @@ public class Mockito extends Matchers {
      * @return stubber - to select a method for stubbing
      */
     public static Stubber doNothing() {
-        return MOCKITO_CORE.stubber().doNothing();
+        return MOCKITO_CORE.doAnswer(new DoesNothing());
     }
 
     /**
@@ -2108,61 +1900,7 @@ public class Mockito extends Matchers {
      * @return stubber - to select a method for stubbing
      */
     public static Stubber doReturn(Object toBeReturned) {
-        return MOCKITO_CORE.stubber().doReturn(toBeReturned);
-    }
-
-    /**
-     * Same as {@link #doReturn(Object)} but sets consecutive values to be returned. Remember to use
-     * <code>doReturn()</code> in those rare occasions when you cannot use {@link Mockito#when(Object)}.
-     * <p>
-     * <b>Beware that {@link Mockito#when(Object)} is always recommended for stubbing because it is argument type-safe
-     * and more readable</b> (especially when stubbing consecutive calls).
-     * <p>
-     * Here are those rare occasions when doReturn() comes handy:
-     * <p>
-     *
-     * <ol>
-     * <li>When spying real objects and calling real methods on a spy brings side effects
-     *
-     * <pre class="code"><code class="java">
-     *   List list = new LinkedList();
-     *   List spy = spy(list);
-     *
-     *   //Impossible: real method is called so spy.get(0) throws IndexOutOfBoundsException (the list is yet empty)
-     *   when(spy.get(0)).thenReturn("foo", "bar", "qix");
-     *
-     *   //You have to use doReturn() for stubbing:
-     *   doReturn("foo", "bar", "qix").when(spy).get(0);
-     * </code></pre>
-     * </li>
-     *
-     * <li>Overriding a previous exception-stubbing:
-     * <pre class="code"><code class="java">
-     *   when(mock.foo()).thenThrow(new RuntimeException());
-     *
-     *   //Impossible: the exception-stubbed foo() method is called so RuntimeException is thrown.
-     *   when(mock.foo()).thenReturn("bar", "foo", "qix");
-     *
-     *   //You have to use doReturn() for stubbing:
-     *   doReturn("bar", "foo", "qix").when(mock).foo();
-     * </code></pre>
-     * </li>
-     * </ol>
-     *
-     * Above scenarios shows a trade-off of Mockito's elegant syntax. Note that the scenarios are very rare, though.
-     * Spying should be sporadic and overriding exception-stubbing is very rare. Not to mention that in general
-     * overridding stubbing is a potential code smell that points out too much stubbing.
-     * <p>
-     * See examples in javadoc for {@link Mockito} class
-     *
-     * @param toBeReturned to be returned when the stubbed method is called
-     * @param toBeReturnedNext to be returned in consecutive calls when the stubbed method is called
-     * @return stubber - to select a method for stubbing
-     * @since 2.0.0
-     */
-    @SuppressWarnings({"unchecked", "varargs"})
-    public static Stubber doReturn(Object toBeReturned, Object... toBeReturnedNext) {
-        return MOCKITO_CORE.stubber().doReturn(toBeReturned, toBeReturnedNext);
+        return MOCKITO_CORE.doAnswer(new Returns(toBeReturned));
     }
 
     /**
@@ -2381,7 +2119,7 @@ public class Mockito extends Matchers {
      * @return verification mode
      */
     public static VerificationMode only() {
-        return VerificationModeFactory.only();
+    	return VerificationModeFactory.only();
     }
 
     /**
@@ -2546,19 +2284,6 @@ public class Mockito extends Matchers {
      */
     public static MockSettings withSettings() {
         return new MockSettingsImpl().defaultAnswer(RETURNS_DEFAULTS);
-    }
-
-    /**
-     * Adds a description to be printed if verification fails.
-     * <pre class="code"><code class="java">
-     * verify(mock, description("This will print on failure")).someMethod("some arg");
-     * </code></pre>
-     * @param description The description to print on failure.
-     * @return verification mode
-     * @since 2.0.0
-     */
-    public static VerificationMode description(String description) {
-        return times(1).description(description);
     }
 
     /**

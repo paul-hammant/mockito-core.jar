@@ -6,7 +6,6 @@ package org.mockito.verification;
 
 import org.mockito.exceptions.Reporter;
 import org.mockito.internal.util.Timer;
-import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.VerificationOverTimeImpl;
 /**
  * See the javadoc for {@link VerificationWithTimeout}
@@ -30,25 +29,21 @@ public class Timeout extends VerificationWrapper<VerificationOverTimeImpl> imple
      * See the javadoc for {@link VerificationWithTimeout}
      */
     Timeout(long pollingPeriodMillis, long millis, VerificationMode delegate) {
-        this(new VerificationOverTimeImpl(pollingPeriodMillis, millis, delegate, true));
+        super(new VerificationOverTimeImpl(pollingPeriodMillis, millis, delegate, true));
     }
 
     /**
      * See the javadoc for {@link VerificationWithTimeout}
      */
-    Timeout(long pollingPeriodMillis, VerificationMode delegate, Timer timer) {
-        this(new VerificationOverTimeImpl(pollingPeriodMillis, delegate, true, timer));
+    Timeout(long pollingPeriodMillis, long millis, VerificationMode delegate, Timer timer) {
+        super(new VerificationOverTimeImpl(pollingPeriodMillis, millis, delegate, true, timer));
     }
-
-    Timeout(VerificationOverTimeImpl verificationOverTime) {
-        super(verificationOverTime);
-    }
-
+    
     @Override
     protected VerificationMode copySelfWithNewVerificationMode(VerificationMode newVerificationMode) {
-        return new Timeout(wrappedVerification.copyWithVerificationMode(newVerificationMode));
+        return new Timeout(wrappedVerification.getPollingPeriod(), wrappedVerification.getDuration(), newVerificationMode);
     }
-
+    
     public VerificationMode atMost(int maxNumberOfInvocations) {
         new Reporter().atMostAndNeverShouldNotBeUsedWithTimeout();
         return null;
@@ -59,8 +54,4 @@ public class Timeout extends VerificationWrapper<VerificationOverTimeImpl> imple
         return null;
     }
 
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
-    }
 }

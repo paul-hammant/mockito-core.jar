@@ -40,15 +40,14 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
     final RealMethod realMethod;
     private StubInfo stubInfo;
 
-    public InvocationImpl(Object mock, MockitoMethod mockitoMethod, Object[] args, int sequenceNumber,
-                          RealMethod realMethod, Location location) {
+    public InvocationImpl(Object mock, MockitoMethod mockitoMethod, Object[] args, int sequenceNumber, RealMethod realMethod) {
         this.method = mockitoMethod;
         this.mock = mock;
         this.realMethod = realMethod;
         this.arguments = ArgumentsProcessor.expandVarArgs(mockitoMethod.isVarArgs(), args);
         this.rawArguments = args;
         this.sequenceNumber = sequenceNumber;
-        this.location = location;
+        this.location = new LocationImpl();
     }
 
     public Object getMock() {
@@ -104,10 +103,6 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
 
     public Object[] getRawArguments() {
         return this.rawArguments;
-    }
-
-    public Class<?> getRawReturnType() {
-        return method.getReturnType();
     }
 
     public Object callRealMethod() throws Throwable {
