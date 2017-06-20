@@ -4,8 +4,9 @@
  */
 package org.mockito.internal.handler;
 
+import static org.mockito.internal.exceptions.Reporter.invocationListenerThrewException;
+
 import java.util.List;
-import org.mockito.exceptions.Reporter;
 import org.mockito.internal.InternalMockHandler;
 import org.mockito.internal.listeners.NotifiedMethodInvocationReport;
 import org.mockito.internal.stubbing.InvocationContainer;
@@ -14,7 +15,6 @@ import org.mockito.invocation.MockHandler;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.VoidMethodStubbable;
 
 /**
  * Handler, that call all listeners wanted for this mock, before delegating it
@@ -27,7 +27,7 @@ class InvocationNotifierHandler<T> implements MockHandler, InternalMockHandler<T
     private final List<InvocationListener> invocationListeners;
     private final InternalMockHandler<T> mockHandler;
 
-    public InvocationNotifierHandler(InternalMockHandler<T> mockHandler, MockCreationSettings settings) {
+    public InvocationNotifierHandler(InternalMockHandler<T> mockHandler, MockCreationSettings<T> settings) {
         this.mockHandler = mockHandler;
         this.invocationListeners = settings.getInvocationListeners();
     }
@@ -49,7 +49,7 @@ class InvocationNotifierHandler<T> implements MockHandler, InternalMockHandler<T
             try {
                 listener.reportInvocation(new NotifiedMethodInvocationReport(invocation, returnValue));
             } catch(Throwable listenerThrowable) {
-                new Reporter().invocationListenerThrewException(listener, listenerThrowable);
+                throw invocationListenerThrewException(listener, listenerThrowable);
             }
         }
     }
@@ -59,20 +59,16 @@ class InvocationNotifierHandler<T> implements MockHandler, InternalMockHandler<T
             try {
                 listener.reportInvocation(new NotifiedMethodInvocationReport(invocation, exception));
             } catch(Throwable listenerThrowable) {
-                new Reporter().invocationListenerThrewException(listener, listenerThrowable);
+                throw invocationListenerThrewException(listener, listenerThrowable);
             }
         }
     }
 
-    public MockCreationSettings getMockSettings() {
+    public MockCreationSettings<T> getMockSettings() {
         return mockHandler.getMockSettings();
     }
 
-    public VoidMethodStubbable<T> voidMethodStubbable(T mock) {
-        return mockHandler.voidMethodStubbable(mock);
-    }
-
-    public void setAnswersForStubbing(List<Answer> answers) {
+    public void setAnswersForStubbing(List<Answer<?>> answers) {
         mockHandler.setAnswersForStubbing(answers);
     }
 

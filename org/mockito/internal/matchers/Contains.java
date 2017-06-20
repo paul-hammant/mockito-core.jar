@@ -5,26 +5,24 @@
 
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
-
-import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
+import java.io.Serializable;
 
-public class Contains extends ArgumentMatcher<String> implements Serializable {
 
-    private static final long serialVersionUID = -1909837398271763801L;
+public class Contains implements ArgumentMatcher<String>, Serializable {
+
     private final String substring;
 
     public Contains(String substring) {
         this.substring = substring;
     }
 
-    public boolean matches(Object actual) {
-        return actual != null && ((String) actual).contains(substring);
+    public boolean matches(String actual) {
+        return actual != null && actual.contains(substring);
     }
 
-    public void describeTo(Description description) {
-        description.appendText("contains(\"" + substring + "\")");
+    public String toString() {
+        return "contains(\"" + substring + "\")";
     }
 }

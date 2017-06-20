@@ -4,12 +4,13 @@
  */
 package org.mockito.internal.verification;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.stubbing.InvocationContainer;
 import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.invocation.Invocation;
+
+import static org.mockito.internal.exceptions.Reporter.cannotVerifyToString;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class VerificationDataImpl implements VerificationData {
         }
         ObjectMethodsGuru o =  new ObjectMethodsGuru();
         if (o.isToString(wanted.getMethod())) {
-            new Reporter().cannotVerifyToString();
+            throw cannotVerifyToString();
         }
     }
 }

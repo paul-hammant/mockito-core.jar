@@ -4,11 +4,8 @@
  */
 package org.mockito.internal.configuration;
 
-import org.mockito.*;
-import org.mockito.configuration.AnnotationEngine;
-import org.mockito.exceptions.Reporter;
-import org.mockito.exceptions.base.MockitoException;
-import org.mockito.internal.util.MockUtil;
+import static org.mockito.Mockito.withSettings;
+import static org.mockito.internal.exceptions.Reporter.unsupportedCombinationOfAnnotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -16,7 +13,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
-import static org.mockito.Mockito.withSettings;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockSettings;
+import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.configuration.AnnotationEngine;
+import org.mockito.exceptions.base.MockitoException;
+import org.mockito.internal.util.MockUtil;
 
 /**
  * Process fields annotated with &#64;Spy.
@@ -39,22 +44,18 @@ import static org.mockito.Mockito.withSettings;
 @SuppressWarnings({"unchecked"})
 public class SpyAnnotationEngine implements AnnotationEngine {
 
-    public Object createMockFor(Annotation annotation, Field field) {
-        return null;
-    }
-
-    @SuppressWarnings("deprecation") // for MockitoAnnotations.Mock
+    @Override
     public void process(Class<?> context, Object testInstance) {
         Field[] fields = context.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Spy.class) && !field.isAnnotationPresent(InjectMocks.class)) {
-                assertNoIncompatibleAnnotations(Spy.class, field, Mock.class, org.mockito.MockitoAnnotations.Mock.class, Captor.class);
+                assertNoIncompatibleAnnotations(Spy.class, field, Mock.class, Captor.class);
                 field.setAccessible(true);
                 Object instance;
                 try {
                     instance = field.get(testInstance);
                     assertNotInterface(instance, field.getType());
-                    if (new MockUtil().isMock(instance)) {
+                    if (MockUtil.isMock(instance)) {
                         // instance has been spied earlier
                         // for example happens when MockitoAnnotations.initMocks is called two times.
                         Mockito.reset(instance);
@@ -119,10 +120,10 @@ public class SpyAnnotationEngine implements AnnotationEngine {
     }
 
     //TODO duplicated elsewhere
-    void assertNoIncompatibleAnnotations(Class annotation, Field field, Class... undesiredAnnotations) {
-        for (Class u : undesiredAnnotations) {
+    private void assertNoIncompatibleAnnotations(Class<? extends Annotation> annotation, Field field, Class<? extends Annotation>... undesiredAnnotations) {
+        for (Class<? extends Annotation> u : undesiredAnnotations) {
             if (field.isAnnotationPresent(u)) {
-                new Reporter().unsupportedCombinationOfAnnotations(annotation.getSimpleName(), annotation.getClass().getSimpleName());
+                throw unsupportedCombinationOfAnnotations(annotation.getSimpleName(), annotation.getClass().getSimpleName());
             }
         }
     }

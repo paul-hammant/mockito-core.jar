@@ -4,15 +4,16 @@
  */
 package org.mockito.internal.stubbing.defaultanswers;
 
+import static org.mockito.internal.exceptions.Reporter.smartNullPointerException;
+
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
 
 import org.mockito.Mockito;
-import org.mockito.exceptions.Reporter;
 import org.mockito.internal.debugging.LocationImpl;
-import org.mockito.invocation.Location;
 import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.invocation.Location;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -67,8 +68,7 @@ public class ReturnsSmartNulls implements Answer<Object>, Serializable {
                         unstubbedInvocation.toString();
             }
 
-            new Reporter().smartNullPointerException(unstubbedInvocation.toString(), location);
-            return null;
+            throw smartNullPointerException(unstubbedInvocation.toString(), location);
         }
     }
 }
