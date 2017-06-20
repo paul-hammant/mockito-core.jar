@@ -4,6 +4,9 @@
  */
 package org.mockito.internal;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.mockito.InOrder;
 import org.mockito.MockSettings;
 import org.mockito.MockingDetails;
@@ -34,9 +37,6 @@ import org.mockito.stubbing.Stubber;
 import org.mockito.stubbing.VoidMethodStubbable;
 import org.mockito.verification.VerificationMode;
 
-import java.util.Arrays;
-import java.util.List;
-
 @SuppressWarnings("unchecked")
 public class MockitoCore {
 
@@ -45,7 +45,7 @@ public class MockitoCore {
     private final MockingProgress mockingProgress = new ThreadSafeMockingProgress();
 
     public boolean isTypeMockable(Class<?> typeToMock) {
-        return mockUtil.typeMockabilityOf(typeToMock).mockable();
+        return mockUtil.isTypeMockable(typeToMock);
     }
 
     public <T> T mock(Class<T> typeToMock, MockSettings settings) {

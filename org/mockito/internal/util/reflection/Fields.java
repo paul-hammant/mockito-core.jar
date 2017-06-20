@@ -89,19 +89,6 @@ public abstract class Fields {
         };
     }
 
-    /**
-     * Accept fields with non null value.
-     *
-     * @return The filter.
-     */
-    public static Filter<InstanceField> syntheticField() {
-        return new Filter<InstanceField>() {
-            public boolean isOut(InstanceField instanceField) {
-                return instanceField.isSynthetic();
-            }
-        };
-    }
-
     public static class InstanceFields {
         private final Object instance;
 

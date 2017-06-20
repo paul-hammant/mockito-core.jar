@@ -7,10 +7,13 @@ package org.mockito.internal.matchers;
 
 import java.io.Serializable;
 
+import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-public class EndsWith implements ArgumentMatcher<String>, Serializable {
 
+public class EndsWith extends ArgumentMatcher<String> implements Serializable {
+
+    private static final long serialVersionUID = 8556443228350129421L;
     private final String suffix;
 
     public EndsWith(String suffix) {
@@ -21,7 +24,7 @@ public class EndsWith implements ArgumentMatcher<String>, Serializable {
         return actual != null && ((String) actual).endsWith(suffix);
     }
 
-    public String toString() {
-        return "endsWith(\"" + suffix + "\")";
+    public void describeTo(Description description) {
+        description.appendText("endsWith(\"" + suffix + "\")");
     }
 }
