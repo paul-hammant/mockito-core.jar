@@ -4,11 +4,10 @@
  */
 package org.mockito;
 
-import static org.mockito.internal.util.Primitives.defaultValue;
+import org.mockito.internal.matchers.CapturingMatcher;
+import org.mockito.internal.progress.HandyReturnValues;
 
 import java.util.List;
-
-import org.mockito.internal.matchers.CapturingMatcher;
 
 /**
  * Use it to capture argument values for further assertions.
@@ -50,7 +49,9 @@ import org.mockito.internal.matchers.CapturingMatcher;
  *
  * <p>
  * This utility class <strong>*don't do any type checks*</strong>, the generic signatures are only there to avoid casting
- * in your code.
+ * in your code. If you want specific types, then you should do that the captured values.
+ * This behavior might change (type checks could be added) in a
+ * future major release.
  * <p>
  * There is an <strong>annotation</strong> that you might find useful: &#64;{@link Captor}
  * <p>
@@ -61,9 +62,30 @@ import org.mockito.internal.matchers.CapturingMatcher;
  */
 public class ArgumentCaptor<T> {
     
+    HandyReturnValues handyReturnValues = new HandyReturnValues();
 
     private final CapturingMatcher<T> capturingMatcher = new CapturingMatcher<T>();
     private final Class<? extends T> clazz;
+
+    /**
+     * @deprecated
+     * 
+     * <b>Please use factory method {@link ArgumentCaptor#forClass(Class)} to create captors</b>
+     * <p>
+     * This is required to avoid NullPointerExceptions when autoUnboxing primitive types.
+     * See issue 99.
+     * <p>
+     * Example:
+     * <pre class="code"><code class="java">
+     *   ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class);
+     *   verify(mock).doSomething(argument.capture());
+     *   assertEquals("John", argument.getValue().getName());
+     * </code></pre>
+     */
+    @Deprecated
+    public ArgumentCaptor() {
+        this.clazz = null;
+    }
 
     private ArgumentCaptor(Class<? extends T> clazz) {
         this.clazz = clazz;
@@ -81,7 +103,7 @@ public class ArgumentCaptor<T> {
      */
     public T capture() {
         Mockito.argThat(capturingMatcher);
-        return defaultValue(clazz);
+        return handyReturnValues.returnFor(clazz);
     }
 
     /**

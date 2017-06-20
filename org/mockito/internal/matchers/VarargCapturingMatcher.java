@@ -1,9 +1,8 @@
 package org.mockito.internal.matchers;
 
+import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.Reporter;
-
-import static org.mockito.exceptions.Reporter.noArgumentValueWasCaptured;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -12,25 +11,28 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
-public class VarargCapturingMatcher<T> implements ArgumentMatcher<T>, CapturesArguments, VarargMatcher, Serializable {
 
+@SuppressWarnings("unchecked")
+public class VarargCapturingMatcher<T> extends ArgumentMatcher<T> implements CapturesArguments, VarargMatcher, Serializable {
+    private static final long serialVersionUID = 4057053345838026645L;
     private final LinkedList<List<T>> arguments = new LinkedList<List<T>>();
 
     public boolean matches(Object argument) {
         return true;
     }
 
-    public String toString() {
-        return "<Capturing variable argument>";
+    public void describeTo(Description description) {
+        description.appendText("<Capturing variable argument>");
     }
 
-	public List<T> getLastVarargs() {
-		if (arguments.isEmpty()) {
-			throw noArgumentValueWasCaptured();
-		}
-		return arguments.getLast();
-	}
+    public List<T> getLastVarargs() {
+        if (arguments.isEmpty()) {
+            new Reporter().noArgumentValueWasCaptured();
+            return null;
+        } else {
+            return arguments.getLast();
+        }
+    }
 
     public List<List<T>> getAllVarargs() {
         return arguments;

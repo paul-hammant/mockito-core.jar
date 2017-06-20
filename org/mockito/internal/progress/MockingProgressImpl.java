@@ -5,9 +5,7 @@
 
 package org.mockito.internal.progress;
 
-import static org.mockito.exceptions.Reporter.unfinishedStubbing;
-import static org.mockito.exceptions.Reporter.unfinishedVerificationException;
-
+import org.mockito.exceptions.Reporter;
 import org.mockito.internal.configuration.GlobalConfiguration;
 import org.mockito.internal.debugging.Localized;
 import org.mockito.internal.debugging.LocationImpl;
@@ -15,40 +13,26 @@ import org.mockito.internal.listeners.MockingProgressListener;
 import org.mockito.internal.listeners.MockingStartedListener;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
-import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.verification.VerificationMode;
-import org.mockito.verification.VerificationStrategy;
 
 @SuppressWarnings("unchecked")
 public class MockingProgressImpl implements MockingProgress {
     
+    private final Reporter reporter = new Reporter();
     private final ArgumentMatcherStorage argumentMatcherStorage = new ArgumentMatcherStorageImpl();
     
-    private OngoingStubbing<?> ongoingStubbing;
+    IOngoingStubbing iOngoingStubbing;
     private Localized<VerificationMode> verificationMode;
     private Location stubbingInProgress = null;
     private MockingProgressListener listener;
-    private VerificationStrategy verificationStrategy;
 
-    public MockingProgressImpl() {
-        this.verificationStrategy = getDefaultVerificationStrategy();
+    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
+        this.iOngoingStubbing = iOngoingStubbing;
     }
 
-    public static VerificationStrategy getDefaultVerificationStrategy() {
-        return new VerificationStrategy() {
-            public VerificationMode maybeVerifyLazily(VerificationMode mode) {
-                return mode;
-            }
-        };
-    }
-
-    public void reportOngoingStubbing(OngoingStubbing iOngoingStubbing) {
-        this.ongoingStubbing = iOngoingStubbing;
-    }
-
-    public OngoingStubbing<?> pullOngoingStubbing() {
-        OngoingStubbing<?> temp = ongoingStubbing;
-        ongoingStubbing = null;
+    public IOngoingStubbing pullOngoingStubbing() {
+        IOngoingStubbing temp = iOngoingStubbing;
+        iOngoingStubbing = null;
         return temp;
     }
     
@@ -62,7 +46,7 @@ public class MockingProgressImpl implements MockingProgress {
      * @see org.mockito.internal.progress.MockingProgress#resetOngoingStubbing()
      */
     public void resetOngoingStubbing() {
-        ongoingStubbing = null;
+        iOngoingStubbing = null;
     }
 
     public VerificationMode pullVerificationMode() {
@@ -87,7 +71,7 @@ public class MockingProgressImpl implements MockingProgress {
         if (stubbingInProgress != null) {
             Location temp = stubbingInProgress;
             stubbingInProgress = null;
-            throw unfinishedStubbing(temp);
+            reporter.unfinishedStubbing(temp);
         }
     }
 
@@ -99,7 +83,7 @@ public class MockingProgressImpl implements MockingProgress {
         if (verificationMode != null) {
             Location location = verificationMode.getLocation();
             verificationMode = null;
-            throw unfinishedVerificationException(location);
+            reporter.unfinishedVerificationException(location);
         }
 
         getArgumentMatcherStorage().validateState();
@@ -110,7 +94,7 @@ public class MockingProgressImpl implements MockingProgress {
     }
     
     public String toString() {
-        return  "iOngoingStubbing: " + ongoingStubbing + 
+        return  "iOngoingStubbing: " + iOngoingStubbing + 
         ", verificationMode: " + verificationMode +
         ", stubbingInProgress: " + stubbingInProgress;
     }
@@ -125,7 +109,7 @@ public class MockingProgressImpl implements MockingProgress {
         return argumentMatcherStorage;
     }
 
-    public void mockingStarted(Object mock, Class<?> classToMock) {
+    public void mockingStarted(Object mock, Class classToMock) {
         if (listener instanceof MockingStartedListener) {
             ((MockingStartedListener) listener).mockingStarted(mock, classToMock);
         }
@@ -134,13 +118,5 @@ public class MockingProgressImpl implements MockingProgress {
 
     public void setListener(MockingProgressListener listener) {
         this.listener = listener;
-    }
-
-    public void setVerificationStrategy(VerificationStrategy strategy) {
-        this.verificationStrategy = strategy;
-    }
-
-    public VerificationMode maybeVerifyLazily(VerificationMode mode) {
-        return this.verificationStrategy.maybeVerifyLazily(mode);
     }
 }

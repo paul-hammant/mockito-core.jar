@@ -4,20 +4,18 @@
  */
 package org.mockito.internal.matchers;
 
-import org.mockito.ArgumentMatcher;
-
 import java.io.Serializable;
 
-@SuppressWarnings("unchecked")
-public class AnyVararg implements ArgumentMatcher, VarargMatcher, Serializable {
+import org.hamcrest.Matcher;
+import org.mockito.ArgumentMatcher;
 
-    public static final ArgumentMatcher ANY_VARARG = new AnyVararg();
+@SuppressWarnings("unchecked")
+public class AnyVararg extends ArgumentMatcher implements VarargMatcher, Serializable {
+
+    private static final long serialVersionUID = 1700721373094731555L;
+    public static final Matcher ANY_VARARG = new AnyVararg();
 
     public boolean matches(Object arg) {
         return true;
-    }
-
-    public String toString() {
-        return "<any>";
     }
 }

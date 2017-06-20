@@ -34,11 +34,15 @@ import java.lang.annotation.Target;
  *
  * <pre class="code"><code class="java">
  * Foo spyOnFoo = Mockito.spy(new Foo("argument"));
- * Bar spyOnBar = Mockito.spy(new Bar());
+ * Bar spyOnFoo = Mockito.spy(new Bar());
  * </code></pre>
  *
  * <p>
- * <strong>A field annotated with &#064;Spy can be initialized explicitly at declaration point.
+ * <strong>The field annotated with &#064;Spy can be initialized by Mockito if a zero argument constructor
+ * can be found in the type (even private). <u>But Mockito cannot instantiate inner classes, local classes,
+ * abstract classes and interfaces.</u></strong>
+ *
+ * <strong>The field annotated with &#064;Spy can be initialized explicitly at declaration point.
  * Alternatively, if you don't provide the instance Mockito will try to find zero argument constructor (even private)
  * and create an instance for you.
  * <u>But Mockito cannot instantiate inner classes, local classes, abstract classes and interfaces.</u></strong>

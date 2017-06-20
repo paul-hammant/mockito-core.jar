@@ -5,9 +5,6 @@
 
 package org.mockito.internal.verification;
 
-import static org.mockito.exceptions.Reporter.noMoreInteractionsWanted;
-import static org.mockito.exceptions.Reporter.noMoreInteractionsWantedInOrder;
-
 import java.util.List;
 
 import org.mockito.exceptions.Reporter;
@@ -24,7 +21,7 @@ public class NoMoreInteractions implements VerificationMode, VerificationInOrder
     public void verify(VerificationData data) {
         Invocation unverified = new InvocationsFinder().findFirstUnverified(data.getAllInvocations());
         if (unverified != null) {
-            throw noMoreInteractionsWanted(unverified, (List) data.getAllInvocations());
+            new Reporter().noMoreInteractionsWanted(unverified, (List) data.getAllInvocations());
         }
     }
 
@@ -33,12 +30,7 @@ public class NoMoreInteractions implements VerificationMode, VerificationInOrder
         Invocation unverified = new InvocationsFinder().findFirstUnverifiedInOrder(data.getOrderingContext(), invocations);
         
         if (unverified != null) {
-            throw noMoreInteractionsWantedInOrder(unverified);
+            new Reporter().noMoreInteractionsWantedInOrder(unverified);
         }
-    }
-
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
     }
 }

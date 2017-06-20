@@ -5,6 +5,7 @@
 package org.mockito.internal.configuration.injection.scanner;
 
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.util.reflection.FieldReader;
@@ -68,8 +69,7 @@ public class MockScanner {
     private Object preparedMock(Object instance, Field field) {
         if (isAnnotatedByMockOrSpy(field)) {
             return instance;
-        } 
-        if (isMockOrSpy(instance)) {
+        } else if (isMockOrSpy(instance)) {
             mockUtil.maybeRedefineMockName(instance, field.getName());
             return instance;
         }
@@ -77,7 +77,9 @@ public class MockScanner {
     }
 
     private boolean isAnnotatedByMockOrSpy(Field field) {
-        return field.isAnnotationPresent(Spy.class) || field.isAnnotationPresent(Mock.class);
+        return null != field.getAnnotation(Spy.class)
+                || null != field.getAnnotation(Mock.class)
+                || null != field.getAnnotation(MockitoAnnotations.Mock.class);
     }
 
     private boolean isMockOrSpy(Object instance) {

@@ -5,10 +5,6 @@
 
 package org.mockito.internal.verification.checkers;
 
-import static org.mockito.exceptions.Reporter.argumentsAreDifferent;
-import static org.mockito.exceptions.Reporter.wantedButNotInvoked;
-import static org.mockito.exceptions.Reporter.wantedButNotInvokedInOrder;
-
 import java.util.List;
 
 import org.mockito.exceptions.Reporter;
@@ -22,7 +18,17 @@ import org.mockito.verification.VerificationMode;
 
 public class MissingInvocationInOrderChecker {
     
-    private final InvocationsFinder finder=new InvocationsFinder();
+    private final Reporter reporter;
+    private final InvocationsFinder finder;
+    
+    public MissingInvocationInOrderChecker() {
+        this(new InvocationsFinder(), new Reporter());
+    }
+    
+    MissingInvocationInOrderChecker(InvocationsFinder finder, Reporter reporter) {
+        this.finder = finder;
+        this.reporter = reporter;
+    }
     
     public void check(List<Invocation> invocations, InvocationMatcher wanted, VerificationMode mode, InOrderContext context) {
         List<Invocation> chunk = finder.findAllMatchingUnverifiedChunks(invocations, wanted, context);
@@ -48,13 +54,13 @@ public class MissingInvocationInOrderChecker {
                              new ArgumentMatchingTool().getSuspiciouslyNotMatchingArgsIndexes(wanted.getMatchers(),
                                      similar.getArguments());
                      SmartPrinter smartPrinter = new SmartPrinter(wanted, similar, indicesOfSimilarMatchingArguments);
-                     throw argumentsAreDifferent(smartPrinter.getWanted(), smartPrinter.getActual(), similar.getLocation());
-                 } 
-                 throw wantedButNotInvoked(wanted);
-                 
+                     reporter.argumentsAreDifferent(smartPrinter.getWanted(), smartPrinter.getActual(), similar.getLocation());
+                 } else {
+                     reporter.wantedButNotInvoked(wanted);
+                 }
              }
         } else {
-            throw wantedButNotInvokedInOrder(wanted, previousInOrder);
+            reporter.wantedButNotInvokedInOrder(wanted, previousInOrder);
         }
     }
 }

@@ -18,10 +18,10 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class WarningsCollector {
    
-    private final List<Object> createdMocks;
+    List createdMocks;
 
     public WarningsCollector() {
-        createdMocks = new LinkedList<Object>();
+        createdMocks = new LinkedList();
         MockingProgress progress = new ThreadSafeMockingProgress();
         progress.setListener(new CollectCreatedMocks(createdMocks));
     }
@@ -31,6 +31,8 @@ public class WarningsCollector {
         List<Invocation> all = new AllInvocationsFinder().find(createdMocks);
         List<InvocationMatcher> allInvocationMatchers = InvocationMatcher.createFrom(all);
 
-        return new WarningsPrinterImpl(unused, allInvocationMatchers, false).print();
+        String warnings = new WarningsPrinterImpl(unused, allInvocationMatchers, false).print();
+
+        return warnings;
     }
 }
