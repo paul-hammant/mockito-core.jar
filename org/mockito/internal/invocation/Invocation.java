@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.hamcrest.Matcher;
 import org.mockito.exceptions.PrintableInvocation;
+import org.mockito.exceptions.Reporter;
 import org.mockito.internal.debugging.Location;
 import org.mockito.internal.invocation.realmethod.RealMethod;
 import org.mockito.internal.matchers.ArrayEquals;
@@ -19,6 +20,7 @@ import org.mockito.internal.matchers.MatchersPrinter;
 import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.internal.reporting.PrintingFriendlyInvocation;
 import org.mockito.internal.util.MockUtil;
+import org.mockito.internal.util.ObjectMethodsGuru;
 import org.mockito.internal.util.Primitives;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -33,23 +35,25 @@ import org.mockito.invocation.InvocationOnMock;
 @SuppressWarnings("unchecked")
 public class Invocation implements PrintableInvocation, InvocationOnMock, PrintingFriendlyInvocation {
 
+    private static final long serialVersionUID = 8240069639250980199L;
     private static final int MAX_LINE_LENGTH = 45;
     private final int sequenceNumber;
     private final Object mock;
-    private final Method method;
+    private final MockitoMethod method;
     private final Object[] arguments;
-    private final Location location;
+    private final Object[] rawArguments;
 
+    private final Location location;
     private boolean verified;
     private boolean verifiedInOrder;
-    private Object[] rawArguments;
+
     final RealMethod realMethod;
 
-    public Invocation(Object mock, Method method, Object[] args, int sequenceNumber, RealMethod realMethod) {
+    public Invocation(Object mock, MockitoMethod mockitoMethod, Object[] args, int sequenceNumber, RealMethod realMethod) {
+        this.method = mockitoMethod;
         this.mock = mock;
-        this.method = method;
         this.realMethod = realMethod;
-        this.arguments = expandVarArgs(method.isVarArgs(), args);
+        this.arguments = expandVarArgs(mockitoMethod.isVarArgs(), args);
         this.rawArguments = args;
         this.sequenceNumber = sequenceNumber;
         this.location = new Location();
@@ -58,7 +62,7 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
     // expands array varArgs that are given by runtime (1, [a, b]) into true
     // varArgs (1, a, b);
     private static Object[] expandVarArgs(final boolean isVarArgs, final Object[] args) {
-        if (!isVarArgs || isVarArgs && args[args.length - 1] != null && !args[args.length - 1].getClass().isArray()) {
+        if (!isVarArgs || args[args.length - 1] != null && !args[args.length - 1].getClass().isArray()) {
             return args == null ? new Object[0] : args;
         }
 
@@ -82,15 +86,11 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
     }
 
     public Method getMethod() {
-        return method;
+        return method.getJavaMethod();
     }
 
     public Object[] getArguments() {
         return arguments;
-    }
-
-    public void markVerified() {
-        verified = true;
     }
 
     public boolean isVerified() {
@@ -99,11 +99,6 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
 
     public Integer getSequenceNumber() {
         return sequenceNumber;
-    }
-
-    public void markVerifiedInOrder() {
-        this.markVerified();
-        this.verifiedInOrder = true;
     }
 
     public boolean isVerifiedInOrder() {
@@ -160,12 +155,7 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
     }
 
     public static boolean isToString(InvocationOnMock invocation) {
-        return isToString(invocation.getMethod());
-    }
-
-    public static boolean isToString(Method method) {
-        return method.getReturnType() == String.class && method.getParameterTypes().length == 0
-                && method.getName().equals("toString");
+        return new ObjectMethodsGuru().isToString(invocation.getMethod());
     }
 
     public boolean isValidException(Throwable throwable) {
@@ -217,10 +207,26 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, Printi
     }
 
     public Object callRealMethod() throws Throwable {
-        return realMethod.invoke(mock, arguments);
+        if (isDeclaredOnInterface()) {
+            new Reporter().cannotCallRealMethodOnInterface();
+        }
+        return realMethod.invoke(mock, rawArguments);
     }
+    
+    public boolean isDeclaredOnInterface() {
+        return this.getMethod().getDeclaringClass().isInterface();
+    }      
 
     public String toString(PrintSettings printSettings) {
         return toString(argumentsToMatchers(), printSettings);
+    }
+
+    void markVerified() {
+        this.verified = true;
+    }
+
+    void markVerifiedInOrder() {
+        markVerified();
+        this.verifiedInOrder = true;
     }
 }

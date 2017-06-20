@@ -6,24 +6,12 @@ package org.mockito;
 
 import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
-import org.mockito.internal.stubbing.answers.AnswerReturnValuesAdapter;
-import org.mockito.internal.stubbing.answers.CallsRealMethods;
-import org.mockito.internal.stubbing.answers.DoesNothing;
-import org.mockito.internal.stubbing.answers.Returns;
-import org.mockito.internal.stubbing.answers.ThrowsException;
-import org.mockito.internal.stubbing.defaultanswers.GloballyConfiguredAnswer;
-import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
-import org.mockito.internal.stubbing.defaultanswers.ReturnsMocks;
-import org.mockito.internal.stubbing.defaultanswers.ReturnsMoreEmptyValues;
-import org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNulls;
+import org.mockito.internal.stubbing.answers.*;
+import org.mockito.internal.stubbing.defaultanswers.*;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.api.VerificationMode;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.DeprecatedOngoingStubbing;
-import org.mockito.stubbing.OngoingStubbing;
-import org.mockito.stubbing.Stubber;
-import org.mockito.stubbing.VoidMethodStubbable;
+import org.mockito.stubbing.*;
 
 /**
  * <p align="left"><img src="logo.jpg"/></p>
@@ -49,11 +37,13 @@ import org.mockito.stubbing.VoidMethodStubbable;
  *      <a href="#11">11. Stubbing with callbacks </a><br/>
  *      <a href="#12">12. doThrow()|doAnswer()|doNothing()|doReturn() family of methods mostly for stubbing voids </a><br/>
  *      <a href="#13">13. Spying on real objects </a><br/>
- *      <a href="#14">14. Changing default return values of unstubbed invocations </a><br/>
- *      <a href="#15">15. (**New**) Capturing arguments for further assertions</a><br/>
- *      <a href="#16">16. (**New**) Real partial mocks</a><br/>
- *      <a href="#17">17. (**New**) Resetting mocks</a><br/>
- *      <a href="#18">18. (**New**) Troubleshooting & validating framework usage</a><br/>
+ *      <a href="#14">14. Changing default return values of unstubbed invocations (Since 1.7) </a><br/>
+ *      <a href="#15">15. Capturing arguments for further assertions (Since 1.8.0) </a><br/>
+ *      <a href="#16">16. Real partial mocks (Since 1.8.0) </a><br/>
+ *      <a href="#17">17. Resetting mocks (Since 1.8.0) </a><br/>
+ *      <a href="#18">18. Troubleshooting & validating framework usage (Since 1.8.0) </a><br/>
+ *      <a href="#19">19. Aliases for behavior driven development (Since 1.8.0) </a><br/>
+ *      <a href="#20">20. (**New**) Serializable mocks (Since 1.8.1) </a><br/>
  * </b>
  * 
  * <p>
@@ -69,11 +59,11 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * 
  * //mock creation
  * List mockedList = mock(List.class);
- * 
+ *
  * //using mock object
  * mockedList.add("one");
  * mockedList.clear();
- * 
+ *
  * //verification
  * verify(mockedList).add("one");
  * verify(mockedList).clear();
@@ -114,7 +104,8 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * false, ... for int/Integer, boolean/Boolean, ...). </li>
  * 
  * <li> Stubbing can be overridden: for example common stubbing can go to
- * fixture setup but the test methods can override it. </li>
+ * fixture setup but the test methods can override it.
+ * Please note that overridding stubbing is a potential code smell that points out too much stubbing</li>
  * 
  * <li> Once stubbed, the method will always return stubbed value regardless
  * of how many times it is called. </li>
@@ -357,8 +348,8 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * Allows stubbing with generic {@link Answer} interface.
 *  <p>
  * Yet another controversial feature which was not included in Mockito
- * originally. We recommend using simple stubbing with toReturn() or
- * toThrow() only. Those two should be <b>just enough</b> to test/test-drive
+ * originally. We recommend using simple stubbing with thenReturn() or
+ * thenThrow() only. Those two should be <b>just enough</b> to test/test-drive
  * any clean & simple code.
  * 
  * <pre>
@@ -457,7 +448,7 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * What will happen is the real method will be called *on mock* but *not on the real instance* you passed to the spy() method.
  * Typically you may get a NullPointerException because mock instances don't have fields initiated.
  * 
- * <h3 id="14">14. Changing default return values of unstubbed invocations</h3>
+ * <h3 id="14">14. Changing default return values of unstubbed invocations (Since 1.7) </h3>
  * 
  * You can create a mock with specified strategy for its return values.
  * It's quite advanced feature and typically you don't need it to write decent tests.
@@ -473,14 +464,14 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * <p>
  * Read more about this interesting implementation of <i>Answer</i>: {@link Mockito#RETURNS_SMART_NULLS}
  * 
- * <h3 id="15">15. (**New**) Capturing arguments for further assertions</h3>
+ * <h3 id="15">15. Capturing arguments for further assertions (Since 1.8.0) </h3>
  * 
  * Mockito verifies argument values in natural java style: by using an equals() method.
  * This is also the recommended way of matching arguments because it makes tests clean & simple.
  * In some situations though, it is helpful to assert on certain arguments after the actual verification.
  * For example:
  * <pre>
- *   ArgumentCaptor&lt;Person&gt; argument = new ArgumentCaptor&lt;Person&gt;();
+ *   ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class);
  *   verify(mock).doSomething(argument.capture());
  *   assertEquals("John", argument.getValue().getName());
  * </pre>
@@ -498,7 +489,7 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * </ul>
  * Custom argument matchers via {@link ArgumentMatcher} are usually better for stubbing.
  * 
- * <h3 id="16">16. (**New**) Real partial mocks</h3>
+ * <h3 id="16">16. Real partial mocks (Since 1.8.0) </h3>
  *  
  *  Finally, after many internal debates & discussions on the mailing list, partial mock support was added to Mockito.
  *  Previously we considered partial mocks as code smells. However, we found a legitimate use case for partial mocks - more reading:
@@ -528,7 +519,7 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * dealing with code you cannot change easily (3rd party interfaces, interim refactoring of legacy code etc.)
  * However, I wouldn't use partial mocks for new, test-driven & well-designed code.
  *  
- * <h3 id="17">17. (**New**) Resetting mocks</h3>
+ * <h3 id="17">17. Resetting mocks (Since 1.8.0) </h3>
  *  
  * Smart Mockito users hardly use this feature because they know it could be a sign of poor tests.
  * Normally, you don't need to reset your mocks, just create new mocks for each test method. 
@@ -553,7 +544,7 @@ import org.mockito.stubbing.VoidMethodStubbable;
  *   //at this point the mock forgot any interactions & stubbing
  * </pre>
  *  
- * <h3 id="18">18. (**New**) Troubleshooting & validating framework usage</h3>
+ * <h3 id="18">18. Troubleshooting & validating framework usage (Since 1.8.0) </h3>
  * 
  * First of all, in case of any trouble, I encourage you to read the Mockito FAQ: 
  * <a href="http://code.google.com/p/mockito/wiki/FAQ">http://code.google.com/p/mockito/wiki/FAQ</a>
@@ -563,6 +554,65 @@ import org.mockito.stubbing.VoidMethodStubbable;
  * <p>
  * Next, you should know that Mockito validates if you use it correctly <b>all the time</b>. 
  * However, there's a gotcha so please read the javadoc for {@link Mockito#validateMockitoUsage()}
+ * 
+ * <h3 id="19">19. Aliases for behavior driven development (Since 1.8.0) </h3>
+ * 
+ * Behavior Driven Development style of writing tests uses <b>//given //when //then</b> comments as fundamental parts of your test methods.
+ * This is exactly how we write our tests and we warmly encourage you to do so!
+ * <p>
+ * Start learning about BDD here: <a href="http://en.wikipedia.org/wiki/Behavior_Driven_Development">http://en.wikipedia.org/wiki/Behavior_Driven_Development</a>
+ * <p>
+ * The problem is that current stubbing api with canonical role of <b>when</b> word does not integrate nicely with <b>//given //when //then</b> comments.
+ * It's because stubbing belongs to <b>given</b> component of the test and not to the <b>when</b> component of the test. 
+ * Hence {@link BDDMockito} class introduces an alias so that you stub method calls with {@link BDDMockito#given(Object)} method. 
+ * Now it really nicely integrates with the <b>given</b> component of a BDD style test!  
+ * <p>
+ * Here is how the test might look like: 
+ * <pre>
+ * import static org.mockito.BDDMockito.*;
+ * 
+ * Seller seller = mock(Seller.class);
+ * Shop shop = new Shop(seller);
+ * 
+ * public void shouldBuyBread() throws Exception {
+ *   //given  
+ *   given(seller.askForBread()).willReturn(new Bread());
+ *   
+ *   //when
+ *   Goods goods = shop.buyBread();
+ *   
+ *   //then
+ *   assertThat(goods, containBread());
+ * }  
+ * </pre>
+ * 
+ * <h3 id="20">20. (**New**) Serializable mocks (Since 1.8.1) </h3>
+ * 
+ * Mocks can be made serializable. With this feature you can use a mock in a place that requires dependencies to be serializable.
+ * <p>
+ * WARNING: This should be rarely used in unit testing. 
+ * <p>
+ * The behaviour was implemented for a specific use case of a BDD spec that had an unreliable external dependency.  This
+ * was in a web environment and the objects from the external dependency were being serialized to pass between layers. 
+ * <p>
+ * To create serializable mock use {@link MockSettings#serializable()}:
+ * <pre>
+ *   List serializableMock = mock(List.class, withSettings().serializable());
+ * </pre>
+ * <p>
+ * The mock can be serialized assuming all the normal <a href='http://java.sun.com/j2se/1.5.0/docs/api/java/io/Serializable.html'>
+ * serialization requirements</a> are met by the class.
+ * <p>
+ * Making a real object spy serializable is a bit more effort as the spy(...) method does not have an overloaded version 
+ * which accepts MockSettings. No worries, you will hardly ever use it.
+ * 
+ * <pre>
+ * List<Object> list = new ArrayList<Object>();
+ * List<Object> spy = mock(ArrayList.class, withSettings()
+ *                 .spiedInstance(list)
+ *                 .defaultAnswer(CALLS_REAL_METHODS)
+ *                 .serializable());
+ * </pre>
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
@@ -920,6 +970,7 @@ public class Mockito extends Matchers {
      * <p>
      * Stubbing can be overridden: for example common stubbing can go to fixture
      * setup but the test methods can override it.
+     * Please note that overridding stubbing is a potential code smell that points out too much stubbing.
      * <p>
      * Once stubbed, the method will always return stubbed value regardless
      * of how many times it is called.
@@ -952,7 +1003,9 @@ public class Mockito extends Matchers {
      * <pre>
      *   verify(mock, times(1)).someMethod("some arg");
      * </pre>
-     * 
+     * <p>
+     * Arguments passed are compared using equals() method.
+     * Read about {@link ArgumentCaptor} or {@link ArgumentMatcher} to find out other ways of matching / asserting arguments passed.
      * <p>
      * Although it is possible to verify a stubbed invocation, usually <b>it's just redundant</b>.
      * Let's say you've stubbed foo.bar(). 
@@ -969,14 +1022,40 @@ public class Mockito extends Matchers {
     public static <T> T verify(T mock) {
         return MOCKITO_CORE.verify(mock, times(1));
     }
-    
+
+    /**
+     * Verifies certain behavior happened at least once / exact number of times / never. E.g:
+     * <pre>
+     *   verify(mock, times(5)).someMethod("was called five times");
+     *
+     *   verify(mock, atLeast(2)).someMethod("was called at least two times");
+     *
+     *   //you can use flexible argument matchers, e.g:
+     *   verify(mock, atLeastOnce()).someMethod(<b>anyString()</b>);
+     * </pre>
+     *
+     * <b>times(1) is the default</b> and can be omitted
+     * <p>
+     * Arguments passed are compared using equals() method.
+     * Read about {@link ArgumentCaptor} or {@link ArgumentMatcher} to find out other ways of matching / asserting arguments passed.
+     * <p>
+     *
+     * @param mock to be verified
+     * @param mode times(x), atLeastOnce() or never()
+     *
+     * @return mock object itself
+     */
+    public static <T> T verify(T mock, VerificationMode mode) {
+        return MOCKITO_CORE.verify(mock, mode);
+    }
+
     /**
      * Smart Mockito users hardly use this feature because they know it could be a sign of poor tests.
-     * Normally, you don't need to reset your mocks, just create new mocks for each test method. 
+     * Normally, you don't need to reset your mocks, just create new mocks for each test method.
      * <p>
      * Instead of reset() please consider writing simple, small and focused test methods over lengthy, over-specified tests.
      * <b>First potential code smell is reset() in the middle of the test method.</b> This probably means you're testing too much.
-     * Follow the whisper of your test methods: "Please keep us small & focused on single behavior". 
+     * Follow the whisper of your test methods: "Please keep us small & focused on single behavior".
      * There are several threads about it on mockito mailing list.
      * <p>
      * The only reason we added reset() method is to
@@ -984,45 +1063,21 @@ public class Mockito extends Matchers {
      * See issue 55 (<a href="http://code.google.com/p/mockito/issues/detail?id=55">here</a>)
      * or FAQ (<a href="http://code.google.com/p/mockito/wiki/FAQ">here</a>).
      * <p>
-     * <b>Don't harm yourself.</b> reset() in the middle of the test method is a code smell (you're probably testing too much). 
+     * <b>Don't harm yourself.</b> reset() in the middle of the test method is a code smell (you're probably testing too much).
      * <pre>
      *   List mock = mock(List.class);
      *   when(mock.size()).thenReturn(10);
      *   mock.add(1);
-     *   
+     *
      *   reset(mock);
      *   //at this point the mock forgot any interactions & stubbing
      * </pre>
-     * 
+     *
      * @param <T>
      * @param mocks
      */
     public static <T> void reset(T ... mocks) {
         MOCKITO_CORE.reset(mocks);
-    }
- 
-    /**
-     * Verifies certain behavior happened at least once / exact number of times / never. E.g:
-     * <pre>
-     *   verify(mock, times(5)).someMethod("was called five times");
-     *   
-     *   verify(mock, atLeast(2)).someMethod("was called at least two times");
-     *   
-     *   //you can use flexible argument matchers, e.g:
-     *   verify(mock, atLeastOnce()).someMethod(<b>anyString()</b>);
-     * </pre>
-     * 
-     * <b>times(1) is the default</b> and can be omitted
-     * <p>
-     * See examples in javadoc for {@link Mockito} class
-     * 
-     * @param mock to be verified
-     * @param mode times(x), atLeastOnce() or never()
-     * 
-     * @return mock object itself
-     */
-    public static <T> T verify(T mock, VerificationMode mode) {
-        return MOCKITO_CORE.verify(mock, mode);
     }
 
     /**
@@ -1277,7 +1332,8 @@ public class Mockito extends Matchers {
      * </pre>
      * 
      * Above scenarios shows a tradeoff of Mockito's ellegant syntax. Note that the scenarios are very rare, though. 
-     * Spying should be sporadic and overriding exception-stubbing is very rare.  
+     * Spying should be sporadic and overriding exception-stubbing is very rare. Not to mention that in general
+     * overridding stubbing is a potential code smell that points out too much stubbing.
      * <p>
      * See examples in javadoc for {@link Mockito} class
      * 
@@ -1380,7 +1436,7 @@ public class Mockito extends Matchers {
     public static VerificationMode atLeast(int minNumberOfInvocations) {
         return VerificationModeFactory.atLeast(minNumberOfInvocations);
     }
-    
+
     /**
      * Allows at-most-x verification. E.g:
      * <pre>
@@ -1397,6 +1453,26 @@ public class Mockito extends Matchers {
         return VerificationModeFactory.atMost(maxNumberOfInvocations);
     }
 
+    /**
+     * Allows checking if given method was the only one invoked. E.g:
+     * <pre>
+     *   verify(mock, only()).someMethod();
+     *   //above is a shorthand for following 2 lines of code:
+     *   verify(mock).someMethod();
+     *   verifyNoMoreInvocations(mock);
+     * </pre>
+     * 
+     * <p>
+     * See also {@link Mockito#verifyNoMoreInteractions(Object...)}
+     * <p>
+     * See examples in javadoc for {@link Mockito} class
+     * 
+     * @return verification mode
+     */
+    public static VerificationMode only() {
+    	return VerificationModeFactory.only();
+    }
+    
     /**
      * First of all, in case of any trouble, I encourage you to read the Mockito FAQ: <a href="http://code.google.com/p/mockito/wiki/FAQ">http://code.google.com/p/mockito/wiki/FAQ</a>
      * <p>

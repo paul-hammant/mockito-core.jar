@@ -10,10 +10,17 @@ import org.mockito.stubbing.Answer;
 
 public class MockSettingsImpl implements MockSettings {
 
+    private static final long serialVersionUID = 4475297236197939568L;
     private Class<?>[] extraInterfaces;
     private String name;
     private Object spiedInstance;
     private Answer<Object> defaultAnswer;
+    private boolean serializable;
+
+    public MockSettings serializable() {
+        serializable = true;
+        return this;
+    }
 
     public MockSettings extraInterfaces(Class<?>... extraInterfaces) {
         if (extraInterfaces == null || extraInterfaces.length == 0) {
@@ -61,5 +68,9 @@ public class MockSettingsImpl implements MockSettings {
 
     public Answer<Object> getDefaultAnswer() {
         return defaultAnswer;
+    }
+
+    public boolean isSerializable() {
+        return serializable;
     }
 }

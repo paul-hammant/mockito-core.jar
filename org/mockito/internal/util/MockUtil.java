@@ -4,6 +4,8 @@
  */
 package org.mockito.internal.util;
 
+import static org.mockito.Mockito.*;
+
 import org.mockito.cglib.proxy.Callback;
 import org.mockito.cglib.proxy.Enhancer;
 import org.mockito.cglib.proxy.Factory;
@@ -14,8 +16,11 @@ import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.creation.jmock.ClassImposterizer;
 import org.mockito.internal.invocation.MatchersBinder;
 import org.mockito.internal.progress.MockingProgress;
-import org.mockito.internal.util.copy.LenientCopyTool;
+import org.mockito.internal.util.reflection.LenientCopyTool;
 
+import java.io.Serializable;
+
+@SuppressWarnings("unchecked")
 public class MockUtil {
     
     private final CreationValidator creationValidator;
@@ -31,12 +36,20 @@ public class MockUtil {
     public <T> T createMock(Class<T> classToMock, MockingProgress progress, MockSettingsImpl settings) {
         creationValidator.validateType(classToMock);
         creationValidator.validateExtraInterfaces(classToMock, settings.getExtraInterfaces());
+        creationValidator.validateMockedType(classToMock, settings.getSpiedInstance());
         
         MockName mockName = new MockName(settings.getMockName(), classToMock);
         MockHandler<T> mockHandler = new MockHandler<T>(mockName, progress, new MatchersBinder(), settings);
-        MethodInterceptorFilter<MockHandler<T>> filter = new MethodInterceptorFilter<MockHandler<T>>(classToMock, mockHandler);
+        MethodInterceptorFilter filter = new MethodInterceptorFilter(mockHandler, settings);
         Class<?>[] interfaces = settings.getExtraInterfaces();
-        Class<?>[] ancillaryTypes = interfaces == null ? new Class<?>[0] : interfaces;
+
+        Class<?>[] ancillaryTypes;
+        if (settings.isSerializable()) {
+            ancillaryTypes = interfaces == null ? new Class<?>[] {Serializable.class} : new ArrayUtils().concat(interfaces, Serializable.class);
+        } else {
+            ancillaryTypes = interfaces == null ? new Class<?>[0] : interfaces;
+        }
+
         Object spiedInstance = settings.getSpiedInstance();
         
         T mock = ClassImposterizer.INSTANCE.imposterise(filter, classToMock, ancillaryTypes);
@@ -48,10 +61,11 @@ public class MockUtil {
         return mock;
     }
 
-    public <T> void resetMock(T mock, MockingProgress progress) {
-        MockHandler<T> oldMockHandler = (MockHandler<T>) getMockHandler(mock);
+    public <T> void resetMock(T mock) {
+        MockHandler<T> oldMockHandler = getMockHandler(mock);
         MockHandler<T> newMockHandler = new MockHandler<T>(oldMockHandler);
-        MethodInterceptorFilter<MockHandler<T>> newFilter = new MethodInterceptorFilter<MockHandler<T>>(Object.class, newMockHandler);
+        MethodInterceptorFilter newFilter = new MethodInterceptorFilter(newMockHandler, 
+                        (MockSettingsImpl) withSettings().defaultAnswer(RETURNS_DEFAULTS));
         ((Factory) mock).setCallback(0, newFilter);
     }
 
@@ -61,7 +75,7 @@ public class MockUtil {
         }
 
         if (isMockitoMock(mock)) {
-            return getInterceptor(mock).getDelegate();
+            return (MockHandler) getInterceptor(mock).getMockHandler();
         } else {
             throw new NotAMockException("Argument should be a mock, but is: " + mock.getClass());
         }
@@ -75,12 +89,11 @@ public class MockUtil {
         return mock != null && isMockitoMock(mock);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> MethodInterceptorFilter<MockHandler<T>> getInterceptor(T mock) {
+    private <T> MethodInterceptorFilter getInterceptor(T mock) {
         Factory factory = (Factory) mock;
         Callback callback = factory.getCallback(0);
         if (callback instanceof MethodInterceptorFilter) {
-            return (MethodInterceptorFilter<MockHandler<T>>) callback;
+            return (MethodInterceptorFilter) callback;
         }
         return null;
     }

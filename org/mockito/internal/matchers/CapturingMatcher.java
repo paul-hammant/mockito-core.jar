@@ -4,6 +4,7 @@
  */
 package org.mockito.internal.matchers;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,15 +13,15 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.Reporter;
 
 @SuppressWarnings("unchecked")
-public class CapturingMatcher<T> extends ArgumentMatcher<T> {
+public class CapturingMatcher<T> extends ArgumentMatcher<T> implements CapturesArguments, Serializable {
     
+    private static final long serialVersionUID = 4274067078639307295L;
     private LinkedList<Object> arguments = new LinkedList<Object>();
 
     /* (non-Javadoc)
      * @see org.mockito.ArgumentMatcher#matches(java.lang.Object)
      */
     public boolean matches(Object argument) {
-        this.arguments.add(argument);
         return true;
     }    
 
@@ -34,13 +35,17 @@ public class CapturingMatcher<T> extends ArgumentMatcher<T> {
     public T getLastValue() {
         if (arguments.isEmpty()) {
             new Reporter().noArgumentValueWasCaptured();
+            return null;
         } else {
             return (T) arguments.getLast();
         }
-        return (T) arguments;
     }
 
     public List<T> getAllValues() {
         return (List) arguments;
+    }
+
+    public void captureFrom(Object argument) {
+        this.arguments.add(argument);
     }
 }

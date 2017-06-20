@@ -4,14 +4,17 @@
  */
 package org.mockito.internal.stubbing.defaultanswers;
 
+import java.io.Serializable;
+
 import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.creation.jmock.ClassImposterizer;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class ReturnsMocks implements Answer<Object> {
+public class ReturnsMocks implements Answer<Object>, Serializable {
     
+    private static final long serialVersionUID = -6755257986994634579L;
     private MockitoCore mockitoCore = new MockitoCore();
     private Answer<Object> delegate = new ReturnsMoreEmptyValues();
     
@@ -30,6 +33,6 @@ public class ReturnsMocks implements Answer<Object> {
             return null;
         }
         
-        return mockitoCore.mock((Class) clazz, new MockSettingsImpl().defaultAnswer(this));
+        return mockitoCore.mock(clazz, new MockSettingsImpl().defaultAnswer(this));
     }
 }

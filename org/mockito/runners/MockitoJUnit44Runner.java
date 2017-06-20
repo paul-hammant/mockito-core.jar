@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * <b>Deprecated: Simply use {@link MockitoJUnitRunner}</b>
  * <p>
@@ -44,11 +46,10 @@ import org.mockito.MockitoAnnotations;
  * 
  * </pre>
  */
-@SuppressWarnings("deprecation")
 @Deprecated
 public class MockitoJUnit44Runner extends MockitoJUnitRunner {
 
-    public MockitoJUnit44Runner(Class<?> klass) {
+    public MockitoJUnit44Runner(Class<?> klass) throws InvocationTargetException {
         super(klass);
     }
 }
