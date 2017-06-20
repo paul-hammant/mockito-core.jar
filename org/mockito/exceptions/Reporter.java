@@ -28,6 +28,7 @@ import org.mockito.exceptions.verification.VerificationInOrderFailure;
 import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.mockito.exceptions.verification.junit.JUnitTool;
 import org.mockito.internal.debugging.Location;
+import org.mockito.internal.invocation.Invocation;
 
 /**
  * Reports verification and misusing errors.
@@ -352,6 +353,16 @@ public class Reporter {
                 ));
     }
     
+    public void noMoreInteractionsWantedInOrder(Invocation undesired) {
+        throw new VerificationInOrderFailure(join(
+                "No interactions wanted here:",
+                new Location(),
+                "But found this interaction:",
+                undesired.getLocation(),
+                ""
+                ));
+    }
+    
     public void cannotMockFinalClass(Class<?> clazz) {
         throw new MockitoException(join(
                 "Cannot mock/spy " + clazz.toString(),
@@ -362,11 +373,12 @@ public class Reporter {
         ));
     }
 
-    public void cannotStubVoidMethodWithAReturnValue() {
+    public void cannotStubVoidMethodWithAReturnValue(String methodName) {
         throw new MockitoException(join(
-                "Cannot stub a void method with a return value!",
+                "'" + methodName + "' is a *void method* and it *cannot* be stubbed with a *return value*!",
                 "Voids are usually stubbed with Throwables:",
-                "    doThrow(exception).when(mock).someVoidMethod();"
+                "    doThrow(exception).when(mock).someVoidMethod();",
+                "If the method you are trying to stub is *overloaded* then make sure you are calling the right overloaded version."
              ));
     }
 
