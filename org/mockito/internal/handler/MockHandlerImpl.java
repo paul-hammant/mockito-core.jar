@@ -4,7 +4,6 @@
  */
 package org.mockito.internal.handler;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.internal.InternalMockHandler;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.MatchersBinder;
@@ -14,17 +13,17 @@ import org.mockito.internal.stubbing.InvocationContainer;
 import org.mockito.internal.stubbing.InvocationContainerImpl;
 import org.mockito.internal.stubbing.OngoingStubbingImpl;
 import org.mockito.internal.stubbing.StubbedInvocationMatcher;
-import org.mockito.internal.stubbing.VoidMethodStubbableImpl;
 import org.mockito.internal.stubbing.answers.AnswersValidator;
 import org.mockito.internal.verification.MockAwareVerificationMode;
 import org.mockito.internal.verification.VerificationDataImpl;
 import org.mockito.invocation.Invocation;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.VoidMethodStubbable;
 import org.mockito.verification.VerificationMode;
 
 import java.util.List;
+
+import static org.mockito.exceptions.Reporter.stubPassedToVerify;
 
 /**
  * Invocation handler set on mock objects.
@@ -36,7 +35,9 @@ class MockHandlerImpl<T> implements InternalMockHandler<T> {
     private static final long serialVersionUID = -2917871070982574165L;
 
     InvocationContainerImpl invocationContainerImpl;
+
     MatchersBinder matchersBinder = new MatchersBinder();
+
     MockingProgress mockingProgress = new ThreadSafeMockingProgress();
 
     private final MockCreationSettings mockSettings;
@@ -50,7 +51,7 @@ class MockHandlerImpl<T> implements InternalMockHandler<T> {
 
     public Object handle(Invocation invocation) throws Throwable {
         if (invocationContainerImpl.hasAnswersForStubbing()) {
-            // stubbing voids with stubVoid() or doAnswer() style
+            // stubbing voids with doThrow() or doAnswer() style
             InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(
                     mockingProgress.getArgumentMatcherStorage(),
                     invocation
@@ -107,16 +108,12 @@ class MockHandlerImpl<T> implements InternalMockHandler<T> {
         }
     }
 
-    public VoidMethodStubbable<T> voidMethodStubbable(T mock) {
-        return new VoidMethodStubbableImpl<T>(mock, invocationContainerImpl);
-    }
-
     public MockCreationSettings getMockSettings() {
         return mockSettings;
     }
 
     @SuppressWarnings("unchecked")
-    public void setAnswersForStubbing(List<Answer> answers) {
+    public void setAnswersForStubbing(List<Answer<?>> answers) {
         invocationContainerImpl.setAnswersForStubbing(answers);
     }
 
@@ -126,7 +123,7 @@ class MockHandlerImpl<T> implements InternalMockHandler<T> {
 
     private VerificationDataImpl createVerificationData(InvocationContainerImpl invocationContainerImpl, InvocationMatcher invocationMatcher) {
         if (mockSettings.isStubOnly()) {
-            new Reporter().stubPassedToVerify();     // this throws an exception
+            throw stubPassedToVerify();     // this throws an exception
         }
 
         return new VerificationDataImpl(invocationContainerImpl, invocationMatcher);

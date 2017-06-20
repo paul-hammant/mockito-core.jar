@@ -5,10 +5,12 @@
 
 package org.mockito.internal.verification.checkers;
 
+import static org.mockito.exceptions.Reporter.tooLittleActualInvocationsInOrder;
+import static org.mockito.exceptions.Reporter.tooManyActualInvocationsInOrder;
+import static org.mockito.internal.invocation.InvocationMarker.markVerifiedInOrder;
+
 import java.util.List;
 
-import org.mockito.exceptions.Reporter;
-import org.mockito.internal.invocation.InvocationMarker;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.InvocationsFinder;
 import org.mockito.internal.reporting.Discrepancy;
@@ -17,18 +19,15 @@ import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
 
 public class NumberOfInvocationsInOrderChecker {
-    
-    private final Reporter reporter;
+  
     private final InvocationsFinder finder;
-    private final InvocationMarker invocationMarker = new InvocationMarker();
     
     public NumberOfInvocationsInOrderChecker() {
-        this(new InvocationsFinder(), new Reporter());
+        this(new InvocationsFinder());
     }
     
-    NumberOfInvocationsInOrderChecker(InvocationsFinder finder, Reporter reporter) {
+    NumberOfInvocationsInOrderChecker(InvocationsFinder finder) {
         this.finder = finder;
-        this.reporter = reporter;
     }
     
     public void check(List<Invocation> invocations, InvocationMatcher wanted, int wantedCount, InOrderContext context) {
@@ -38,12 +37,13 @@ public class NumberOfInvocationsInOrderChecker {
         
         if (wantedCount > actualCount) {
             Location lastInvocation = finder.getLastLocation(chunk);
-            reporter.tooLittleActualInvocationsInOrder(new Discrepancy(wantedCount, actualCount), wanted, lastInvocation);
-        } else if (wantedCount < actualCount) {
+            throw tooLittleActualInvocationsInOrder(new Discrepancy(wantedCount, actualCount), wanted, lastInvocation);
+        } 
+        if (wantedCount < actualCount) {
             Location firstUndesired = chunk.get(wantedCount).getLocation();
-            reporter.tooManyActualInvocationsInOrder(wantedCount, actualCount, wanted, firstUndesired);
+            throw tooManyActualInvocationsInOrder(wantedCount, actualCount, wanted, firstUndesired);
         }
         
-        invocationMarker.markVerifiedInOrder(chunk, wanted, context);
+        markVerifiedInOrder(chunk, wanted, context);
     }
 }

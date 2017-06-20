@@ -36,12 +36,18 @@ public class DefaultRegisteredInvocations implements RegisteredInvocations, Seri
     }
 
     public List<Invocation> getAll() {
-    	List<Invocation> copiedList;
-    	synchronized (invocations) {
-			copiedList = new LinkedList<Invocation>(invocations) ;
-		}
+        List<Invocation> copiedList;
+        synchronized (invocations) {
+            copiedList = new LinkedList<Invocation>(invocations) ;
+        }
 
         return ListUtil.filter(copiedList, new RemoveToString());
+    }
+
+    public void clear() {
+        synchronized (invocations) {
+            invocations.clear();
+        }
     }
 
     public boolean isEmpty() {

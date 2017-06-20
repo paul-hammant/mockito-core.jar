@@ -5,15 +5,13 @@
 
 package org.mockito.internal.matchers;
 
-import org.hamcrest.Description;
-import org.hamcrest.SelfDescribing;
 import org.mockito.ArgumentMatcher;
+import org.mockito.internal.matchers.text.ValuePrinter;
 
 import java.io.Serializable;
 
-public class Equals extends ArgumentMatcher<Object> implements ContainsExtraTypeInformation, Serializable {
+public class Equals implements ArgumentMatcher<Object>, ContainsExtraTypeInfo, Serializable {
 
-    private static final long serialVersionUID = -3395637450058086891L;
     private final Object wanted;
 
     public Equals(Object wanted) {
@@ -24,22 +22,12 @@ public class Equals extends ArgumentMatcher<Object> implements ContainsExtraType
         return Equality.areEqual(this.wanted, actual);
     }
 
-    public void describeTo(Description description) {
-        description.appendText(describe(wanted));
+    public String toString() {
+        return describe(wanted);
     }
 
-    public String describe(Object object) {
-        return quoting() + object + quoting();
-    }
-
-    private String quoting() {
-        if (wanted instanceof String) {
-            return "\"";
-        } else if (wanted instanceof Character) {
-            return "'";
-        } else {
-            return "";
-        }
+    private String describe(Object object) {
+        return ValuePrinter.print(object);
     }
 
     protected final Object getWanted() {
@@ -60,14 +48,11 @@ public class Equals extends ArgumentMatcher<Object> implements ContainsExtraType
         return 1;
     }
 
-    public SelfDescribing withExtraTypeInfo() {
-        return new SelfDescribing() {
-            public void describeTo(Description description) {
-                description.appendText(describe("("+ wanted.getClass().getSimpleName() +") " + wanted));
-            }};
+    public String toStringWithType() {
+        return "("+ wanted.getClass().getSimpleName() +") " + describe(wanted);
     }
 
-    public boolean typeMatches(Object object) {
-        return wanted != null && object != null && object.getClass() == wanted.getClass();
+    public boolean typeMatches(Object target) {
+        return wanted != null && target != null && target.getClass() == wanted.getClass();
     }
 }

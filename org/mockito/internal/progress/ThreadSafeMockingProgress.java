@@ -7,7 +7,9 @@ package org.mockito.internal.progress;
 
 import org.mockito.internal.listeners.MockingProgressListener;
 import org.mockito.invocation.Invocation;
+import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.verification.VerificationMode;
+import org.mockito.verification.VerificationStrategy;
 
 import java.io.Serializable;
 
@@ -24,11 +26,11 @@ public class ThreadSafeMockingProgress implements MockingProgress, Serializable 
         return mockingProgress.get();
     }
     
-    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
+    public void reportOngoingStubbing(OngoingStubbing<?> iOngoingStubbing) {
         threadSafely().reportOngoingStubbing(iOngoingStubbing);
     }
 
-    public IOngoingStubbing pullOngoingStubbing() {
+    public OngoingStubbing<?> pullOngoingStubbing() {
         return threadSafely().pullOngoingStubbing();
     }
     
@@ -68,11 +70,19 @@ public class ThreadSafeMockingProgress implements MockingProgress, Serializable 
         return threadSafely().getArgumentMatcherStorage();
     }
     
-    public void mockingStarted(Object mock, Class classToMock) {
+    public void mockingStarted(Object mock, Class<?> classToMock) {
         threadSafely().mockingStarted(mock, classToMock);
     }
 
     public void setListener(MockingProgressListener listener) {
         threadSafely().setListener(listener);
+    }
+
+    public void setVerificationStrategy(VerificationStrategy strategy) {
+        threadSafely().setVerificationStrategy(strategy);
+    }
+
+    public VerificationMode maybeVerifyLazily(VerificationMode mode) {
+        return threadSafely().maybeVerifyLazily(mode);
     }
 }

@@ -5,26 +5,23 @@
 
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
-
-import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
+import java.io.Serializable;
 
-public class StartsWith extends ArgumentMatcher<String> implements Serializable {
+public class StartsWith implements ArgumentMatcher<String>, Serializable {
 
-    private static final long serialVersionUID = -5978092285707998431L;
     private final String prefix;
 
     public StartsWith(String prefix) {
         this.prefix = prefix;
     }
 
-    public boolean matches(Object actual) {
-        return actual != null && ((String) actual).startsWith(prefix);
+    public boolean matches(String actual) {
+        return actual != null && actual.startsWith(prefix);
     }
 
-    public void describeTo(Description description) {
-        description.appendText("startsWith(\"" + prefix + "\")");
+    public String toString() {
+        return "startsWith(\"" + prefix + "\")";
     }
 }

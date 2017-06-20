@@ -7,8 +7,9 @@ package org.mockito.internal.stubbing;
 import org.mockito.exceptions.Reporter;
 import org.mockito.invocation.Invocation;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.DeprecatedOngoingStubbing;
 import org.mockito.stubbing.OngoingStubbing;
+
+import static org.mockito.exceptions.Reporter.incorrectUseOfApi;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class OngoingStubbingImpl<T> extends BaseStubbing<T> {
 
     public OngoingStubbing<T> thenAnswer(Answer<?> answer) {
         if(!invocationContainerImpl.hasInvocationForPotentialStubbing()) {
-            new Reporter().incorrectUseOfApi();
+            throw incorrectUseOfApi();
         }
 
         invocationContainerImpl.addAnswer(answer);
@@ -33,16 +34,12 @@ public class OngoingStubbingImpl<T> extends BaseStubbing<T> {
         return thenAnswer(answer);
     }
 
-    public DeprecatedOngoingStubbing<T> toAnswer(Answer<?> answer) {
-        invocationContainerImpl.addAnswer(answer);
-        return new ConsecutiveStubbing<T>(invocationContainerImpl);
-    }
-
     public List<Invocation> getRegisteredInvocations() {
         //TODO interface for tests
         return invocationContainerImpl.getInvocations();
     }
 
+    @SuppressWarnings("unchecked")
     public <M> M getMock() {
         return (M) invocationContainerImpl.invokedMock();
     }
