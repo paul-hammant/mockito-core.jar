@@ -27,11 +27,7 @@ import org.mockito.internal.verification.api.VerificationDataInOrder;
 import org.mockito.internal.verification.api.VerificationDataInOrderImpl;
 import org.mockito.invocation.Invocation;
 import org.mockito.mock.MockCreationSettings;
-import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.DeprecatedOngoingStubbing;
-import org.mockito.stubbing.OngoingStubbing;
-import org.mockito.stubbing.Stubber;
-import org.mockito.stubbing.VoidMethodStubbable;
+import org.mockito.stubbing.*;
 import org.mockito.verification.VerificationMode;
 
 import java.util.Arrays;
@@ -99,6 +95,16 @@ public class MockitoCore {
             mockUtil.resetMock(m);
         }
     }
+
+    public <T> void clearInvocations(T ... mocks) {
+        mockingProgress.validateState();
+        mockingProgress.reset();
+        mockingProgress.resetOngoingStubbing();
+
+        for (T m : mocks) {
+            mockUtil.getMockHandler(m).getInvocationContainer().clearInvocations();
+        }
+    }
     
     public void verifyNoMoreInteractions(Object... mocks) {
         assertMocksNotEmpty(mocks);
@@ -144,10 +150,10 @@ public class MockitoCore {
         return new InOrderImpl(Arrays.asList(mocks));
     }
     
-    public Stubber doAnswer(Answer answer) {
+    public Stubber stubber() {
         mockingProgress.stubbingStarted();
         mockingProgress.resetOngoingStubbing();
-        return new StubberImpl().doAnswer(answer);
+        return new StubberImpl();
     }
     
     public <T> VoidMethodStubbable<T> stubVoid(T mock) {
@@ -186,4 +192,5 @@ public class MockitoCore {
     public MockingDetails mockingDetails(Object toInspect) {
         return new DefaultMockingDetails(toInspect, new MockUtil());
     }
+
 }
