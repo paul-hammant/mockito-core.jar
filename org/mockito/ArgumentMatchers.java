@@ -1,5 +1,18 @@
+/*
+ * Copyright (c) 2016 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
 package org.mockito;
 
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
+import static org.mockito.internal.util.Primitives.defaultValue;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.mockito.internal.matchers.Any;
 import org.mockito.internal.matchers.Contains;
 import org.mockito.internal.matchers.EndsWith;
@@ -12,17 +25,6 @@ import org.mockito.internal.matchers.Same;
 import org.mockito.internal.matchers.StartsWith;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import org.mockito.internal.util.Primitives;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
-import static org.mockito.internal.util.Primitives.defaultValue;
 
 /**
  * Allow flexible verification or stubbing. See also {@link AdditionalMatchers}.
@@ -98,6 +100,8 @@ import static org.mockito.internal.util.Primitives.defaultValue;
  * for given scenario and produce highest quality test (clean and maintainable).
  * Please read on in the javadoc for {@link ArgumentMatcher} to learn about approaches and see the examples.
  * </p>
+ *
+ * @see AdditionalMatchers
  */
 @SuppressWarnings("unchecked")
 public class ArgumentMatchers {
@@ -1062,6 +1066,22 @@ public class ArgumentMatchers {
      */
     public static <T> T isNotNull(Class<T> clazz) {
         return notNull(clazz);
+    }
+
+
+    /**
+     * Argument that is either <code>null</code> or of the given type.
+     *
+     * <p>
+     * See examples in javadoc for {@link ArgumentMatchers} class
+     * </p>
+     *
+     * @param clazz Type to avoid casting
+     * @return <code>null</code>.
+     */
+    public static <T> T nullable(Class<T> clazz) {
+        AdditionalMatchers.or(isNull(), isA(clazz));
+        return  (T) Primitives.defaultValue(clazz);
     }
 
     /**
