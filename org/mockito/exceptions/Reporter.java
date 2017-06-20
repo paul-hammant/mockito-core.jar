@@ -28,6 +28,8 @@ import org.mockito.exceptions.verification.VerificationInOrderFailure;
 import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.mockito.exceptions.verification.junit.JUnitTool;
 import org.mockito.internal.debugging.Location;
+import org.mockito.internal.exceptions.VerificationAwareInvocation;
+import org.mockito.internal.exceptions.util.ScenarioPrinter;
 import org.mockito.internal.invocation.Invocation;
 
 /**
@@ -76,13 +78,14 @@ public class Reporter {
 
     public void missingMethodInvocation() {
         throw new MissingMethodInvocationException(join(
-                "when() requires an argument which has to be a method call on a mock.",
+                "when() requires an argument which has to be 'a method call on a mock'.",
                 "For example:",
                 "    when(mock.getArticles()).thenReturn(articles);",
                 "",
-                "Also, this error might show up because you stub either of: final/private/equals()/hashCode() methods.",
-                "Those methods *cannot* be stubbed/verified.",
-                ""
+                "Also, this error might show up because:",
+                "1. you stub either of: final/private/equals()/hashCode() methods.",
+                "   Those methods *cannot* be stubbed/verified.",
+                "2. inside when() you don't call method on mock but on some other object."
         ));
     }
 
@@ -114,7 +117,7 @@ public class Reporter {
     
     public void nullPassedToVerify() {
         throw new NullInsteadOfMockException(join(
-                "Argument passed to verify() is null!",
+                "Argument passed to verify() should be a mock but is null!",
                 "Examples of correct verifications:",
                 "    verify(mock).someMethod();",
                 "    verify(mock, times(10)).someMethod();",
@@ -342,15 +345,19 @@ public class Reporter {
                 "Verification in order failure:" + message
                 ));
     }
-    
-    public void noMoreInteractionsWanted(PrintableInvocation undesired) {
+
+    public void noMoreInteractionsWanted(Invocation undesired, List<VerificationAwareInvocation> invocations) {
+        ScenarioPrinter scenarioPrinter = new ScenarioPrinter();
+        String scenario = scenarioPrinter.print(invocations);
+        
         throw new NoInteractionsWanted(join(
                 "No interactions wanted here:",
                 new Location(),
                 "But found this interaction:",
                 undesired.getLocation(),
+                scenario,
                 ""
-                ));
+        ));
     }
     
     public void noMoreInteractionsWantedInOrder(Invocation undesired) {

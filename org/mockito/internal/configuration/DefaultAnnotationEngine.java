@@ -17,12 +17,14 @@ import org.mockito.configuration.AnnotationEngine;
 import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.reflection.FieldSetter;
+import org.mockito.internal.util.reflection.GenericMaster;
 
 /**
  * Initializes fields annotated with &#64;{@link org.mockito.Mock} or &#64;{@link org.mockito.Captor}.
  * <p/>
  * See {@link MockitoAnnotations}
  */
+@SuppressWarnings("unchecked")
 public class DefaultAnnotationEngine implements AnnotationEngine {
 
     /* (non-Javadoc)
@@ -63,7 +65,7 @@ public class DefaultAnnotationEngine implements AnnotationEngine {
     private Object processAnnotationOn(org.mockito.MockitoAnnotations.Mock annotation, Field field) {
         return Mockito.mock(field.getType(), field.getName());
     }
-
+    
     private Object processAnnotationOn(Captor annotation, Field field) {
         Class<?> type = field.getType();
         if (!ArgumentCaptor.class.isAssignableFrom(type)) {
@@ -71,11 +73,10 @@ public class DefaultAnnotationEngine implements AnnotationEngine {
                     + field.getName() + "' has wrong type\n"
                     + "For info how to use @Captor annotations see examples in javadoc for MockitoAnnotations class.");
         }
-        return ArgumentCaptor.forClass(Object.class); // Object.class due to
-                                                      // erasure
-    }       
+        Class cls = new GenericMaster().getGenericType(field);        
+        return ArgumentCaptor.forClass(cls);    
+    }           
 
-    @Override
     public void process(Class<?> clazz, Object testClass) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {

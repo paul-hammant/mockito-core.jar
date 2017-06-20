@@ -7,11 +7,22 @@ package org.mockito;
 import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.debugging.MockitoDebuggerImpl;
-import org.mockito.internal.stubbing.answers.*;
-import org.mockito.internal.stubbing.defaultanswers.*;
+import org.mockito.internal.stubbing.answers.AnswerReturnValuesAdapter;
+import org.mockito.internal.stubbing.answers.CallsRealMethods;
+import org.mockito.internal.stubbing.answers.DoesNothing;
+import org.mockito.internal.stubbing.answers.Returns;
+import org.mockito.internal.stubbing.answers.ThrowsException;
+import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
+import org.mockito.internal.stubbing.defaultanswers.ReturnsMoreEmptyValues;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.*;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.DeprecatedOngoingStubbing;
+import org.mockito.stubbing.OngoingStubbing;
+import org.mockito.stubbing.Stubber;
+import org.mockito.stubbing.VoidMethodStubbable;
+import org.mockito.verification.VerificationWithTimeout;
+import org.mockito.verification.Timeout;
 import org.mockito.verification.VerificationMode;
 
 /**
@@ -45,7 +56,8 @@ import org.mockito.verification.VerificationMode;
  *      <a href="#18">18. Troubleshooting & validating framework usage (Since 1.8.0) </a><br/>
  *      <a href="#19">19. Aliases for behavior driven development (Since 1.8.0) </a><br/>
  *      <a href="#20">20. Serializable mocks (Since 1.8.1) </a><br/>
- *      <a href="#21">21. (**New**) New annotations: &#064;Captor, &#064;Spy, &#064;InjectMocks (Since 1.8.3) </a><br/>
+ *      <a href="#21">21. New annotations: &#064;Captor, &#064;Spy, &#064;InjectMocks (Since 1.8.3) </a><br/>
+ *      <a href="#22">22. (**New**) Verification with timeout (Since 1.8.5) </a><br/>
  * </b>
  * 
  * <p>
@@ -627,7 +639,34 @@ import org.mockito.verification.VerificationMode;
  * <li>&#064;{@link InjectMocks} - injects mocks into tested object automatically.
  * </ul>
  * <p>
- * All new annotations are *only* processed on {@link MockitoAnnotations#initMocks(Object)}  
+ * All new annotations are *only* processed on {@link MockitoAnnotations#initMocks(Object)}
+ * <p>
+ * <h3 id="22">22. (**New**) Verification with timeout (Since 1.8.5)  </h3>
+ * <p>
+ * Allows verifying with timeout. May be useful for testing in concurrent conditions.
+ * <p>
+ * It feels this feature should be used rarely - figure out a better way of testing your multi-threaded system.
+ * <p>
+ * Not yet implemented to work with InOrder verification.
+ * <p>
+ * Examples:
+ * <p>
+ * <pre>
+ *   //passes when someMethod() is called within given time span 
+ *   verify(mock, timeout(100)).someMethod();
+ *   //above is an alias to:
+ *   verify(mock, timeout(100).times(1)).someMethod();
+ *   
+ *   //passes when someMethod() is called *exactly* 2 times within given time span
+ *   verify(mock, timeout(100).times(2)).someMethod();
+ *
+ *   //passes when someMethod() is called *at lest* 2 times within given time span
+ *   verify(mock, timeout(100).atLeast(2)).someMethod();
+ *   
+ *   //verifies someMethod() within given time span using given verification mode
+ *   //useful only if you have your own custom verification modes.
+ *   verify(mock, new Timeout(100, yourOwnVerificationMode)).someMethod();
+ * </pre>
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends Matchers {
@@ -1554,9 +1593,43 @@ public class Mockito extends Matchers {
      * 
      * @return verification mode
      */
+    //TODO make exception message nicer
     public static VerificationMode only() {
     	return VerificationModeFactory.only();
-    }
+    }    
+    
+    /**
+     * Allows verifying with timeout. May be useful for testing in concurrent conditions.
+     * <p>
+     * It feels this feature should be used rarely - figure out a better way of testing your multi-threaded system
+     * <p>
+     * Not yet implemented to work with InOrder verification.
+     * <pre>
+     *   //passes when someMethod() is called within given time span 
+     *   verify(mock, timeout(100)).someMethod();
+     *   //above is an alias to:
+     *   verify(mock, timeout(100).times(1)).someMethod();
+     *   
+     *   //passes when someMethod() is called *exactly* 2 times within given time span
+     *   verify(mock, timeout(100).times(2)).someMethod();
+     *
+     *   //passes when someMethod() is called *at lest* 2 times within given time span
+     *   verify(mock, timeout(100).atLeast(2)).someMethod();
+     *   
+     *   //verifies someMethod() within given time span using given verification mode
+     *   //useful only if you have your own custom verification modes.
+     *   verify(mock, new Timeout(100, yourOwnVerificationMode)).someMethod();
+     * </pre>
+     * 
+     * See examples in javadoc for {@link Mockito} class
+     * 
+     * @param millis - time span in millis
+     * 
+     * @return verification mode
+     */
+    public static VerificationWithTimeout timeout(int millis) {
+        return new Timeout(millis, VerificationModeFactory.times(1));
+    }       
     
     /**
      * First of all, in case of any trouble, I encourage you to read the Mockito FAQ: <a href="http://code.google.com/p/mockito/wiki/FAQ">http://code.google.com/p/mockito/wiki/FAQ</a>
