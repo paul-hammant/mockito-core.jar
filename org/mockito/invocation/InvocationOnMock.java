@@ -37,12 +37,12 @@ public interface InvocationOnMock extends Serializable {
     Object[] getArguments();
     
     /**
-    * Returns casted argument using position
-    * @param index argument position
-    * @param clazz argument type
-    * @return casted argument on position
-    */
-    <T> T getArgumentAt(int index, Class<T> clazz);
+     * Returns casted argument at the given index
+     * @param index argument index
+     * @return casted argument at the given index
+     * @since 2.0.0
+     */
+    <T> T getArgument(int index);
 
 
     /**

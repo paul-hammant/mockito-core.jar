@@ -25,7 +25,7 @@ public interface MockCreationSettings<T> {
     /**
      * the extra interfaces the mock object should implement.
      */
-    Set<Class> getExtraInterfaces();
+    Set<Class<?>> getExtraInterfaces();
 
     /**
      * the name of this mock, as printed on verification errors; see {@link org.mockito.MockSettings#name}.
@@ -35,7 +35,7 @@ public interface MockCreationSettings<T> {
     /**
      * the default answer for this mock, see {@link org.mockito.MockSettings#defaultAnswer}.
      */
-    Answer getDefaultAnswer();
+    Answer<?> getDefaultAnswer();
 
     /**
      * the spied instance - needed for spies.

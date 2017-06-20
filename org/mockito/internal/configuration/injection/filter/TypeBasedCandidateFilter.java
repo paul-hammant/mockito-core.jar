@@ -11,20 +11,23 @@ import java.util.List;
 
 public class TypeBasedCandidateFilter implements MockCandidateFilter {
 
-    MockCandidateFilter next;
+    private final MockCandidateFilter next;
 
     public TypeBasedCandidateFilter(MockCandidateFilter next) {
         this.next = next;
     }
 
-    public OngoingInjecter filterCandidate(Collection<Object> mocks, Field field, Object fieldInstance) {
+    public OngoingInjector filterCandidate(final Collection<Object> mocks,
+                                           final Field candidateFieldToBeInjected,
+                                           final List<Field> allRemainingCandidateFields,
+                                           final Object injectee) {
         List<Object> mockTypeMatches = new ArrayList<Object>();
         for (Object mock : mocks) {
-            if (field.getType().isAssignableFrom(mock.getClass())) {
+            if (candidateFieldToBeInjected.getType().isAssignableFrom(mock.getClass())) {
                 mockTypeMatches.add(mock);
             }
         }
 
-        return next.filterCandidate(mockTypeMatches, field, fieldInstance);
+        return next.filterCandidate(mockTypeMatches, candidateFieldToBeInjected, allRemainingCandidateFields, injectee);
     }
 }

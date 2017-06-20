@@ -25,11 +25,11 @@ public class MockAnnotationProcessor implements FieldAnnotationProcessor<Mock> {
             mockSettings.name(annotation.name());
         }
         if(annotation.serializable()){
-        	mockSettings.serializable();
+            mockSettings.serializable();
         }
 
         // see @Mock answer default value
-        mockSettings.defaultAnswer(annotation.answer().get());
+        mockSettings.defaultAnswer(annotation.answer());
         return Mockito.mock(field.getType(), mockSettings);
     }
 }

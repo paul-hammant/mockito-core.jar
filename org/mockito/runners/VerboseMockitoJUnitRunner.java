@@ -20,21 +20,12 @@ import org.mockito.internal.util.junit.JUnitFailureHacker;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Experimental implementation that suppose to improve tdd/testing experience. 
- * Don't hesitate to send feedback to mockito@googlegroups.com
- * <b>It is very likely it will change in the next version!</b>
+ * @deprecated as of 2.0.0. Use the {@link org.mockito.runners.MockitoJUnitRunner} runner instead
+ * which contains support for detecting unused stubs.
  * <p>
- * This runner does exactly what {@link MockitoJUnitRunner} does but also  
- * adds extra Mocktio hints to the exception message. 
- * The point is that Mockito should help the tdd developer to quickly figure out if the test fails for the right reason and track the reason. 
- * <p>
- * The implementation is pretty hacky - it uses brute force of reflection to modify the exception message and add extra mockito hints.
- * You've been warned. 
- * <p>
- * Do you think it is useful or not? Drop us an email at mockito@googlegroups.com
- * <p>
- * Experimental implementation - will change in future!
+ * If you still prefer using this runner, tell us why (create ticket in our issue tracker).
  */
+@Deprecated
 public class VerboseMockitoJUnitRunner extends Runner implements Filterable {
 
     private final RunnerImpl runner;

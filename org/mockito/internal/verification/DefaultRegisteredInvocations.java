@@ -10,6 +10,8 @@ import org.mockito.internal.util.collections.ListUtil;
 import org.mockito.internal.util.collections.ListUtil.Filter;
 import org.mockito.invocation.Invocation;
 
+import static org.mockito.internal.util.ObjectMethodsGuru.isToStringMethod;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,12 +38,18 @@ public class DefaultRegisteredInvocations implements RegisteredInvocations, Seri
     }
 
     public List<Invocation> getAll() {
-    	List<Invocation> copiedList;
-    	synchronized (invocations) {
-			copiedList = new LinkedList<Invocation>(invocations) ;
-		}
+        List<Invocation> copiedList;
+        synchronized (invocations) {
+            copiedList = new LinkedList<Invocation>(invocations) ;
+        }
 
         return ListUtil.filter(copiedList, new RemoveToString());
+    }
+
+    public void clear() {
+        synchronized (invocations) {
+            invocations.clear();
+        }
     }
 
     public boolean isEmpty() {
@@ -52,7 +60,7 @@ public class DefaultRegisteredInvocations implements RegisteredInvocations, Seri
 
     private static class RemoveToString implements Filter<Invocation> {
         public boolean isOut(Invocation invocation) {
-            return new ObjectMethodsGuru().isToString(invocation.getMethod());
+            return isToStringMethod(invocation.getMethod());
         }
     }
 
