@@ -5,6 +5,7 @@
 package org.mockito.internal.stubbing;
 
 import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.DeprecatedOngoingStubbing;
 import org.mockito.stubbing.OngoingStubbing;
 
 public class ConsecutiveStubbing<T> extends BaseStubbing<T> {
@@ -22,8 +23,12 @@ public class ConsecutiveStubbing<T> extends BaseStubbing<T> {
     public OngoingStubbing<T> then(Answer<?> answer) {
         return thenAnswer(answer);
     }
+    
+    public DeprecatedOngoingStubbing<T> toAnswer(Answer<?> answer) {
+        invocationContainerImpl.addConsecutiveAnswer(answer);
+        return this;
+    }
 
-    @SuppressWarnings("unchecked")
     public <M> M getMock() {
         return (M) invocationContainerImpl.invokedMock();
     }

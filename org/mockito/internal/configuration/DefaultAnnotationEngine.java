@@ -12,9 +12,6 @@ import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.reflection.FieldSetter;
 
-import static org.mockito.exceptions.Reporter.moreThanOneAnnotationNotAllowed;
-import static org.mockito.internal.util.reflection.FieldSetter.setField;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -34,10 +31,15 @@ public class DefaultAnnotationEngine implements AnnotationEngine {
 
     public DefaultAnnotationEngine() {
         registerAnnotationProcessor(Mock.class, new MockAnnotationProcessor());
+        registerAnnotationProcessor(MockitoAnnotations.Mock.class, new MockitoAnnotationsMockAnnotationProcessor());
         registerAnnotationProcessor(Captor.class, new CaptorAnnotationProcessor());
     }
 
-    private Object createMockFor(Annotation annotation, Field field) {
+    /* (non-Javadoc)
+    * @see org.mockito.AnnotationEngine#createMockFor(java.lang.annotation.Annotation, java.lang.reflect.Field)
+    */
+    @SuppressWarnings("deprecation")
+    public Object createMockFor(Annotation annotation, Field field) {
         return forAnnotation(annotation).process(annotation, field);
     }
 
@@ -56,7 +58,6 @@ public class DefaultAnnotationEngine implements AnnotationEngine {
         annotationProcessorMap.put(annotationClass, fieldAnnotationProcessor);
     }
 
-    @Override
     public void process(Class<?> clazz, Object testInstance) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
@@ -67,7 +68,7 @@ public class DefaultAnnotationEngine implements AnnotationEngine {
                     throwIfAlreadyAssigned(field, alreadyAssigned);                    
                     alreadyAssigned = true;                    
                     try {
-                        setField(testInstance, field,mock);
+                        new FieldSetter(testInstance, field).set(mock);
                     } catch (Exception e) {
                         throw new MockitoException("Problems setting field " + field.getName() + " annotated with "
                                 + annotation, e);
@@ -79,7 +80,7 @@ public class DefaultAnnotationEngine implements AnnotationEngine {
     
     void throwIfAlreadyAssigned(Field field, boolean alreadyAssigned) {
         if (alreadyAssigned) {
-            throw moreThanOneAnnotationNotAllowed(field.getName());
+            new Reporter().moreThanOneAnnotationNotAllowed(field.getName());
         }
     }
 

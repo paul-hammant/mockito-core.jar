@@ -5,17 +5,17 @@
 
 package org.mockito.internal.progress;
 
+import org.mockito.MockSettings;
 import org.mockito.internal.listeners.MockingProgressListener;
 import org.mockito.invocation.Invocation;
-import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.verification.VerificationMode;
-import org.mockito.verification.VerificationStrategy;
 
+@SuppressWarnings("unchecked")
 public interface MockingProgress {
     
-    void reportOngoingStubbing(OngoingStubbing<?> ongoingStubbing);
+    void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing);
 
-    OngoingStubbing<?> pullOngoingStubbing();
+    IOngoingStubbing pullOngoingStubbing();
 
     void verificationStarted(VerificationMode verificationMode);
 
@@ -37,11 +37,7 @@ public interface MockingProgress {
 
     ArgumentMatcherStorage getArgumentMatcherStorage();
     
-    void mockingStarted(Object mock, Class<?> classToMock);
+    void mockingStarted(Object mock, Class classToMock);
 
     void setListener(MockingProgressListener listener);
-
-    void setVerificationStrategy(VerificationStrategy strategy);
-
-    VerificationMode maybeVerifyLazily(VerificationMode mode);
 }

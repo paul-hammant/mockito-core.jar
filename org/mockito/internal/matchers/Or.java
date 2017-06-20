@@ -5,23 +5,26 @@
 
 package org.mockito.internal.matchers;
 
-import org.mockito.ArgumentMatcher;
-
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.mockito.ArgumentMatcher;
+
 @SuppressWarnings("unchecked")
-public class Or implements ArgumentMatcher, Serializable {
+public class Or extends ArgumentMatcher implements Serializable {
 
-    private final List<ArgumentMatcher> matchers;
+    private static final long serialVersionUID = 5888739035212283087L;
+    private final List<Matcher> matchers;
 
-    public Or(List<ArgumentMatcher> matchers) {
+    public Or(List<Matcher> matchers) {
         this.matchers = matchers;
     }
 
     public boolean matches(Object actual) {
-        for (ArgumentMatcher matcher : matchers) {
+        for (Matcher matcher : matchers) {
             if (matcher.matches(actual)) {
                 return true;
             }
@@ -29,15 +32,14 @@ public class Or implements ArgumentMatcher, Serializable {
         return false;
     }
 
-    public String toString() {
-        //TODO SF here and in other places we should reuse ValuePrinter
-        StringBuilder sb = new StringBuilder("or(");
-        for (Iterator<ArgumentMatcher> it = matchers.iterator(); it.hasNext();) {
-            sb.append(it.next().toString());
+    public void describeTo(Description description) {
+        description.appendText("or(");
+        for (Iterator<Matcher> it = matchers.iterator(); it.hasNext();) {
+            it.next().describeTo(description);
             if (it.hasNext()) {
-                sb.append(", ");
+                description.appendText(", ");
             }
         }
-        return sb.append(")").toString();
+        description.appendText(")");
     }
 }

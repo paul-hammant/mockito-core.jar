@@ -53,24 +53,22 @@ import static org.mockito.internal.util.StringJoiner.join;
  */
 public class Reporter {
 
-	private Reporter(){};
-	
-    public static MockitoException checkedExceptionInvalid(Throwable t) {
-        return new MockitoException(join(
+    public void checkedExceptionInvalid(Throwable t) {
+        throw new MockitoException(join(
                 "Checked exception is invalid for this method!",
                 "Invalid: " + t
         ));
     }
 
-    public static MockitoException cannotStubWithNullThrowable() {
-        return new MockitoException(join(
+    public void cannotStubWithNullThrowable() {
+        throw new MockitoException(join(
                 "Cannot stub with null throwable!"
         ));
 
     }
 
-    public static MockitoException unfinishedStubbing(Location location) {
-        return new UnfinishedStubbingException(join(
+    public void unfinishedStubbing(Location location) {
+        throw new UnfinishedStubbingException(join(
                 "Unfinished stubbing detected here:",
                 location,
                 "",
@@ -87,8 +85,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException incorrectUseOfApi() {
-        return new MockitoException(join(
+    public void incorrectUseOfApi() {
+        throw new MockitoException(join(
                 "Incorrect use of API detected here:",
                 new LocationImpl(),
                 "",
@@ -100,8 +98,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException missingMethodInvocation() {
-        return new MissingMethodInvocationException(join(
+    public void missingMethodInvocation() {
+        throw new MissingMethodInvocationException(join(
                 "when() requires an argument which has to be 'a method call on a mock'.",
                 "For example:",
                 "    when(mock.getArticles()).thenReturn(articles);",
@@ -115,7 +113,7 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException unfinishedVerificationException(Location location) {
+    public void unfinishedVerificationException(Location location) {
         UnfinishedVerificationException exception = new UnfinishedVerificationException(join(
                 "Missing method call for verify(mock) here:",
                 location,
@@ -129,11 +127,11 @@ public class Reporter {
                 ""
         ));
 
-        return exception;
+        throw exception;
     }
 
-    public static MockitoException notAMockPassedToVerify(Class<?> type) {
-        return new NotAMockException(join(
+    public void notAMockPassedToVerify(Class type) {
+        throw new NotAMockException(join(
                 "Argument passed to verify() is of type " + type.getSimpleName() + " and is not a mock!",
                 "Make sure you place the parenthesis correctly!",
                 "See the examples of correct verifications:",
@@ -143,8 +141,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException nullPassedToVerify() {
-        return new NullInsteadOfMockException(join(
+    public void nullPassedToVerify() {
+        throw new NullInsteadOfMockException(join(
                 "Argument passed to verify() should be a mock but is null!",
                 "Examples of correct verifications:",
                 "    verify(mock).someMethod();",
@@ -155,16 +153,16 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException notAMockPassedToWhenMethod() {
-        return new NotAMockException(join(
+    public void notAMockPassedToWhenMethod() {
+        throw new NotAMockException(join(
                 "Argument passed to when() is not a mock!",
                 "Example of correct stubbing:",
                 "    doThrow(new RuntimeException()).when(mock).someMethod();"
         ));
     }
 
-    public static MockitoException nullPassedToWhenMethod() {
-        return new NullInsteadOfMockException(join(
+    public void nullPassedToWhenMethod() {
+        throw new NullInsteadOfMockException(join(
                 "Argument passed to when() is null!",
                 "Example of correct stubbing:",
                 "    doThrow(new RuntimeException()).when(mock).someMethod();",
@@ -172,8 +170,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException mocksHaveToBePassedToVerifyNoMoreInteractions() {
-        return new MockitoException(join(
+    public void mocksHaveToBePassedToVerifyNoMoreInteractions() {
+        throw new MockitoException(join(
                 "Method requires argument(s)!",
                 "Pass mocks that should be verified, e.g:",
                 "    verifyNoMoreInteractions(mockOne, mockTwo);",
@@ -182,8 +180,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException notAMockPassedToVerifyNoMoreInteractions() {
-        return new NotAMockException(join(
+    public void notAMockPassedToVerifyNoMoreInteractions() {
+        throw new NotAMockException(join(
                 "Argument(s) passed is not a mock!",
                 "Examples of correct verifications:",
                 "    verifyNoMoreInteractions(mockOne, mockTwo);",
@@ -192,8 +190,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException nullPassedToVerifyNoMoreInteractions() {
-        return new NullInsteadOfMockException(join(
+    public void nullPassedToVerifyNoMoreInteractions() {
+        throw new NullInsteadOfMockException(join(
                 "Argument(s) passed is null!",
                 "Examples of correct verifications:",
                 "    verifyNoMoreInteractions(mockOne, mockTwo);",
@@ -201,8 +199,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException notAMockPassedWhenCreatingInOrder() {
-        return new NotAMockException(join(
+    public void notAMockPassedWhenCreatingInOrder() {
+        throw new NotAMockException(join(
                 "Argument(s) passed is not a mock!",
                 "Pass mocks that require verification in order.",
                 "For example:",
@@ -210,8 +208,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException nullPassedWhenCreatingInOrder() {
-        return new NullInsteadOfMockException(join(
+    public void nullPassedWhenCreatingInOrder() {
+        throw new NullInsteadOfMockException(join(
                 "Argument(s) passed is null!",
                 "Pass mocks that require verification in order.",
                 "For example:",
@@ -219,8 +217,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException mocksHaveToBePassedWhenCreatingInOrder() {
-        return new MockitoException(join(
+    public void mocksHaveToBePassedWhenCreatingInOrder() {
+        throw new MockitoException(join(
                 "Method requires argument(s)!",
                 "Pass mocks that require verification in order.",
                 "For example:",
@@ -228,8 +226,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException inOrderRequiresFamiliarMock() {
-        return new MockitoException(join(
+    public void inOrderRequiresFamiliarMock() {
+        throw new MockitoException(join(
                 "InOrder can only verify mocks that were passed in during creation of InOrder.",
                 "For example:",
                 "    InOrder inOrder = inOrder(mockOne);",
@@ -237,8 +235,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException invalidUseOfMatchers(int expectedMatchersCount, List<LocalizedMatcher> recordedMatchers) {
-        return new InvalidUseOfMatchersException(join(
+    public void invalidUseOfMatchers(int expectedMatchersCount, List<LocalizedMatcher> recordedMatchers) {
+        throw new InvalidUseOfMatchersException(join(
                 "Invalid use of argument matchers!",
                 expectedMatchersCount + " matchers expected, " + recordedMatchers.size() + " recorded:" +
                         locationsOf(recordedMatchers),
@@ -256,8 +254,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException incorrectUseOfAdditionalMatchers(String additionalMatcherName, int expectedSubMatchersCount, Collection<LocalizedMatcher> matcherStack) {
-        return new InvalidUseOfMatchersException(join(
+    public void incorrectUseOfAdditionalMatchers(String additionalMatcherName, int expectedSubMatchersCount, Collection<LocalizedMatcher> matcherStack) {
+        throw new InvalidUseOfMatchersException(join(
                 "Invalid use of argument matchers inside additional matcher " + additionalMatcherName + " !",
                 new LocationImpl(),
                 "",
@@ -277,15 +275,15 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException stubPassedToVerify() {
-        return new CannotVerifyStubOnlyMock(join(
+    public void stubPassedToVerify() {
+        throw new CannotVerifyStubOnlyMock(join(
                 "Argument passed to verify() is a stubOnly() mock, not a full blown mock!",
                 "If you intend to verify invocations on a mock, don't use stubOnly() in its MockSettings."
         ));
     }
 
-    public static MockitoException reportNoSubMatchersFound(String additionalMatcherName) {
-        return new InvalidUseOfMatchersException(join(
+    public void reportNoSubMatchersFound(String additionalMatcherName) {
+        throw new InvalidUseOfMatchersException(join(
                 "No matchers found for additional matcher " + additionalMatcherName,
                 new LocationImpl(),
                 ""
@@ -293,14 +291,14 @@ public class Reporter {
     }
 
 
-    private static Object locationsOf(Collection<LocalizedMatcher> matchers) {
+    private Object locationsOf(Collection<LocalizedMatcher> matchers) {
         List<String> description = new ArrayList<String>();
         for (LocalizedMatcher matcher : matchers)
             description.add(matcher.getLocation().toString());
         return join(description.toArray());
     }
 
-    public static AssertionError argumentsAreDifferent(String wanted, String actual, Location actualLocation) {
+    public void argumentsAreDifferent(String wanted, String actual, Location actualLocation) {
         String message = join("Argument(s) are different! Wanted:",
                 wanted,
                 new LocationImpl(),
@@ -310,14 +308,14 @@ public class Reporter {
                 ""
         );
 
-        return JUnitTool.createArgumentsAreDifferentException(message, wanted, actual);
+        throw JUnitTool.createArgumentsAreDifferentException(message, wanted, actual);
     }
 
-    public static MockitoAssertionError wantedButNotInvoked(DescribedInvocation wanted) {
-        return new WantedButNotInvoked(createWantedButNotInvokedMessage(wanted));
+    public void wantedButNotInvoked(DescribedInvocation wanted) {
+        throw new WantedButNotInvoked(createWantedButNotInvokedMessage(wanted));
     }
 
-    public static MockitoAssertionError wantedButNotInvoked(DescribedInvocation wanted, List<? extends DescribedInvocation> invocations) {
+    public void wantedButNotInvoked(DescribedInvocation wanted, List<? extends DescribedInvocation> invocations) {
         String allInvocations;
         if (invocations.isEmpty()) {
             allInvocations = "Actually, there were zero interactions with this mock.\n";
@@ -333,10 +331,10 @@ public class Reporter {
         }
 
         String message = createWantedButNotInvokedMessage(wanted);
-        return new WantedButNotInvoked(message + allInvocations);
+        throw new WantedButNotInvoked(message + allInvocations);
     }
 
-    private static String createWantedButNotInvokedMessage(DescribedInvocation wanted) {
+    private String createWantedButNotInvokedMessage(DescribedInvocation wanted) {
         return join(
                 "Wanted but not invoked:",
                 wanted.toString(),
@@ -345,8 +343,8 @@ public class Reporter {
         );
     }
 
-    public static MockitoAssertionError wantedButNotInvokedInOrder(DescribedInvocation wanted, DescribedInvocation previous) {
-        return new VerificationInOrderFailure(join(
+    public void wantedButNotInvokedInOrder(DescribedInvocation wanted, DescribedInvocation previous) {
+        throw new VerificationInOrderFailure(join(
                 "Verification in order failure",
                 "Wanted but not invoked:",
                 wanted.toString(),
@@ -358,12 +356,12 @@ public class Reporter {
         ));
     }
 
-    public static MockitoAssertionError tooManyActualInvocations(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
+    public void tooManyActualInvocations(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
         String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
-        return new TooManyActualInvocations(message);
+        throw new TooManyActualInvocations(message);
     }
 
-    private static String createTooManyInvocationsMessage(int wantedCount, int actualCount, DescribedInvocation wanted,
+    private String createTooManyInvocationsMessage(int wantedCount, int actualCount, DescribedInvocation wanted,
                                                    Location firstUndesired) {
         return join(
                 wanted.toString(),
@@ -375,8 +373,8 @@ public class Reporter {
         );
     }
 
-    public static MockitoAssertionError neverWantedButInvoked(DescribedInvocation wanted, Location firstUndesired) {
-        return new NeverWantedButInvoked(join(
+    public void neverWantedButInvoked(DescribedInvocation wanted, Location firstUndesired) {
+        throw new NeverWantedButInvoked(join(
                 wanted.toString(),
                 "Never wanted here:",
                 new LocationImpl(),
@@ -386,47 +384,47 @@ public class Reporter {
         ));
     }
 
-    public static MockitoAssertionError tooManyActualInvocationsInOrder(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
+    public void tooManyActualInvocationsInOrder(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
         String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
-        return new VerificationInOrderFailure(join(
+        throw new VerificationInOrderFailure(join(
                 "Verification in order failure:" + message
         ));
     }
 
-    private static String createTooLittleInvocationsMessage(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted,
+    private String createTooLittleInvocationsMessage(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted,
                                                      Location lastActualInvocation) {
         String ending =
                 (lastActualInvocation != null) ? lastActualInvocation + "\n" : "\n";
 
         String message = join(
                 wanted.toString(),
-                "Wanted " + discrepancy.getPluralizedWantedCount() + (discrepancy.getWantedCount() == 0 ? "." : ":"),
+                "Wanted " + discrepancy.getPluralizedWantedCount() + ":",
                 new LocationImpl(),
-                "But was " + discrepancy.getPluralizedActualCount() + (discrepancy.getActualCount() == 0 ? "." : ":"),
+                "But was " + discrepancy.getPluralizedActualCount() + ":",
                 ending
         );
         return message;
     }
 
-    public static MockitoAssertionError tooLittleActualInvocations(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
+    public void tooLittleActualInvocations(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
         String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
 
-        return new TooLittleActualInvocations(message);
+        throw new TooLittleActualInvocations(message);
     }
 
-    public static MockitoAssertionError tooLittleActualInvocationsInOrder(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
+    public void tooLittleActualInvocationsInOrder(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
         String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
 
-        return new VerificationInOrderFailure(join(
+        throw new VerificationInOrderFailure(join(
                 "Verification in order failure:" + message
         ));
     }
 
-    public static MockitoAssertionError noMoreInteractionsWanted(Invocation undesired, List<VerificationAwareInvocation> invocations) {
+    public void noMoreInteractionsWanted(Invocation undesired, List<VerificationAwareInvocation> invocations) {
         ScenarioPrinter scenarioPrinter = new ScenarioPrinter();
         String scenario = scenarioPrinter.print(invocations);
 
-        return new NoInteractionsWanted(join(
+        throw new NoInteractionsWanted(join(
                 "No interactions wanted here:",
                 new LocationImpl(),
                 "But found this interaction on mock '" + safelyGetMockName(undesired.getMock()) + "':",
@@ -435,8 +433,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoAssertionError noMoreInteractionsWantedInOrder(Invocation undesired) {
-        return new VerificationInOrderFailure(join(
+    public void noMoreInteractionsWantedInOrder(Invocation undesired) {
+        throw new VerificationInOrderFailure(join(
                 "No interactions wanted here:",
                 new LocationImpl(),
                 "But found this interaction on mock '" + safelyGetMockName(undesired.getMock()) + "':",
@@ -444,16 +442,18 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException cannotMockClass(Class<?> clazz, String reason) {
-        return new MockitoException(join(
+    public void cannotMockFinalClass(Class<?> clazz) {
+        throw new MockitoException(join(
                 "Cannot mock/spy " + clazz.toString(),
-                "Mockito cannot mock/spy because :",
-                " - " + reason
+                "Mockito cannot mock/spy following:",
+                "  - final classes",
+                "  - anonymous classes",
+                "  - primitive types"
         ));
     }
 
-    public static MockitoException cannotStubVoidMethodWithAReturnValue(String methodName) {
-        return new CannotStubVoidMethodWithReturnValue(join(
+    public void cannotStubVoidMethodWithAReturnValue(String methodName) {
+        throw new CannotStubVoidMethodWithReturnValue(join(
                 "'" + methodName + "' is a *void method* and it *cannot* be stubbed with a *return value*!",
                 "Voids are usually stubbed with Throwables:",
                 "    doThrow(exception).when(mock).someVoidMethod();",
@@ -469,8 +469,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException onlyVoidMethodsCanBeSetToDoNothing() {
-        return new MockitoException(join(
+    public void onlyVoidMethodsCanBeSetToDoNothing() {
+        throw new MockitoException(join(
                 "Only void methods can doNothing()!",
                 "Example of correct use of doNothing():",
                 "    doNothing().",
@@ -481,8 +481,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException wrongTypeOfReturnValue(String expectedType, String actualType, String methodName) {
-        return new WrongTypeOfReturnValue(join(
+    public void wrongTypeOfReturnValue(String expectedType, String actualType, String methodName) {
+        throw new WrongTypeOfReturnValue(join(
                 actualType + " cannot be returned by " + methodName + "()",
                 methodName + "() should return " + expectedType,
                 "***",
@@ -496,8 +496,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException wrongTypeReturnedByDefaultAnswer(Object mock, String expectedType, String actualType, String methodName) {
-        return new WrongTypeOfReturnValue(join(
+    public void wrongTypeReturnedByDefaultAnswer(Object mock, String expectedType, String actualType, String methodName) {
+        throw new WrongTypeOfReturnValue(join(
                 "Default answer returned a result with the wrong type:",
                 actualType + " cannot be returned by " + methodName + "()",
                 methodName + "() should return " + expectedType,
@@ -508,12 +508,12 @@ public class Reporter {
     }
 
 
-    public static MockitoAssertionError wantedAtMostX(int maxNumberOfInvocations, int foundSize) {
-        return new MockitoAssertionError(join("Wanted at most " + pluralize(maxNumberOfInvocations) + " but was " + foundSize));
+    public void wantedAtMostX(int maxNumberOfInvocations, int foundSize) {
+        throw new MockitoAssertionError(join("Wanted at most " + pluralize(maxNumberOfInvocations) + " but was " + foundSize));
     }
 
-    public static MockitoException misplacedArgumentMatcher(List<LocalizedMatcher> lastMatchers) {
-        return new InvalidUseOfMatchersException(join(
+    public void misplacedArgumentMatcher(List<LocalizedMatcher> lastMatchers) {
+        throw new InvalidUseOfMatchersException(join(
                 "Misplaced argument matcher detected here:",
                 locationsOf(lastMatchers),
                 "",
@@ -530,8 +530,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException smartNullPointerException(String invocation, Location location) {
-        return new SmartNullPointerException(join(
+    public void smartNullPointerException(String invocation, Location location) {
+        throw new SmartNullPointerException(join(
                 "You have a NullPointerException here:",
                 new LocationImpl(),
                 "because this method call was *not* stubbed correctly:",
@@ -541,8 +541,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException noArgumentValueWasCaptured() {
-        return new MockitoException(join(
+    public void noArgumentValueWasCaptured() {
+        throw new MockitoException(join(
                 "No argument value was captured!",
                 "You might have forgotten to use argument.capture() in verify()...",
                 "...or you used capture() in stubbing but stubbed method was not called.",
@@ -556,35 +556,35 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException extraInterfacesDoesNotAcceptNullParameters() {
-        return new MockitoException(join(
+    public void extraInterfacesDoesNotAcceptNullParameters() {
+        throw new MockitoException(join(
                 "extraInterfaces() does not accept null parameters."
         ));
     }
 
-    public static MockitoException extraInterfacesAcceptsOnlyInterfaces(Class<?> wrongType) {
-        return new MockitoException(join(
+    public void extraInterfacesAcceptsOnlyInterfaces(Class<?> wrongType) {
+        throw new MockitoException(join(
                 "extraInterfaces() accepts only interfaces.",
                 "You passed following type: " + wrongType.getSimpleName() + " which is not an interface."
         ));
     }
 
-    public static MockitoException extraInterfacesCannotContainMockedType(Class<?> wrongType) {
-        return new MockitoException(join(
+    public void extraInterfacesCannotContainMockedType(Class<?> wrongType) {
+        throw new MockitoException(join(
                 "extraInterfaces() does not accept the same type as the mocked type.",
                 "You mocked following type: " + wrongType.getSimpleName(),
                 "and you passed the same very interface to the extraInterfaces()"
         ));
     }
 
-    public static MockitoException extraInterfacesRequiresAtLeastOneInterface() {
-        return new MockitoException(join(
+    public void extraInterfacesRequiresAtLeastOneInterface() {
+        throw new MockitoException(join(
                 "extraInterfaces() requires at least one interface."
         ));
     }
 
-    public static MockitoException mockedTypeIsInconsistentWithSpiedInstanceType(Class<?> mockedType, Object spiedInstance) {
-        return new MockitoException(join(
+    public void mockedTypeIsInconsistentWithSpiedInstanceType(Class<?> mockedType, Object spiedInstance) {
+        throw new MockitoException(join(
                 "Mocked type must be the same as the type of your spied instance.",
                 "Mocked type must be: " + spiedInstance.getClass().getSimpleName() + ", but is: " + mockedType.getSimpleName(),
                 "  //correct spying:",
@@ -594,8 +594,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException cannotCallAbstractRealMethod() {
-        return new MockitoException(join(
+    public void cannotCallAbstractRealMethod() {
+        throw new MockitoException(join(
                 "Cannot call abstract real method on java object!",
                 "Calling real methods is only possible when mocking non abstract method.",
                 "  //correct example:",
@@ -603,8 +603,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException cannotVerifyToString() {
-        return new MockitoException(join(
+    public void cannotVerifyToString() {
+        throw new MockitoException(join(
                 "Mockito cannot verify toString()",
                 "toString() is too often used behind of scenes  (i.e. during String concatenation, in IDE debugging views). " +
                         "Verifying it may give inconsistent or hard to understand results. " +
@@ -613,19 +613,19 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException moreThanOneAnnotationNotAllowed(String fieldName) {
-        return new MockitoException("You cannot have more than one Mockito annotation on a field!\n" +
+    public void moreThanOneAnnotationNotAllowed(String fieldName) {
+        throw new MockitoException("You cannot have more than one Mockito annotation on a field!\n" +
                 "The field '" + fieldName + "' has multiple Mockito annotations.\n" +
                 "For info how to use annotations see examples in javadoc for MockitoAnnotations class.");
     }
 
-    public static MockitoException unsupportedCombinationOfAnnotations(String undesiredAnnotationOne, String undesiredAnnotationTwo) {
-        return new MockitoException("This combination of annotations is not permitted on a single field:\n" +
+    public void unsupportedCombinationOfAnnotations(String undesiredAnnotationOne, String undesiredAnnotationTwo) {
+        throw new MockitoException("This combination of annotations is not permitted on a single field:\n" +
                 "@" + undesiredAnnotationOne + " and @" + undesiredAnnotationTwo);
     }
 
-    public static MockitoException cannotInitializeForSpyAnnotation(String fieldName, Exception details) {
-        return new MockitoException(join("Cannot instantiate a @Spy for '" + fieldName + "' field.",
+    public void cannotInitializeForSpyAnnotation(String fieldName, Exception details) {
+        throw new MockitoException(join("Cannot instantiate a @Spy for '" + fieldName + "' field.",
                 "You haven't provided the instance for spying at field declaration so I tried to construct the instance.",
                 "However, I failed because: " + details.getMessage(),
                 "Examples of correct usage of @Spy:",
@@ -635,8 +635,8 @@ public class Reporter {
                 ""), details);
     }
 
-    public static MockitoException cannotInitializeForInjectMocksAnnotation(String fieldName, Exception details) {
-        return new MockitoException(join("Cannot instantiate @InjectMocks field named '" + fieldName + "'.",
+    public void cannotInitializeForInjectMocksAnnotation(String fieldName, Exception details) {
+        throw new MockitoException(join("Cannot instantiate @InjectMocks field named '" + fieldName + "'.",
                 "You haven't provided the instance at field declaration so I tried to construct the instance.",
                 "However, I failed because: " + details.getMessage(),
                 "Examples of correct usage of @InjectMocks:",
@@ -647,8 +647,8 @@ public class Reporter {
                 ""), details);
     }
 
-    public static MockitoException atMostAndNeverShouldNotBeUsedWithTimeout() {
-        return new FriendlyReminderException(join("",
+    public void atMostAndNeverShouldNotBeUsedWithTimeout() {
+        throw new FriendlyReminderException(join("",
                 "Don't panic! I'm just a friendly reminder!",
                 "timeout() should not be used with atMost() or never() because...",
                 "...it does not make much sense - the test would have passed immediately in concurency",
@@ -658,8 +658,8 @@ public class Reporter {
                 ""));
     }
 
-    public static MockitoException fieldInitialisationThrewException(Field field, Throwable details) {
-        return new MockitoException(join(
+    public void fieldInitialisationThrewException(Field field, Throwable details) {
+        throw new MockitoException(join(
                 "Cannot instantiate @InjectMocks field named '" + field.getName() + "' of type '" + field.getType() + "'.",
                 "You haven't provided the instance at field declaration so I tried to construct the instance.",
                 "However the constructor or the initialization block threw an exception : " + details.getMessage(),
@@ -667,22 +667,22 @@ public class Reporter {
 
     }
 
-    public static MockitoException invocationListenerDoesNotAcceptNullParameters() {
-        return new MockitoException("invocationListeners() does not accept null parameters");
+    public void invocationListenerDoesNotAcceptNullParameters() {
+        throw new MockitoException("invocationListeners() does not accept null parameters");
     }
 
-    public static MockitoException invocationListenersRequiresAtLeastOneListener() {
-        return new MockitoException("invocationListeners() requires at least one listener");
+    public void invocationListenersRequiresAtLeastOneListener() {
+        throw new MockitoException("invocationListeners() requires at least one listener");
     }
 
-    public static MockitoException invocationListenerThrewException(InvocationListener listener, Throwable listenerThrowable) {
-        return new MockitoException(StringJoiner.join(
+    public void invocationListenerThrewException(InvocationListener listener, Throwable listenerThrowable) {
+        throw new MockitoException(StringJoiner.join(
                 "The invocation listener with type " + listener.getClass().getName(),
                 "threw an exception : " + listenerThrowable.getClass().getName() + listenerThrowable.getMessage()), listenerThrowable);
     }
 
-    public static MockitoException cannotInjectDependency(Field field, Object matchingMock, Exception details) {
-        return new MockitoException(join(
+    public void cannotInjectDependency(Field field, Object matchingMock, Exception details) {
+        throw new MockitoException(join(
                 "Mockito couldn't inject mock dependency '" + safelyGetMockName(matchingMock) + "' on field ",
                 "'" + field + "'",
                 "whose type '" + field.getDeclaringClass().getCanonicalName() + "' was annotated by @InjectMocks in your test.",
@@ -691,15 +691,15 @@ public class Reporter {
         ), details);
     }
 
-    private static String exceptionCauseMessageIfAvailable(Exception details) {
+    private String exceptionCauseMessageIfAvailable(Exception details) {
         if (details.getCause() == null) {
             return details.getMessage();
         }
         return details.getCause().getMessage();
     }
 
-    public static MockitoException mockedTypeIsInconsistentWithDelegatedInstanceType(Class<?> mockedType, Object delegatedInstance) {
-        return new MockitoException(join(
+    public void mockedTypeIsInconsistentWithDelegatedInstanceType(Class mockedType, Object delegatedInstance) {
+        throw new MockitoException(join(
                 "Mocked type must be the same as the type of your delegated instance.",
                 "Mocked type must be: " + delegatedInstance.getClass().getSimpleName() + ", but is: " + mockedType.getSimpleName(),
                 "  //correct delegate:",
@@ -709,21 +709,21 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException spyAndDelegateAreMutuallyExclusive() {
-        return new MockitoException(join(
+    public void spyAndDelegateAreMutuallyExclusive() {
+        throw new MockitoException(join(
                 "Settings should not define a spy instance and a delegated instance at the same time."
         ));
     }
 
-    public static MockitoException invalidArgumentRangeAtIdentityAnswerCreationTime() {
-        return new MockitoException(join("Invalid argument index.",
+    public void invalidArgumentRangeAtIdentityAnswerCreationTime() {
+        throw new MockitoException(join("Invalid argument index.",
                 "The index need to be a positive number that indicates the position of the argument to return.",
                 "However it is possible to use the -1 value to indicates that the last argument should be",
                 "returned."));
     }
 
-    public static MockitoException invalidArgumentPositionRangeAtInvocationTime(InvocationOnMock invocation, boolean willReturnLastParameter, int argumentIndex) {
-        return new MockitoException(
+    public int invalidArgumentPositionRangeAtInvocationTime(InvocationOnMock invocation, boolean willReturnLastParameter, int argumentIndex) {
+        throw new MockitoException(
                 join("Invalid argument index for the current invocation of method : ",
                         " -> " + safelyGetMockName(invocation.getMock()) + "." + invocation.getMethod().getName() + "()",
                         "",
@@ -735,7 +735,7 @@ public class Reporter {
                         ""));
     }
 
-    private static StringBuilder possibleArgumentTypesOf(InvocationOnMock invocation) {
+    private StringBuilder possibleArgumentTypesOf(InvocationOnMock invocation) {
         Class<?>[] parameterTypes = invocation.getMethod().getParameterTypes();
         if (parameterTypes.length == 0) {
             return new StringBuilder("the method has no arguments.\n");
@@ -754,8 +754,8 @@ public class Reporter {
         return stringBuilder;
     }
 
-    public static MockitoException wrongTypeOfArgumentToReturn(InvocationOnMock invocation, String expectedType, Class<?> actualType, int argumentIndex) {
-        return new WrongTypeOfReturnValue(join(
+    public void wrongTypeOfArgumentToReturn(InvocationOnMock invocation, String expectedType, Class actualType, int argumentIndex) {
+        throw new WrongTypeOfReturnValue(join(
                 "The argument of type '" + actualType.getSimpleName() + "' cannot be returned because the following ",
                 "method should return the type '" + expectedType + "'",
                 " -> " + safelyGetMockName(invocation.getMock()) + "." + invocation.getMethod().getName() + "()",
@@ -776,12 +776,12 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException defaultAnswerDoesNotAcceptNullParameter() {
-        return new MockitoException("defaultAnswer() does not accept null parameter");
+    public void defaultAnswerDoesNotAcceptNullParameter() {
+        throw new MockitoException("defaultAnswer() does not accept null parameter");
     }
 
-    public static MockitoException serializableWontWorkForObjectsThatDontImplementSerializable(Class<?> classToMock) {
-        return new MockitoException(join(
+    public void serializableWontWorkForObjectsThatDontImplementSerializable(Class classToMock) {
+        throw new MockitoException(join(
                 "You are using the setting 'withSettings().serializable()' however the type you are trying to mock '" + classToMock.getSimpleName() + "'",
                 "do not implement Serializable AND do not have a no-arg constructor.",
                 "This combination is requested, otherwise you will get an 'java.io.InvalidClassException' when the mock will be serialized",
@@ -792,8 +792,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException delegatedMethodHasWrongReturnType(Method mockMethod, Method delegateMethod, Object mock, Object delegate) {
-        return new MockitoException(join(
+    public void delegatedMethodHasWrongReturnType(Method mockMethod, Method delegateMethod, Object mock, Object delegate) {
+        throw new MockitoException(join(
                 "Methods called on delegated instance must have compatible return types with the mock.",
                 "When calling: " + mockMethod + " on mock: " + safelyGetMockName(mock),
                 "return type should be: " + mockMethod.getReturnType().getSimpleName() + ", but was: " + delegateMethod.getReturnType().getSimpleName(),
@@ -802,8 +802,8 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException delegatedMethodDoesNotExistOnDelegate(Method mockMethod, Object mock, Object delegate) {
-        return new MockitoException(join(
+    public void delegatedMethodDoesNotExistOnDelegate(Method mockMethod, Object mock, Object delegate) {
+        throw new MockitoException(join(
                 "Methods called on mock must exist in delegated instance.",
                 "When calling: " + mockMethod + " on mock: " + safelyGetMockName(mock),
                 "no such method was found.",
@@ -812,12 +812,12 @@ public class Reporter {
         ));
     }
 
-    public static MockitoException usingConstructorWithFancySerializable(SerializableMode mode) {
-        return new MockitoException("Mocks instantiated with constructor cannot be combined with " + mode + " serialization mode.");
+    public void usingConstructorWithFancySerializable(SerializableMode mode) {
+        throw new MockitoException("Mocks instantiated with constructor cannot be combined with " + mode + " serialization mode.");
     }
 
-    public static MockitoException cannotCreateTimerWithNegativeDurationTime(long durationMillis) {
-        return new FriendlyReminderException(join("",
+    public void cannotCreateTimerWithNegativeDurationTime(long durationMillis) {
+        throw new FriendlyReminderException(join("",
                 "Don't panic! I'm just a friendly reminder!",
                 "It is impossible for time to go backward, therefore...",
                 "You cannot put negative value of duration: (" +  durationMillis +  ")",
@@ -825,13 +825,7 @@ public class Reporter {
                 ""));
     }
 
-    public static MockitoException notAnException() {
-        return new MockitoException(join(
-                "Exception type cannot be null.",
-                "This may happen with doThrow(Class)|thenThrow(Class) family of methods if passing null parameter."));
-    }
-
-    private static MockName safelyGetMockName(Object mock) {
+    private MockName safelyGetMockName(Object mock) {
         return new MockUtil().getMockName(mock);
     }
 }

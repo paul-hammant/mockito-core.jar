@@ -5,12 +5,10 @@
 
 package org.mockito.internal.verification;
 
-import static org.mockito.exceptions.Reporter.noMoreInteractionsWanted;
-import static org.mockito.exceptions.Reporter.noMoreInteractionsWantedInOrder;
-import static org.mockito.internal.invocation.InvocationsFinder.findFirstUnverified;
-import static org.mockito.internal.invocation.InvocationsFinder.findFirstUnverifiedInOrder;
-
 import java.util.List;
+
+import org.mockito.exceptions.Reporter;
+import org.mockito.internal.invocation.InvocationsFinder;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.internal.verification.api.VerificationDataInOrder;
 import org.mockito.internal.verification.api.VerificationInOrderMode;
@@ -21,23 +19,18 @@ public class NoMoreInteractions implements VerificationMode, VerificationInOrder
 
     @SuppressWarnings("unchecked")
     public void verify(VerificationData data) {
-        Invocation unverified = findFirstUnverified(data.getAllInvocations());
+        Invocation unverified = new InvocationsFinder().findFirstUnverified(data.getAllInvocations());
         if (unverified != null) {
-            throw noMoreInteractionsWanted(unverified, (List) data.getAllInvocations());
+            new Reporter().noMoreInteractionsWanted(unverified, (List) data.getAllInvocations());
         }
     }
 
     public void verifyInOrder(VerificationDataInOrder data) {
         List<Invocation> invocations = data.getAllInvocations();
-        Invocation unverified = findFirstUnverifiedInOrder(data.getOrderingContext(), invocations);
+        Invocation unverified = new InvocationsFinder().findFirstUnverifiedInOrder(data.getOrderingContext(), invocations);
         
         if (unverified != null) {
-            throw noMoreInteractionsWantedInOrder(unverified);
+            new Reporter().noMoreInteractionsWantedInOrder(unverified);
         }
-    }
-
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
     }
 }

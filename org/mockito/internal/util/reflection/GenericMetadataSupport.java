@@ -200,33 +200,17 @@ public abstract class GenericMetadataSupport {
         Type genericReturnType = method.getGenericReturnType();
         // logger.log("Method '" + method.toGenericString() + "' has return type : " + genericReturnType.getClass().getInterfaces()[0].getSimpleName() + " : " + genericReturnType);
 
-        int arity = 0;
-        while(genericReturnType instanceof GenericArrayType) {
-            arity++;
-            genericReturnType = ((GenericArrayType) genericReturnType).getGenericComponentType();
+        if (genericReturnType instanceof Class) {
+            return new NotGenericReturnTypeSupport(genericReturnType);
+        }
+        if (genericReturnType instanceof ParameterizedType) {
+            return new ParameterizedReturnType(this, method.getTypeParameters(), (ParameterizedType) method.getGenericReturnType());
+        }
+        if (genericReturnType instanceof TypeVariable) {
+            return new TypeVariableReturnType(this, method.getTypeParameters(), (TypeVariable) genericReturnType);
         }
 
-        GenericMetadataSupport genericMetadataSupport = resolveGenericType(genericReturnType, method);
-        if (arity == 0) {
-            return genericMetadataSupport;
-        } else {
-            return new GenericArrayReturnType(genericMetadataSupport, arity);
-        }
-    }
-
-    private GenericMetadataSupport resolveGenericType(Type type, Method method) {
-
-        if (type instanceof Class) {
-            return new NotGenericReturnTypeSupport(type);
-        }
-        if (type instanceof ParameterizedType) {
-            return new ParameterizedReturnType(this, method.getTypeParameters(), (ParameterizedType) type);
-        }
-        if (type instanceof TypeVariable) {
-            return new TypeVariableReturnType(this, method.getTypeParameters(), (TypeVariable) type);
-        }
-
-        throw new MockitoException("Ouch, it shouldn't happen, type '" + type.getClass().getCanonicalName() + "' on method : '" + method.toGenericString() + "' is not supported : " + type);
+        throw new MockitoException("Ouch, it shouldn't happen, type '" + genericReturnType.getClass().getCanonicalName() + "' on method : '" + method.toGenericString() + "' is not supported : " + genericReturnType);
     }
 
     /**
@@ -270,20 +254,21 @@ public abstract class GenericMetadataSupport {
         public FromClassGenericMetadataSupport(Class<?> clazz) {
             this.clazz = clazz;
 
-            for (Class<?> currentExploredClass = clazz;
+            for (Class currentExploredClass = clazz;
                  currentExploredClass != null && currentExploredClass != Object.class;
-                 currentExploredClass = superClassOf(currentExploredClass)) {
+                 currentExploredClass = superClassOf(currentExploredClass)
+                ) {
                 readActualTypeParametersOnDeclaringClass(currentExploredClass);
             }
         }
 
-        private Class superClassOf(Class<?> currentExploredClass) {
+        private Class superClassOf(Class currentExploredClass) {
             Type genericSuperclass = currentExploredClass.getGenericSuperclass();
             if (genericSuperclass instanceof ParameterizedType) {
                 Type rawType = ((ParameterizedType) genericSuperclass).getRawType();
-                return (Class<?>) rawType;
+                return (Class) rawType;
             }
-            return (Class<?>) genericSuperclass;
+            return (Class) genericSuperclass;
         }
 
         private void readActualTypeParametersOnDeclaringClass(Class<?> clazz) {
@@ -474,31 +459,7 @@ public abstract class GenericMetadataSupport {
         }
     }
 
-    private static class GenericArrayReturnType extends GenericMetadataSupport {
 
-        private final GenericMetadataSupport genericArrayType;
-
-        private final int arity;
-
-        public GenericArrayReturnType(GenericMetadataSupport genericArrayType, int arity) {
-            this.genericArrayType = genericArrayType;
-            this.arity = arity;
-        }
-
-        @Override
-        public Class<?> rawType() {
-            Class<?> rawComponentType = genericArrayType.rawType();
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < arity; i++) {
-                stringBuilder.append("[");
-            }
-            try {
-                return Class.forName(stringBuilder.append("L").append(rawComponentType.getName()).append(";").toString(), false, rawComponentType.getClassLoader());
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException("This was not supposed to happend", e);
-            }
-        }
-    }
 
     /**
      * Non-Generic metadata for {@link Class} returned via {@link Method#getGenericReturnType()}.
