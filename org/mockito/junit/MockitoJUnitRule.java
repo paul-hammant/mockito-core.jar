@@ -9,6 +9,7 @@ import static org.mockito.internal.util.Checks.checkNotNull;
 
 /**
  * The MockitoJUnitRule Rule can be used instead of {@link org.mockito.runners.MockitoJUnitRunner}.
+ * Requires JUnit 4.9 (at least).
  *
  * This rule adds following behavior:
  * <ul>
@@ -38,11 +39,14 @@ import static org.mockito.internal.util.Checks.checkNotNull;
  */
 public class MockitoJUnitRule implements TestRule {
 
-    private JUnitRule jUnitRule;
+    private final JUnitRule jUnitRule;
 
-    public MockitoJUnitRule(Object object) {
-        checkNotNull(object, "Rule target");
-        this.jUnitRule = new JUnitRule(object);
+    /**
+     * @param targetTest the test class instance where the rule is declared. Cannot be null.
+     */
+    public MockitoJUnitRule(Object targetTest) {
+        checkNotNull(targetTest, "Mockito JUnit rule target");
+        this.jUnitRule = new JUnitRule(targetTest);
     }
 
     public Statement apply(final Statement base, Description description) {
