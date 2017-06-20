@@ -4,9 +4,6 @@
  */
 package org.mockito.internal.handler;
 
-import static org.mockito.exceptions.Reporter.invocationListenerThrewException;
-
-import java.util.List;
 import org.mockito.exceptions.Reporter;
 import org.mockito.internal.InternalMockHandler;
 import org.mockito.internal.listeners.NotifiedMethodInvocationReport;
@@ -17,6 +14,8 @@ import org.mockito.listeners.InvocationListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.VoidMethodStubbable;
+
+import java.util.List;
 
 /**
  * Handler, that call all listeners wanted for this mock, before delegating it
@@ -46,25 +45,25 @@ class InvocationNotifierHandler<T> implements MockHandler, InternalMockHandler<T
     }
 
 
-    private void notifyMethodCall(Invocation invocation, Object returnValue) {
-        for (InvocationListener listener : invocationListeners) {
+	private void notifyMethodCall(Invocation invocation, Object returnValue) {
+		for (InvocationListener listener : invocationListeners) {
             try {
                 listener.reportInvocation(new NotifiedMethodInvocationReport(invocation, returnValue));
             } catch(Throwable listenerThrowable) {
-                throw invocationListenerThrewException(listener, listenerThrowable);
+                new Reporter().invocationListenerThrewException(listener, listenerThrowable);
             }
         }
-    }
+	}
 
     private void notifyMethodCallException(Invocation invocation, Throwable exception) {
-        for (InvocationListener listener : invocationListeners) {
+		for (InvocationListener listener : invocationListeners) {
             try {
                 listener.reportInvocation(new NotifiedMethodInvocationReport(invocation, exception));
             } catch(Throwable listenerThrowable) {
-                throw invocationListenerThrewException(listener, listenerThrowable);
+                new Reporter().invocationListenerThrewException(listener, listenerThrowable);
             }
         }
-    }
+	}
 
     public MockCreationSettings getMockSettings() {
         return mockHandler.getMockSettings();

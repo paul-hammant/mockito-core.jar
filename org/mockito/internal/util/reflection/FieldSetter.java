@@ -8,9 +8,15 @@ import java.lang.reflect.Field;
 
 public class FieldSetter {
 
-    private FieldSetter(){}
+    private final Object target;
+    private final Field field;
 
-    public static void setField(Object target, Field field,Object value) {
+    public FieldSetter(Object target, Field field) {
+        this.target = target;
+        this.field = field;
+    }
+
+    public void set(Object value) {
         AccessibilityChanger changer = new AccessibilityChanger();
         changer.enableAccess(field);
         try {

@@ -5,12 +5,15 @@
 
 package org.mockito.internal.matchers;
 
-import org.mockito.ArgumentMatcher;
-
 import java.io.Serializable;
 
-public class Null implements ArgumentMatcher<Object>, Serializable {
+import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 
+
+public class Null extends ArgumentMatcher<Object> implements Serializable {
+
+    private static final long serialVersionUID = 2823082637424390314L;
     public static final Null NULL = new Null();
 
     private Null() {
@@ -20,7 +23,7 @@ public class Null implements ArgumentMatcher<Object>, Serializable {
         return actual == null;
     }
 
-    public String toString() {
-        return "isNull()";
+    public void describeTo(Description description) {
+        description.appendText("isNull()");
     }
 }

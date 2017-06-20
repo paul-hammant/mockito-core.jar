@@ -4,7 +4,8 @@
  */
 package org.mockito.internal.invocation;
 
-import org.mockito.ArgumentMatcher;
+import org.hamcrest.Matcher;
+import org.mockito.internal.matchers.MatcherDecorator;
 import org.mockito.internal.matchers.VarargMatcher;
 import org.mockito.invocation.Invocation;
 
@@ -38,18 +39,25 @@ public class ArgumentsComparator {
 
         //we must use raw arguments, not arguments...
         Object[] rawArgs = actual.getRawArguments();
-        List<ArgumentMatcher> matchers = invocationMatcher.getMatchers();
+        List<Matcher> matchers = invocationMatcher.getMatchers();
 
         if (rawArgs.length != matchers.size()) {
             return false;
         }
 
         for (int i = 0; i < rawArgs.length; i++) {
-            ArgumentMatcher m = matchers.get(i);
+            Matcher m = matchers.get(i);
             //it's a vararg because it's the last array in the arg list
             if (rawArgs[i] != null && rawArgs[i].getClass().isArray() && i == rawArgs.length-1) {
+                Matcher actualMatcher;
+                //this is necessary as the framework often decorates matchers
+                if (m instanceof MatcherDecorator) {
+                    actualMatcher = ((MatcherDecorator)m).getActualMatcher();
+                } else {
+                    actualMatcher = m;
+                }
                 //this is very important to only allow VarargMatchers here. If you're not sure why remove it and run all tests.
-                if (!(m instanceof VarargMatcher) || !m.matches(rawArgs[i])) {
+                if (!(actualMatcher instanceof VarargMatcher) || !actualMatcher.matches(rawArgs[i])) {
                     return false;
                 }
             //it's not a vararg (i.e. some ordinary argument before varargs), just do the ordinary check

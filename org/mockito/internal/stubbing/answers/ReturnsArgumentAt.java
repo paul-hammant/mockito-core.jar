@@ -8,9 +8,6 @@ import org.mockito.exceptions.Reporter;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static org.mockito.exceptions.Reporter.invalidArgumentPositionRangeAtInvocationTime;
-import static org.mockito.exceptions.Reporter.invalidArgumentRangeAtIdentityAnswerCreationTime;
-
 import java.io.Serializable;
 
 /**
@@ -42,7 +39,7 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
 
     public Object answer(InvocationOnMock invocation) throws Throwable {
         validateIndexWithinInvocationRange(invocation);
-        return invocation.getArgument(actualArgumentPosition(invocation));
+        return invocation.getArguments()[actualArgumentPosition(invocation)];
     }
 
 
@@ -66,7 +63,7 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
 
     private int checkWithinAllowedRange(int argumentPosition) {
         if (argumentPosition != LAST_ARGUMENT && argumentPosition < 0) {
-            throw invalidArgumentRangeAtIdentityAnswerCreationTime();
+            new Reporter().invalidArgumentRangeAtIdentityAnswerCreationTime();
         }
         return argumentPosition;
     }
@@ -77,9 +74,9 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
 
     public void validateIndexWithinInvocationRange(InvocationOnMock invocation) {
         if (!argumentPositionInRange(invocation)) {
-            throw invalidArgumentPositionRangeAtInvocationTime(invocation,
-                                                               returningLastArg(),
-                                                               wantedArgumentPosition);
+            new Reporter().invalidArgumentPositionRangeAtInvocationTime(invocation,
+                                                                        returningLastArg(),
+                                                                        wantedArgumentPosition);
         }
     }
 

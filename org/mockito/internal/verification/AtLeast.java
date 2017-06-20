@@ -58,9 +58,4 @@ public class AtLeast implements VerificationInOrderMode, VerificationMode {
     public String toString() {
         return "Wanted invocations count: at least " + wantedCount;
     }
-
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
-    }
 }

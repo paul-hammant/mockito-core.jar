@@ -5,8 +5,10 @@
 
 package org.mockito.internal.invocation;
 
-import org.mockito.ArgumentMatcher;
+import org.hamcrest.Matcher;
 import org.mockito.internal.matchers.CapturesArguments;
+import org.mockito.internal.matchers.MatcherDecorator;
+import org.mockito.internal.matchers.VarargMatcher;
 import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.invocation.Invocation;
@@ -15,21 +17,18 @@ import org.mockito.invocation.Location;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
-/**
- * In addition to all content of the invocation, the invocation matcher contains the argument matchers.
- * Invocation matcher is used during verification and stubbing.
- * In those cases, the user can provide argument matchers instead of 'raw' arguments.
- * Raw arguments are converted to 'equals' matchers anyway.
- */
-public class InvocationMatcher implements DescribedInvocation, CapturesArgumentsFromInvocation, Serializable {
+public class InvocationMatcher implements DescribedInvocation, CapturesArgumensFromInvocation, Serializable {
 
+    private static final long serialVersionUID = -3047126096857467610L;
     private final Invocation invocation;
-    private final List<ArgumentMatcher> matchers;
+    private final List<Matcher> matchers;
 
-    public InvocationMatcher(Invocation invocation, List<ArgumentMatcher> matchers) {
+    public InvocationMatcher(Invocation invocation, List<Matcher> matchers) {
         this.invocation = invocation;
         if (matchers.isEmpty()) {
             this.matchers = ArgumentsProcessor.argumentsToMatchers(invocation.getArguments());
@@ -37,23 +36,23 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArguments
             this.matchers = matchers;
         }
     }
-
+    
     public InvocationMatcher(Invocation invocation) {
-        this(invocation, Collections.<ArgumentMatcher>emptyList());
+        this(invocation, Collections.<Matcher>emptyList());
     }
 
     public Method getMethod() {
         return invocation.getMethod();
     }
-
+    
     public Invocation getInvocation() {
         return this.invocation;
     }
-
-    public List<ArgumentMatcher> getMatchers() {
+    
+    public List<Matcher> getMatchers() {
         return this.matchers;
     }
-
+    
     public String toString() {
         return new PrintSettings().print(matchers, invocation);
     }
@@ -73,13 +72,13 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArguments
     }
 
     /**
-     * similar means the same method name, same mock, unverified
+     * similar means the same method name, same mock, unverified 
      * and: if arguments are the same cannot be overloaded
      */
     public boolean hasSimilarMethod(Invocation candidate) {
         String wantedMethodName = getMethod().getName();
         String currentMethodName = candidate.getMethod().getName();
-
+        
         final boolean methodNameEquals = wantedMethodName.equals(currentMethodName);
         final boolean isUnverified = !candidate.isVerified();
         final boolean mockIsTheSame = getInvocation().getMock() == candidate.getMock();
@@ -99,75 +98,67 @@ public class InvocationMatcher implements DescribedInvocation, CapturesArguments
         //sometimes java generates forwarding methods when generics are in play see JavaGenericsForwardingMethodsTest
         Method m1 = invocation.getMethod();
         Method m2 = candidate.getMethod();
-
+        
         if (m1.getName() != null && m1.getName().equals(m2.getName())) {
-            /* Avoid unnecessary cloning */
-            Class[] params1 = m1.getParameterTypes();
-            Class[] params2 = m2.getParameterTypes();
-            if (params1.length == params2.length) {
-                for (int i = 0; i < params1.length; i++) {
-                    if (params1[i] != params2[i])
-                        return false;
-                }
-                return true;
-            }
+        	/* Avoid unnecessary cloning */
+        	Class[] params1 = m1.getParameterTypes();
+        	Class[] params2 = m2.getParameterTypes();
+        	if (params1.length == params2.length) {
+        	    for (int i = 0; i < params1.length; i++) {
+        		if (params1[i] != params2[i])
+        		    return false;
+        	    }
+        	    return true;
+        	}
         }
         return false;
     }
-
+    
     public Location getLocation() {
         return invocation.getLocation();
     }
 
     public void captureArgumentsFrom(Invocation invocation) {
-        captureRegularArguments(invocation);
-        captureVarargsPart(invocation);
-    }
-
-    private void captureRegularArguments(Invocation invocation) {
-        for (int position = 0; position < regularArgumentsSize(invocation); position++) {
-            ArgumentMatcher m = matchers.get(position);
-            if (m instanceof CapturesArguments) {
-                ((CapturesArguments) m).captureFrom(invocation.getArgument(position));
-            }
-        }
-    }
-
-    private void captureVarargsPart(Invocation invocation) {
-        if (!invocation.getMethod().isVarArgs()) {
-            return;
-        }
-        int indexOfVararg = invocation.getRawArguments().length - 1;
-        for (ArgumentMatcher m : uniqueMatcherSet(indexOfVararg)) {
-            if (m instanceof CapturesArguments) {
-                Object rawArgument = invocation.getRawArguments()[indexOfVararg];
-                for (int i = 0; i < Array.getLength(rawArgument); i++) {
-                    ((CapturesArguments) m).captureFrom(Array.get(rawArgument, i));
+        for (int position = 0; position < matchers.size(); position++) {
+            Matcher m = matchers.get(position);
+            if (m instanceof CapturesArguments && invocation.getRawArguments().length > position) {
+                //TODO SF - this whole lot can be moved captureFrom implementation
+                if(isVariableArgument(invocation, position) && isVarargMatcher(m)) {
+                    Object array = invocation.getRawArguments()[position];
+                    for (int i = 0; i < Array.getLength(array); i++) {
+                        ((CapturesArguments) m).captureFrom(Array.get(array, i));
+                    }
+                    //since we've captured all varargs already, it does not make sense to process other matchers.
+                    return;
+                } else {
+                    ((CapturesArguments) m).captureFrom(invocation.getRawArguments()[position]);
                 }
             }
         }
     }
 
-    private int regularArgumentsSize(Invocation invocation) {
-        return invocation.getMethod().isVarArgs() ?
-                invocation.getRawArguments().length - 1 // ignores vararg holder array
-                : matchers.size();
+    private boolean isVarargMatcher(Matcher matcher) {
+        Matcher actualMatcher = matcher;
+        if (actualMatcher instanceof MatcherDecorator) {
+            actualMatcher = ((MatcherDecorator) actualMatcher).getActualMatcher();
+        }
+        return actualMatcher instanceof VarargMatcher;
     }
 
-    private Set<ArgumentMatcher> uniqueMatcherSet(int indexOfVararg) {
-        HashSet<ArgumentMatcher> set = new HashSet<ArgumentMatcher>();
-        for (int position = indexOfVararg; position < matchers.size(); position++) {
-            ArgumentMatcher matcher = matchers.get(position);
-            set.add(matcher);
-        }
-        return set;
+    private boolean isVariableArgument(Invocation invocation, int position) {
+        return invocation.getRawArguments().length - 1 == position
+                && invocation.getRawArguments()[position] != null
+                && invocation.getRawArguments()[position].getClass().isArray()
+                && invocation.getMethod().isVarArgs();
     }
 
     public static List<InvocationMatcher> createFrom(List<Invocation> invocations) {
         LinkedList<InvocationMatcher> out = new LinkedList<InvocationMatcher>();
+
         for (Invocation i : invocations) {
             out.add(new InvocationMatcher(i));
         }
+
         return out;
     }
 }
