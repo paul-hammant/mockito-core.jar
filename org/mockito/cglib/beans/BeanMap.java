@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.beans;
+package org.mockito.cglib.beans;
 
 import java.beans.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.cglib.core.*;
 
 /**
  * A <code>Map</code>-based view of a JavaBean.  The default set of keys is the

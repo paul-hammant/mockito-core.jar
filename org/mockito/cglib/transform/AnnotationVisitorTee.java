@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import org.objectweb.asm.AnnotationVisitor;
+import org.mockito.asm.AnnotationVisitor;
 
 public class AnnotationVisitorTee implements AnnotationVisitor {
     private AnnotationVisitor av1, av2;

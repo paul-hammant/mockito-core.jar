@@ -4,10 +4,11 @@
  */
 package org.mockito.exceptions.base;
 
-import java.util.Arrays;
+import org.mockito.internal.exceptions.base.ConditionalStackTraceFilter;
 
 
-public class MockitoAssertionError extends AssertionError implements HasStackTrace {
+
+public class MockitoAssertionError extends AssertionError {
 
     private static final long serialVersionUID = 1L;
     private StackTraceElement[] unfilteredStackTrace;
@@ -17,18 +18,8 @@ public class MockitoAssertionError extends AssertionError implements HasStackTra
 
         unfilteredStackTrace = getStackTrace();
         
-        StackTraceFilter filter = new StackTraceFilter();
-        filter.filterStackTrace(this);
-    }
-    
-    public MockitoAssertionError(String message, Throwable cause) {
-        this(message);
-
-        if (cause != null) {
-            this.initCause(cause);
-            CommonStackTraceRemover remover = new CommonStackTraceRemover();
-            remover.remove(this, Arrays.asList(cause.getStackTrace()));
-        }
+        ConditionalStackTraceFilter filter = new ConditionalStackTraceFilter();
+        filter.filter(this);
     }
 
     public StackTraceElement[] getUnfilteredStackTrace() {

@@ -33,4 +33,14 @@ public interface InvocationOnMock {
      * @return arguments
      */
     Object[] getArguments();
+
+    /**
+     * calls real method
+     * <p>
+     * <b>Warning:</b> depending on the real implementation it might throw exceptions  
+     *
+     * @return whatever the real method returns / throws
+     * @throws Throwable in case real method throws 
+     */
+    Object callRealMethod() throws Throwable;
 }

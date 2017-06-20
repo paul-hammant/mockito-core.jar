@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Member;
-import net.sf.cglib.core.CodeGenerationException;
+
+import org.mockito.cglib.core.CodeGenerationException;
 
 /**
  * This class is meant to be used as replacement for

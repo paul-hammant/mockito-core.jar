@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.FieldVisitor;
+import org.mockito.asm.AnnotationVisitor;
+import org.mockito.asm.Attribute;
+import org.mockito.asm.FieldVisitor;
 
 public class FieldVisitorTee implements FieldVisitor {
     private FieldVisitor fv1, fv2;

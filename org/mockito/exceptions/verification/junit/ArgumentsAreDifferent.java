@@ -4,32 +4,25 @@
  */
 package org.mockito.exceptions.verification.junit;
 
-import java.util.Arrays;
-
 import junit.framework.ComparisonFailure;
 
-import org.mockito.exceptions.base.CommonStackTraceRemover;
-import org.mockito.exceptions.base.HasStackTrace;
-import org.mockito.exceptions.base.StackTraceFilter;
+import org.mockito.internal.exceptions.base.ConditionalStackTraceFilter;
+import org.mockito.internal.util.RemoveFirstLine;
 
 
-public class ArgumentsAreDifferent extends ComparisonFailure implements HasStackTrace {
+public class ArgumentsAreDifferent extends ComparisonFailure {
     
     private static final long serialVersionUID = 1L;
     private final String message;
     private StackTraceElement[] unfilteredStackTrace;
 
-    public ArgumentsAreDifferent(String message, Throwable cause, String wanted, String actual) {
+    public ArgumentsAreDifferent(String message, String wanted, String actual) {
         super(message, wanted, actual);
         this.message = message;
         
         unfilteredStackTrace = getStackTrace();
-        StackTraceFilter filter = new StackTraceFilter();
-        filter.filterStackTrace(this);
-        
-        this.initCause(cause);
-        CommonStackTraceRemover remover = new CommonStackTraceRemover();
-        remover.remove(this, Arrays.asList(cause.getStackTrace()));
+        ConditionalStackTraceFilter filter = new ConditionalStackTraceFilter();
+        filter.filter(this);
     }
     
     @Override
@@ -39,5 +32,10 @@ public class ArgumentsAreDifferent extends ComparisonFailure implements HasStack
     
     public StackTraceElement[] getUnfilteredStackTrace() {
         return unfilteredStackTrace;
+    }
+    
+    @Override
+    public String toString() {
+        return new RemoveFirstLine().of(super.toString());
     }
 }

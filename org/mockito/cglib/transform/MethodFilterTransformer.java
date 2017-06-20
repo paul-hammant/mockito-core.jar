@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import org.objectweb.asm.*;
+import org.mockito.asm.*;
 
 public class MethodFilterTransformer extends AbstractClassTransformer {
     private MethodFilter filter;

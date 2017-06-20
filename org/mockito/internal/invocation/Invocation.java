@@ -9,60 +9,64 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.StringDescription;
 import org.mockito.exceptions.PrintableInvocation;
-import org.mockito.exceptions.base.HasStackTrace;
-import org.mockito.exceptions.base.MockitoException;
+import org.mockito.internal.debugging.Location;
+import org.mockito.internal.invocation.realmethod.RealMethod;
 import org.mockito.internal.matchers.ArrayEquals;
 import org.mockito.internal.matchers.Equals;
+import org.mockito.internal.matchers.MatchersPrinter;
+import org.mockito.internal.reporting.PrintSettings;
+import org.mockito.internal.reporting.PrintingFriendlyInvocation;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.util.Primitives;
 import org.mockito.invocation.InvocationOnMock;
 
 /**
- * Method call on a mock object. 
+ * Method call on a mock object.
  * <p>
- * Contains sequence number which should be
- * globally unique and is used for verification in order.
+ * Contains sequence number which should be globally unique and is used for
+ * verification in order.
  * <p>
  * Contains stack trace of invocation
  */
 @SuppressWarnings("unchecked")
-public class Invocation implements PrintableInvocation, InvocationOnMock, CanPrintInMultilines {
+public class Invocation implements PrintableInvocation, InvocationOnMock, PrintingFriendlyInvocation {
 
     private static final int MAX_LINE_LENGTH = 45;
     private final int sequenceNumber;
     private final Object mock;
     private final Method method;
     private final Object[] arguments;
-    private final HasStackTrace stackTrace;
+    private final Location location;
 
     private boolean verified;
     private boolean verifiedInOrder;
+    private Object[] rawArguments;
+    final RealMethod realMethod;
 
-    public Invocation(Object mock, Method method, Object[] args, int sequenceNumber) {
+    public Invocation(Object mock, Method method, Object[] args, int sequenceNumber, RealMethod realMethod) {
         this.mock = mock;
         this.method = method;
+        this.realMethod = realMethod;
         this.arguments = expandVarArgs(method.isVarArgs(), args);
+        this.rawArguments = args;
         this.sequenceNumber = sequenceNumber;
-        this.stackTrace = new MockitoException("");
+        this.location = new Location();
     }
 
-    //expands array varArgs that are given by runtime (1, [a, b]) into true varArgs (1, a, b);
-    private static Object[] expandVarArgs(final boolean isVarArgs,
-            final Object[] args) {
-        if (!isVarArgs || isVarArgs && args[args.length - 1] != null
-                && !args[args.length - 1].getClass().isArray()) {
+    // expands array varArgs that are given by runtime (1, [a, b]) into true
+    // varArgs (1, a, b);
+    private static Object[] expandVarArgs(final boolean isVarArgs, final Object[] args) {
+        if (!isVarArgs || isVarArgs && args[args.length - 1] != null && !args[args.length - 1].getClass().isArray()) {
             return args == null ? new Object[0] : args;
         }
-            
+
         final int nonVarArgsCount = args.length - 1;
-        Object[] varArgs;  
+        Object[] varArgs;
         if (args[nonVarArgsCount] == null) {
-            //in case someone deliberately passed null varArg array
-            varArgs = new Object[] {null};
+            // in case someone deliberately passed null varArg array
+            varArgs = new Object[] { null };
         } else {
             varArgs = ArrayEquals.createObjectArray(args[nonVarArgsCount]);
         }
@@ -85,29 +89,16 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
         return arguments;
     }
 
-    public void markVerified() {
-        verified = true;
-    }
-
     public boolean isVerified() {
         return verified;
     }
-    
+
     public Integer getSequenceNumber() {
         return sequenceNumber;
     }
 
-    public void markVerifiedInOrder() {
-        this.markVerified();
-        this.verifiedInOrder = true;
-    }
-
     public boolean isVerifiedInOrder() {
         return verifiedInOrder;
-    }
-    
-    public HasStackTrace getStackTrace() {
-        return stackTrace;
     }
 
     public boolean equals(Object o) {
@@ -117,8 +108,7 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
 
         Invocation other = (Invocation) o;
 
-        return this.mock.equals(other.mock) && this.method.equals(other.method)
-                && this.equalArguments(other.arguments);
+        return this.mock.equals(other.mock) && this.method.equals(other.method) && this.equalArguments(other.arguments);
     }
 
     private boolean equalArguments(Object[] arguments) {
@@ -128,45 +118,26 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
     public int hashCode() {
         throw new RuntimeException("hashCode() is not implemented");
     }
-    
+
     public String toString() {
-        return toString(argumentsToMatchers(), false);
+        return toString(argumentsToMatchers(), new PrintSettings());
     }
 
-    public boolean printsInMultilines() {
-        return toString().contains("\n");
-    }
-
-    public String toMultilineString() {
-        return toString(argumentsToMatchers(), true);
-    }    
-
-    protected String toString(List<Matcher> matchers, boolean forceMultiline) {
+    protected String toString(List<Matcher> matchers, PrintSettings printSettings) {
+        MatchersPrinter matchersPrinter = new MatchersPrinter();
         String method = qualifiedMethodName();
-        String invocation = method + getArgumentsLine(matchers);
-        if (forceMultiline || (!matchers.isEmpty() && invocation.length() > MAX_LINE_LENGTH)) {
-            return method + getArgumentsBlock(matchers);
+        String invocation = method + matchersPrinter.getArgumentsLine(matchers, printSettings);
+        if (printSettings.isMultiline() || (!matchers.isEmpty() && invocation.length() > MAX_LINE_LENGTH)) {
+            return method + matchersPrinter.getArgumentsBlock(matchers, printSettings);
         } else {
             return invocation;
         }
     }
 
     private String qualifiedMethodName() {
-        return MockUtil.getMockName(mock) + "." + method.getName();
+        return new MockUtil().getMockName(mock) + "." + method.getName();
     }
 
-    private String getArgumentsLine(List<Matcher> matchers) {
-        Description result = new StringDescription();
-        result.appendList("(", ", ", ");", matchers);
-        return result.toString();
-    }
-    
-    private String getArgumentsBlock(List<Matcher> matchers) {
-        Description result = new StringDescription();
-        result.appendList("(\n    ", ",\n    ", "\n);", matchers);
-        return result.toString();
-    }
-    
     protected List<Matcher> argumentsToMatchers() {
         List<Matcher> matchers = new ArrayList<Matcher>(arguments.length);
         for (Object arg : arguments) {
@@ -182,11 +153,10 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
     public static boolean isToString(InvocationOnMock invocation) {
         return isToString(invocation.getMethod());
     }
-    
+
     public static boolean isToString(Method method) {
-        return method.getReturnType() == String.class 
-        && method.getParameterTypes().length == 0 
-        && method.getName().equals("toString");
+        return method.getReturnType() == String.class && method.getParameterTypes().length == 0
+                && method.getName().equals("toString");
     }
 
     public boolean isValidException(Throwable throwable) {
@@ -197,10 +167,10 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     public boolean isValidReturnType(Class clazz) {
         if (method.getReturnType().isPrimitive()) {
             return Primitives.primitiveTypeOf(clazz) == method.getReturnType();
@@ -223,5 +193,34 @@ public class Invocation implements PrintableInvocation, InvocationOnMock, CanPri
 
     public boolean returnsPrimitive() {
         return method.getReturnType().isPrimitive();
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public int getArgumentsCount() {
+        return arguments.length;
+    }
+
+    public Object[] getRawArguments() {
+        return this.rawArguments;
+    }
+
+    public Object callRealMethod() throws Throwable {
+        return realMethod.invoke(mock, arguments);
+    }
+
+    public String toString(PrintSettings printSettings) {
+        return toString(argumentsToMatchers(), printSettings);
+    }
+
+    void markVerified() {
+        this.verified = true;
+    }
+
+    void markVerifiedInOrder() {
+        markVerified();
+        this.verifiedInOrder = true;
     }
 }

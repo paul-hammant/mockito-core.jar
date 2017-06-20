@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
-import org.objectweb.asm.Type;
+import org.mockito.asm.Type;
 
 public interface InterceptFieldFilter {
     boolean acceptRead(Type owner, String name);

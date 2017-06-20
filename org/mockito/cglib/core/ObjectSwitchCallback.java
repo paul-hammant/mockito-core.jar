@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
-import org.objectweb.asm.Label;
+import org.mockito.asm.Label;
 
 public interface ObjectSwitchCallback {
     void processCase(Object key, Label end) throws Exception;

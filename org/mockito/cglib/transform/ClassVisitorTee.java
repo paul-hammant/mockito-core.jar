@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import org.objectweb.asm.*;
+import org.mockito.asm.*;
 
 public class ClassVisitorTee implements ClassVisitor {
     private ClassVisitor cv1, cv2;

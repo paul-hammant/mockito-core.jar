@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
-import net.sf.cglib.core.CodeGenerationException;
+import org.mockito.cglib.core.CodeGenerationException;
 
 /**
  * Used by {@link Proxy} as a replacement for <code>java.lang.reflect.UndeclaredThrowableException</code>.

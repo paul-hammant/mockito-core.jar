@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
-import net.sf.cglib.core.ReflectUtils;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import org.mockito.cglib.core.ReflectUtils;
 
 /**
  * @version $Id: CallbackHelper.java,v 1.2 2004/06/24 21:15:20 herbyderby Exp $

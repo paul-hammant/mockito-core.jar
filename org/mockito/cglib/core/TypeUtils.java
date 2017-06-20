@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
 import java.util.*;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Type;
 
 public class TypeUtils {
     private static final Map transforms = new HashMap();

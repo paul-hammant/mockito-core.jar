@@ -27,7 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.signature;
+package org.mockito.asm.signature;
 
 /**
  * A visitor to visit a generic signature. The methods of this interface must be

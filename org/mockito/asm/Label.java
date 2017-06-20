@@ -27,7 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm;
+package org.mockito.asm;
 
 /**
  * A label represents a position in the bytecode of a method. Labels are used
@@ -101,7 +101,7 @@ public class Label {
      * Field used to associate user information to a label. Warning: this field
      * is used by the ASM tree package. In order to use it with the ASM tree
      * package you must override the {@link 
-     * org.objectweb.asm.tree.MethodNode#getLabelNode} method.
+     * org.mockito.asm.tree.MethodNode#getLabelNode} method.
      */
     public Object info;
 

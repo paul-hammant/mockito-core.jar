@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassVisitor;
+import org.mockito.asm.ClassAdapter;
+import org.mockito.asm.ClassVisitor;
 
 public class ClassTransformerTee extends ClassAdapter implements ClassTransformer {
     private ClassVisitor branch;

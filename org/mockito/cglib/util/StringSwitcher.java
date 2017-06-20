@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.util;
+package org.mockito.cglib.util;
 
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 /**
  * This class implements a simple String->int mapping for a fixed set of keys.
  */
 abstract public class StringSwitcher {
     private static final Type STRING_SWITCHER =
-      TypeUtils.parseType("net.sf.cglib.util.StringSwitcher");
+      TypeUtils.parseType("org.mockito.cglib.util.StringSwitcher");
     private static final Signature INT_VALUE =
       TypeUtils.parseSignature("int intValue(String)");
     private static final StringSwitcherKey KEY_FACTORY =

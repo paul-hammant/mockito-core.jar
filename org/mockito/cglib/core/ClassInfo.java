@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Type;
+import org.mockito.asm.Attribute;
+import org.mockito.asm.Type;
 
 abstract public class ClassInfo {
 

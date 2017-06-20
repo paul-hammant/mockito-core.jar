@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -21,8 +21,9 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.util.*;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Attribute;
+import org.mockito.asm.Type;
 
 /**
  * @version $Id: ReflectUtils.java,v 1.29 2006/02/28 00:30:51 herbyderby Exp $

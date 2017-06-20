@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
-import net.sf.cglib.core.*;
 import java.util.*;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 class InvocationHandlerGenerator
 implements CallbackGenerator
@@ -25,9 +26,9 @@ implements CallbackGenerator
     public static final InvocationHandlerGenerator INSTANCE = new InvocationHandlerGenerator();
 
     private static final Type INVOCATION_HANDLER =
-      TypeUtils.parseType("net.sf.cglib.proxy.InvocationHandler");
+      TypeUtils.parseType("org.mockito.cglib.proxy.InvocationHandler");
     private static final Type UNDECLARED_THROWABLE_EXCEPTION =
-      TypeUtils.parseType("net.sf.cglib.proxy.UndeclaredThrowableException");
+      TypeUtils.parseType("org.mockito.cglib.proxy.UndeclaredThrowableException");
     private static final Type METHOD =
       TypeUtils.parseType("java.lang.reflect.Method");
     private static final Signature INVOKE =

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
 import java.util.*;
-import net.sf.cglib.core.ClassGenerator;
-import org.objectweb.asm.*;
+
+import org.mockito.asm.*;
+import org.mockito.cglib.core.ClassGenerator;
 
 public class TransformingClassLoader extends AbstractClassLoader {
     private ClassTransformerFactory t;

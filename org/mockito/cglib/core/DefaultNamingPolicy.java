@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
 import java.util.Set;
 
 /**
  * The default policy used by {@link AbstractClassGenerator}.
  * Generates names such as
- * <p><code>net.sf.cglib.Foo$$EnhancerByCGLIB$$38272841</code><p>
+ * <p><code>org.mockito.cglib.Foo$$EnhancerByCGLIB$$38272841</code><p>
  * This is composed of a prefix based on the name of the superclass, a fixed
  * string incorporating the CGLIB class responsible for generation, and a
  * hashcode derived from the parameters used to create the object. If the same
@@ -32,7 +32,7 @@ public class DefaultNamingPolicy implements NamingPolicy {
     
     public String getClassName(String prefix, String source, Object key, Predicate names) {
         if (prefix == null) {
-            prefix = "net.sf.cglib.empty.Object";
+            prefix = "org.mockito.cglib.empty.Object";
         } else if (prefix.startsWith("java")) {
             prefix = "$" + prefix;
         }

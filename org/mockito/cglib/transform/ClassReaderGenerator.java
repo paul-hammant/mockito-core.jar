@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import net.sf.cglib.core.ClassGenerator;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
+import org.mockito.asm.Attribute;
+import org.mockito.asm.ClassReader;
+import org.mockito.asm.ClassVisitor;
+import org.mockito.cglib.core.ClassGenerator;
 
 public class ClassReaderGenerator implements ClassGenerator {
     private final ClassReader r;

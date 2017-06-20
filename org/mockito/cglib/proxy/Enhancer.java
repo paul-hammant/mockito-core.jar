@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.Label;
+
+import org.mockito.asm.Attribute;
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 /**
  * Generates dynamic subclasses to enable method interception. This
@@ -77,7 +78,7 @@ public class Enhancer extends AbstractClassGenerator
     private static final String CONSTRUCTED_FIELD = "CGLIB$CONSTRUCTED";
 
     private static final Type FACTORY =
-      TypeUtils.parseType("net.sf.cglib.proxy.Factory");
+      TypeUtils.parseType("org.mockito.cglib.proxy.Factory");
     private static final Type ILLEGAL_STATE_EXCEPTION =
       TypeUtils.parseType("IllegalStateException");
     private static final Type ILLEGAL_ARGUMENT_EXCEPTION =
@@ -85,7 +86,7 @@ public class Enhancer extends AbstractClassGenerator
     private static final Type THREAD_LOCAL =
       TypeUtils.parseType("ThreadLocal");
     private static final Type CALLBACK =
-      TypeUtils.parseType("net.sf.cglib.proxy.Callback");
+      TypeUtils.parseType("org.mockito.cglib.proxy.Callback");
     private static final Type CALLBACK_ARRAY =
       Type.getType(Callback[].class);
     private static final Signature CSTRUCT_NULL =

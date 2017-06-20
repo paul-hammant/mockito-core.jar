@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 /**
  * @author Chris Nokleberg
@@ -30,7 +31,7 @@ class MixinEmitter extends ClassEmitter {
     private static final Signature CSTRUCT_OBJECT_ARRAY =
       TypeUtils.parseConstructor("Object[]");
     private static final Type MIXIN =
-      TypeUtils.parseType("net.sf.cglib.proxy.Mixin");
+      TypeUtils.parseType("org.mockito.cglib.proxy.Mixin");
     private static final Signature NEW_INSTANCE =
       new Signature("newInstance", MIXIN, new Type[]{ Constants.TYPE_OBJECT_ARRAY });
 

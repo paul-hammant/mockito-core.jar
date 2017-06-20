@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.reflect;
+package org.mockito.cglib.reflect;
 
-import net.sf.cglib.core.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 abstract public class FastClass
 {

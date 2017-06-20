@@ -13,20 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.zip.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
-import net.sf.cglib.core.*;
 import org.apache.tools.ant.*;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.ProjectComponent;
-import org.objectweb.asm.*;
+import org.mockito.asm.*;
+import org.mockito.cglib.core.*;
 
 abstract public class AbstractTransformTask extends AbstractProcessTask {
     private static final int ZIP_MAGIC = 0x504B0304;

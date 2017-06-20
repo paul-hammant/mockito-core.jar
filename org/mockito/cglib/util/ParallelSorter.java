@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.util;
+package org.mockito.cglib.util;
 
 import java.lang.reflect.*;
 import java.util.Comparator;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.cglib.core.*;
 
 /**
  * For the efficient sorting of multiple arrays in parallel.

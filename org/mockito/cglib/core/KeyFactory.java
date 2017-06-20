@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
 import java.lang.reflect.Method;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
 
 /**
  * Generates classes to handle multi-valued keys, for use in things such as Maps and Sets.
@@ -64,7 +65,7 @@ abstract public class KeyFactory {
     private static final Signature APPEND_STRING =
       TypeUtils.parseSignature("StringBuffer append(String)");
     private static final Type KEY_FACTORY =
-      TypeUtils.parseType("net.sf.cglib.core.KeyFactory");
+      TypeUtils.parseType("org.mockito.cglib.core.KeyFactory");
     
     //generated numbers: 
     private final static int PRIMES[] = {

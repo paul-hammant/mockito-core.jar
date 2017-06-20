@@ -6,16 +6,19 @@ package org.mockito.internal.verification.checkers;
 
 import java.util.List;
 
+import org.mockito.exceptions.Discrepancy;
 import org.mockito.exceptions.Reporter;
-import org.mockito.exceptions.base.HasStackTrace;
+import org.mockito.internal.debugging.Location;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
+import org.mockito.internal.invocation.InvocationMarker;
 import org.mockito.internal.invocation.InvocationsFinder;
 
 public class NumberOfInvocationsInOrderChecker {
     
     private final Reporter reporter;
     private final InvocationsFinder finder;
+    private final InvocationMarker invocationMarker = new InvocationMarker();
     
     public NumberOfInvocationsInOrderChecker() {
         this(new InvocationsFinder(), new Reporter());
@@ -32,15 +35,13 @@ public class NumberOfInvocationsInOrderChecker {
         int actualCount = chunk.size();
         
         if (wantedCount > actualCount) {
-            HasStackTrace lastInvocation = finder.getLastStackTrace(chunk);
-            reporter.tooLittleActualInvocationsInOrder(wantedCount, actualCount, wanted, lastInvocation);
+            Location lastInvocation = finder.getLastLocation(chunk);
+            reporter.tooLittleActualInvocationsInOrder(new Discrepancy(wantedCount, actualCount), wanted, lastInvocation);
         } else if (wantedCount < actualCount) {
-            HasStackTrace firstUndesired = chunk.get(wantedCount).getStackTrace();
+            Location firstUndesired = chunk.get(wantedCount).getLocation();
             reporter.tooManyActualInvocationsInOrder(wantedCount, actualCount, wanted, firstUndesired);
         }
         
-        for (Invocation i : chunk) {
-            i.markVerifiedInOrder();
-        }
+        invocationMarker.markVerifiedInOrder(chunk, wanted);
     }
 }

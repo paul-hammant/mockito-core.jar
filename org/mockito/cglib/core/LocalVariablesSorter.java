@@ -27,13 +27,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.mockito.asm.Label;
+import org.mockito.asm.MethodAdapter;
+import org.mockito.asm.MethodVisitor;
+import org.mockito.asm.Opcodes;
+import org.mockito.asm.Type;
 
 /**
  * A {@link MethodAdapter} that renumbers local variables in their order of

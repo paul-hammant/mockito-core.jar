@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
 import java.lang.reflect.Method;
-import net.sf.cglib.core.*;
-import net.sf.cglib.transform.*;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
+import org.mockito.cglib.transform.*;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg

@@ -5,20 +5,25 @@
 package org.mockito.internal.invocation;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 
 import org.hamcrest.Matcher;
 import org.mockito.exceptions.PrintableInvocation;
+import org.mockito.internal.debugging.Location;
+import org.mockito.internal.matchers.CapturesArguments;
+import org.mockito.internal.reporting.PrintSettings;
+import org.mockito.internal.reporting.PrintingFriendlyInvocation;
 
 @SuppressWarnings("unchecked")
-public class InvocationMatcher implements PrintableInvocation, CanPrintInMultilines {
+public class InvocationMatcher implements PrintableInvocation, PrintingFriendlyInvocation, CapturesArgumensFromInvocation {
 
     private final Invocation invocation;
     private final List<Matcher> matchers;
 
     public InvocationMatcher(Invocation invocation, List<Matcher> matchers) {
         this.invocation = invocation;
-        if (matchers == null) {
+        if (matchers.isEmpty()) {
             this.matchers = invocation.argumentsToMatchers();
         } else {
             this.matchers = matchers;
@@ -26,7 +31,7 @@ public class InvocationMatcher implements PrintableInvocation, CanPrintInMultili
     }
     
     public InvocationMatcher(Invocation invocation) {
-        this(invocation, null);
+        this(invocation, Collections.<Matcher>emptyList());
     }
 
     public Method getMethod() {
@@ -41,44 +46,34 @@ public class InvocationMatcher implements PrintableInvocation, CanPrintInMultili
         return this.matchers;
     }
     
-    /* (non-Javadoc)
-     * @see org.mockito.internal.invocation.CanPrintInMultilines#toString()
-     */
     public String toString() {
-        return invocation.toString(matchers, false);
+        return invocation.toString(matchers, new PrintSettings());
     }
-
-    /* (non-Javadoc)
-     * @see org.mockito.internal.invocation.CanPrintInMultilines#hasMultilinePrint()
-     */
-    public boolean printsInMultilines() {        
-        return toString().contains("\n");
-    }
-
-    /* (non-Javadoc)
-     * @see org.mockito.internal.invocation.CanPrintInMultilines#toMultilineString()
-     */
-    public String toMultilineString() {
-        return invocation.toString(matchers, true);
-    }    
 
     public boolean matches(Invocation actual) {
         return invocation.getMock().equals(actual.getMock())
                 && hasSameMethod(actual)
-                && argumentsMatch(actual);
+                && (argumentsMatch(actual.getArguments()));
     }
 
-    private boolean argumentsMatch(Invocation actual) {
-        Object[] arguments = actual.getArguments();
-        if (arguments.length != matchers.size()) {
+    private boolean argumentsMatch(Object[] actualArgs) {
+        if (actualArgs.length != matchers.size()) {
             return false;
         }
-        for (int i = 0; i < arguments.length; i++) {
-            if (!matchers.get(i).matches(arguments[i])) {
+        for (int i = 0; i < actualArgs.length; i++) {
+            if (!matchers.get(i).matches(actualArgs[i])) {
                 return false;
             }
         }
         return true;
+    }
+    
+    private boolean safelyArgumentsMatch(Object[] actualArgs) {
+        try {
+            return argumentsMatch(actualArgs);
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /**
@@ -93,7 +88,7 @@ public class InvocationMatcher implements PrintableInvocation, CanPrintInMultili
         final boolean isUnverified = !candidate.isVerified();
         final boolean mockIsTheSame = getInvocation().getMock() == candidate.getMock();
         final boolean methodEquals = hasSameMethod(candidate);
-        final boolean overloadedButSameArgs = !methodEquals && argumentsMatch(candidate);        
+        final boolean overloadedButSameArgs = !methodEquals && safelyArgumentsMatch(candidate.getArguments());        
         
         if (methodNameEquals && isUnverified && mockIsTheSame && !overloadedButSameArgs) {
             return true;
@@ -104,5 +99,23 @@ public class InvocationMatcher implements PrintableInvocation, CanPrintInMultili
 
     public boolean hasSameMethod(Invocation candidate) {
         return invocation.getMethod().equals(candidate.getMethod());
+    }
+    
+    public Location getLocation() {
+        return invocation.getLocation();
+    }
+
+    public String toString(PrintSettings printSettings) {
+        return invocation.toString(matchers, printSettings);
+    }
+
+    public void captureArgumentsFrom(Invocation i) {
+        int k = 0;
+        for (Matcher m : matchers) {
+            if (m instanceof CapturesArguments) {
+                ((CapturesArguments) m).captureFrom(i.getArguments()[k]);
+            }
+            k++;
+        }
     }
 }

@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.beans;
+package org.mockito.cglib.beans;
 
 import java.beans.*;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 class BeanMapEmitter extends ClassEmitter {
     private static final Type BEAN_MAP =
-      TypeUtils.parseType("net.sf.cglib.beans.BeanMap");
+      TypeUtils.parseType("org.mockito.cglib.beans.BeanMap");
     private static final Type FIXED_KEY_SET =
-      TypeUtils.parseType("net.sf.cglib.beans.FixedKeySet");
+      TypeUtils.parseType("org.mockito.cglib.beans.FixedKeySet");
     private static final Signature CSTRUCT_OBJECT =
       TypeUtils.parseConstructor("Object");
     private static final Signature CSTRUCT_STRING_ARRAY =

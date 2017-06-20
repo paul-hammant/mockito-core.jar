@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 class MethodInterceptorGenerator
 implements CallbackGenerator
@@ -35,11 +36,11 @@ implements CallbackGenerator
     private static final Type METHOD =
       TypeUtils.parseType("java.lang.reflect.Method");
     private static final Type REFLECT_UTILS =
-      TypeUtils.parseType("net.sf.cglib.core.ReflectUtils");
+      TypeUtils.parseType("org.mockito.cglib.core.ReflectUtils");
     private static final Type METHOD_PROXY =
-      TypeUtils.parseType("net.sf.cglib.proxy.MethodProxy");
+      TypeUtils.parseType("org.mockito.cglib.proxy.MethodProxy");
     private static final Type METHOD_INTERCEPTOR =
-      TypeUtils.parseType("net.sf.cglib.proxy.MethodInterceptor");
+      TypeUtils.parseType("org.mockito.cglib.proxy.MethodInterceptor");
     private static final Signature GET_DECLARED_METHODS =
       TypeUtils.parseSignature("java.lang.reflect.Method[] getDeclaredMethods()");
     private static final Signature GET_DECLARING_CLASS =

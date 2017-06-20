@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.util.Iterator;
 import java.util.List;
-import net.sf.cglib.core.*;
+
+import org.mockito.cglib.core.*;
 
 class NoOpGenerator
 implements CallbackGenerator

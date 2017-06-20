@@ -7,27 +7,27 @@ package org.mockito.internal.verification.checkers;
 import java.util.List;
 
 import org.mockito.exceptions.Reporter;
-import org.mockito.exceptions.base.HasStackTrace;
+import org.mockito.internal.debugging.Location;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
+import org.mockito.internal.invocation.InvocationMarker;
 import org.mockito.internal.invocation.InvocationsFinder;
 
 public class AtLeastXNumberOfInvocationsChecker {
     
     private final Reporter reporter = new Reporter();
     private final InvocationsFinder finder = new InvocationsFinder();
+    private final InvocationMarker invocationMarker = new InvocationMarker();
 
     public void check(List<Invocation> invocations, InvocationMatcher wanted, int wantedCount) {
         List<Invocation> actualInvocations = finder.findInvocations(invocations, wanted);
         
         int actualCount = actualInvocations.size();
         if (wantedCount > actualCount) {
-            HasStackTrace lastInvocation = finder.getLastStackTrace(actualInvocations);
-            reporter.tooLittleActualInvocationsInAtLeastMode(wantedCount, actualCount, wanted, lastInvocation);        
+            Location lastLocation = finder.getLastLocation(actualInvocations);
+            reporter.tooLittleActualInvocations(new AtLeastDiscrepancy(wantedCount, actualCount), wanted, lastLocation);        
         }
         
-        for (Invocation i : actualInvocations) {
-            i.markVerified();
-        }
+        invocationMarker.markVerified(invocations, wanted);
     }
 }

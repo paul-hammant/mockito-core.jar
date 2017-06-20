@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
-import org.objectweb.asm.Type;
+import org.mockito.asm.Type;
 
 /**
  * @author Juozas Baliuka <a href="mailto:baliuka@mwm.lt">baliuka@mwm.lt</a>
  * @version $Id: Constants.java,v 1.21 2006/03/05 02:43:19 herbyderby Exp $
  */
-public interface Constants extends org.objectweb.asm.Opcodes {
+public interface Constants extends org.mockito.asm.Opcodes {
     public static final Class[] EMPTY_CLASS_ARRAY = {};
     public static final Type[] TYPES_EMPTY = {};
 
@@ -52,7 +52,7 @@ public interface Constants extends org.objectweb.asm.Opcodes {
     public static final Type TYPE_RUNTIME_EXCEPTION = TypeUtils.parseType("RuntimeException");
     public static final Type TYPE_ERROR = TypeUtils.parseType("Error");
     public static final Type TYPE_SYSTEM = TypeUtils.parseType("System");
-    public static final Type TYPE_SIGNATURE = TypeUtils.parseType("net.sf.cglib.core.Signature");
+    public static final Type TYPE_SIGNATURE = TypeUtils.parseType("org.mockito.cglib.core.Signature");
     
     public static final String CONSTRUCTOR_NAME = "<init>";
     public static final String STATIC_NAME = "<clinit>";

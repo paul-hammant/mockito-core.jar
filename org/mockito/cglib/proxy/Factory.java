@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 /**
  * All enhanced instances returned by the {@link Enhancer} class implement this interface.

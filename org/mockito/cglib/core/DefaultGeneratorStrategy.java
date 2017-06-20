@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
-import org.objectweb.asm.ClassWriter;
+import org.mockito.asm.ClassWriter;
 
 public class DefaultGeneratorStrategy implements GeneratorStrategy {
     public static final DefaultGeneratorStrategy INSTANCE = new DefaultGeneratorStrategy();

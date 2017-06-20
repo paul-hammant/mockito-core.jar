@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import net.sf.cglib.core.ClassEmitter;
+import org.mockito.cglib.core.ClassEmitter;
 
 abstract public class ClassEmitterTransformer extends ClassEmitter implements ClassTransformer {
 }

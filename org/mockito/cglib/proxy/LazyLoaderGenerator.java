@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 class LazyLoaderGenerator implements CallbackGenerator {
     public static final LazyLoaderGenerator INSTANCE = new LazyLoaderGenerator();
@@ -26,7 +27,7 @@ class LazyLoaderGenerator implements CallbackGenerator {
     private static final Signature LOAD_OBJECT = 
       TypeUtils.parseSignature("Object loadObject()");
     private static final Type LAZY_LOADER =
-      TypeUtils.parseType("net.sf.cglib.proxy.LazyLoader");
+      TypeUtils.parseType("org.mockito.cglib.proxy.LazyLoader");
 
     public void generate(ClassEmitter ce, Context context, List methods) {
         Set indexes = new HashSet();

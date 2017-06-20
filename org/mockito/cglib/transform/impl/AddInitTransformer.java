@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
 import java.lang.reflect.Method;
 
-import net.sf.cglib.core.CodeEmitter;
-import net.sf.cglib.core.Constants;
-import net.sf.cglib.core.MethodInfo;
-import net.sf.cglib.core.ReflectUtils;
-import net.sf.cglib.core.Signature;
-import net.sf.cglib.transform.ClassEmitterTransformer;
 
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Type;
+import org.mockito.asm.Attribute;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.CodeEmitter;
+import org.mockito.cglib.core.Constants;
+import org.mockito.cglib.core.MethodInfo;
+import org.mockito.cglib.core.ReflectUtils;
+import org.mockito.cglib.core.Signature;
+import org.mockito.cglib.transform.ClassEmitterTransformer;
 
 /**
  * @author	Mark Hobson

@@ -8,30 +8,30 @@ import org.mockito.ReturnValues;
 import org.mockito.configuration.AnnotationEngine;
 import org.mockito.configuration.DefaultMockitoConfiguration;
 import org.mockito.configuration.IMockitoConfiguration;
+import org.mockito.stubbing.Answer;
 
 /**
  * Thread-safe wrapper on user-defined org.mockito.configuration.MockitoConfiguration implementation
  */
+@SuppressWarnings("deprecation")//supressed until ReturnValues are removed
 public class GlobalConfiguration implements IMockitoConfiguration {
     
     private static ThreadLocal<IMockitoConfiguration> globalConfiguration = new ThreadLocal<IMockitoConfiguration>();
 
+    //back door for testing
+    IMockitoConfiguration getIt() {
+        return globalConfiguration.get();
+    }
+    
     public GlobalConfiguration() {
         //Configuration should be loaded only once but I cannot really test it
         if (globalConfiguration.get() == null) {
-            globalConfiguration.set(getConfig());
+            globalConfiguration.set(createConfig());
         }
     }
     
-    @SuppressWarnings("deprecation")
-    IMockitoConfiguration getConfig() {
-        IMockitoConfiguration defaultConfiguration = new DefaultMockitoConfiguration() {
-            @Override public ReturnValues getReturnValues() {
-                //For now, let's leave the deprecated way of getting return values, 
-                //it will go away, replaced simply by return new DefaultReturnValues()
-                return Configuration.instance().getReturnValues();
-            }
-        };
+    private IMockitoConfiguration createConfig() {
+        IMockitoConfiguration defaultConfiguration = new DefaultMockitoConfiguration();
         IMockitoConfiguration config = new ClassPathLoader().loadConfiguration();
         if (config != null) {
             return config;
@@ -39,7 +39,7 @@ public class GlobalConfiguration implements IMockitoConfiguration {
             return defaultConfiguration;
         }
     }
-
+    
     public static void validate() {
         new GlobalConfiguration();
     }
@@ -50,5 +50,13 @@ public class GlobalConfiguration implements IMockitoConfiguration {
 
     public AnnotationEngine getAnnotationEngine() {
         return globalConfiguration.get().getAnnotationEngine();
+    }
+
+    public boolean cleansStackTrace() {
+        return globalConfiguration.get().cleansStackTrace();
+    }
+
+    public Answer<Object> getDefaultAnswer() {
+        return globalConfiguration.get().getDefaultAnswer();
     }
 }

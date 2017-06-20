@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
 import java.io.*;
 import java.util.*;
 import java.lang.ref.*;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassReader;
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.ClassWriter;
+import org.mockito.asm.Type;
 
 /**
  * Abstract class for all code-generating CGLIB utilities.

@@ -4,19 +4,28 @@
  */
 package org.mockito.runners;
 
-import org.junit.internal.runners.InitializationError;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * <b>JUnit 4.4</b> runner initializes mocks annotated with {@link Mock},
- * so that explicit usage of {@link MockitoAnnotations#initMocks(Object)} is not necessary. 
- * Mocks are initialized before each test method. 
+ * <b>Deprecated: Simply use {@link MockitoJUnitRunner}</b>
  * <p>
+ * Compatible only with <b>JUnit 4.4</b>, this runner adds following behavior:
+ * <ul>
+ *   <li>
+ *      Initializes mocks annotated with {@link Mock},
+ *      so that explicit usage of {@link MockitoAnnotations#initMocks(Object)} is not necessary. 
+ *      Mocks are initialized before each test method.
+ *   <li>
+ *      validates framework usage after each test method. See javadoc for {@link Mockito#validateMockitoUsage()}.
+ * </ul>
+ * 
  * Runner is completely optional - there are other ways you can get &#064;Mock working, for example by writing a base class.
+ * Explicitly validating framework usage is also optional because it is triggered automatically by Mockito every time you use the framework.
+ * See javadoc for {@link Mockito#validateMockitoUsage()}.
  * <p>
- * Read more in javadoc for {@link MockitoAnnotations}
+ * Read more about &#064;Mock annotation in javadoc for {@link MockitoAnnotations}
  * <p>
  * Example:
  * <pre>
@@ -35,17 +44,10 @@ import org.mockito.MockitoAnnotations;
  * 
  * </pre>
  */
-@SuppressWarnings("deprecation")
-public class MockitoJUnit44Runner extends JUnit4ClassRunner {
+@Deprecated
+public class MockitoJUnit44Runner extends MockitoJUnitRunner {
 
-    public MockitoJUnit44Runner(Class<?> klass) throws InitializationError {
+    public MockitoJUnit44Runner(Class<?> klass) {
         super(klass);
-    }
-
-    @Override
-    protected Object createTest() throws Exception {
-        Object test = super.createTest();
-        MockitoAnnotations.initMocks(test);
-        return test;
     }
 }

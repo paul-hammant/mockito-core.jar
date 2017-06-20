@@ -5,6 +5,7 @@
 package org.mockito.internal.progress;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -13,19 +14,20 @@ import org.hamcrest.Matcher;
 import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.internal.matchers.And;
+import org.mockito.internal.matchers.LocalizedMatcher;
 import org.mockito.internal.matchers.Not;
 import org.mockito.internal.matchers.Or;
 
 @SuppressWarnings("unchecked")
 public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
     
-    private Stack<Matcher> matcherStack = new Stack<Matcher>();
+    private Stack<LocalizedMatcher> matcherStack = new Stack<LocalizedMatcher>();
     
     /* (non-Javadoc)
      * @see org.mockito.internal.progress.ArgumentMatcherStorage#reportMatcher(org.hamcrest.Matcher)
      */
     public HandyReturnValues reportMatcher(Matcher matcher) {
-        matcherStack.push(matcher);
+        matcherStack.push(new LocalizedMatcher(matcher));
         return new HandyReturnValues();
     }
 
@@ -34,12 +36,12 @@ public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
      */
     public List<Matcher> pullMatchers() {
         if (matcherStack.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         
-        ArrayList<Matcher> matchers = new ArrayList<Matcher>(matcherStack);
+        List<LocalizedMatcher> matchers = new ArrayList<LocalizedMatcher>(matcherStack);
         matcherStack.clear();
-        return matchers;
+        return (List) matchers;
     }
 
     /* (non-Javadoc)
@@ -47,7 +49,8 @@ public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
      */
     public HandyReturnValues reportAnd() {
         assertState(!matcherStack.isEmpty(), "No matchers found for And(?).");
-        matcherStack.push(new And(popLastArgumentMatchers(2)));
+        And and = new And(popLastArgumentMatchers(2));
+        matcherStack.push(new LocalizedMatcher(and));
         return new HandyReturnValues();
     }
 
@@ -56,7 +59,8 @@ public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
      */
     public HandyReturnValues reportNot() {
         assertState(!matcherStack.isEmpty(), "No matchers found for Not(?).");
-        matcherStack.push(new Not(popLastArgumentMatchers(1).get(0)));
+        Not not = new Not(popLastArgumentMatchers(1).get(0));
+        matcherStack.push(new LocalizedMatcher(not));
         return new HandyReturnValues();
     }
 
@@ -84,7 +88,8 @@ public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
      */
     public HandyReturnValues reportOr() {
         assertState(!matcherStack.isEmpty(), "No matchers found.");
-        matcherStack.push(new Or(popLastArgumentMatchers(2)));
+        Or or = new Or(popLastArgumentMatchers(2));
+        matcherStack.push(new LocalizedMatcher(or));
         return new HandyReturnValues();
     }
 
@@ -93,8 +98,9 @@ public class ArgumentMatcherStorageImpl implements ArgumentMatcherStorage {
      */
     public void validateState() {
         if (!matcherStack.isEmpty()) {
+            LocalizedMatcher lastMatcher = matcherStack.lastElement();
             matcherStack.clear();
-            new Reporter().misplacedArgumentMatcher();
+            new Reporter().misplacedArgumentMatcher(lastMatcher.getLocation());
         }
     }
 

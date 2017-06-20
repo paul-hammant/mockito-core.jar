@@ -8,12 +8,11 @@ import org.mockito.internal.debugging.DebuggingInfo;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.verification.api.VerificationMode;
 
-@SuppressWarnings("unchecked")
 public interface MockingProgress {
     
-    void reportOngoingStubbing(OngoingStubbing ongoingStubbing);
+    void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing);
 
-    OngoingStubbing pullOngoingStubbing();
+    IOngoingStubbing pullOngoingStubbing();
 
     void verificationStarted(VerificationMode verificationMode);
 

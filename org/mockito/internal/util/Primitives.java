@@ -7,22 +7,28 @@ package org.mockito.internal.util;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("unchecked")
 public class Primitives {
     
     public static boolean isPrimitiveWrapper(Class<?> type) {
         return wrapperReturnValues.containsKey(type);
     }
     
-    public static Object primitiveWrapperOf(Class<?> type) {
-        return wrapperReturnValues.get(type);
+    public static <T> T primitiveWrapperOf(Class<T> type) {
+        return (T) wrapperReturnValues.get(type);
     }
     
-    public static Class<?> primitiveTypeOf(Class<?> clazz) {
-        return primitiveTypes.get(clazz);
+    public static <T> Class<T> primitiveTypeOf(Class<T> clazz) {
+        return (Class<T>) primitiveTypes.get(clazz);
+    }
+    
+    public static <T> T primitiveValueFor(Class<T> primitiveType) {
+        return (T) primitiveValues.get(primitiveType);
     }
     
     private static Map<Class<?>, Object> wrapperReturnValues = new HashMap<Class<?>, Object>();
     private static Map<Class<?>, Class<?>> primitiveTypes = new HashMap<Class<?>, Class<?>>();
+    private static Map<Class<?>, Object> primitiveValues = new HashMap<Class<?>, Object>();
     
     static {
         wrapperReturnValues.put(Boolean.class, Boolean.FALSE);
@@ -44,5 +50,16 @@ public class Primitives {
         primitiveTypes.put(Long.class, Long.TYPE);
         primitiveTypes.put(Float.class, Float.TYPE);
         primitiveTypes.put(Double.class, Double.TYPE);
+    }
+
+    static {
+        primitiveValues.put(boolean.class, false);
+        primitiveValues.put(char.class, 0);
+        primitiveValues.put(byte.class, 0);
+        primitiveValues.put(short.class, 0);
+        primitiveValues.put(int.class, 0);
+        primitiveValues.put(long.class, 0);
+        primitiveValues.put(float.class, 0);
+        primitiveValues.put(double.class, 0);
     }
 }

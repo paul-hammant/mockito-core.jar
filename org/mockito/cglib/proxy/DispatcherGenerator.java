@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 class DispatcherGenerator implements CallbackGenerator {
     public static final DispatcherGenerator INSTANCE =
@@ -26,9 +27,9 @@ class DispatcherGenerator implements CallbackGenerator {
       new DispatcherGenerator(true);
 
     private static final Type DISPATCHER =
-      TypeUtils.parseType("net.sf.cglib.proxy.Dispatcher");
+      TypeUtils.parseType("org.mockito.cglib.proxy.Dispatcher");
     private static final Type PROXY_REF_DISPATCHER =
-      TypeUtils.parseType("net.sf.cglib.proxy.ProxyRefDispatcher");
+      TypeUtils.parseType("org.mockito.cglib.proxy.ProxyRefDispatcher");
     private static final Signature LOAD_OBJECT =
       TypeUtils.parseSignature("Object loadObject()");
     private static final Signature PROXY_REF_LOAD_OBJECT =

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
 /**
  *

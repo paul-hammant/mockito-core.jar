@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.TraceClassVisitor;
+import org.mockito.asm.ClassReader;
+import org.mockito.asm.ClassWriter;
+import org.mockito.asm.util.TraceClassVisitor;
 
 import java.io.*;
 
@@ -36,7 +36,7 @@ public class DebuggingClassWriter extends ClassWriter {
         if (debugLocation != null) {
             System.err.println("CGLIB debugging enabled, writing to '" + debugLocation + "'");
             try {
-                Class.forName("org.objectweb.asm.util.TraceClassVisitor");
+                Class.forName("org.mockito.asm.util.TraceClassVisitor");
                 traceEnabled = true;
             } catch (Throwable ignore) {
             }

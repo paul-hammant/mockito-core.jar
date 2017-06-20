@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.cglib.core.*;
 
 
 

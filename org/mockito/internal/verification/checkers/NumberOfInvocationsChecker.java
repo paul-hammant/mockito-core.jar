@@ -6,16 +6,19 @@ package org.mockito.internal.verification.checkers;
 
 import java.util.List;
 
+import org.mockito.exceptions.Discrepancy;
 import org.mockito.exceptions.Reporter;
-import org.mockito.exceptions.base.HasStackTrace;
+import org.mockito.internal.debugging.Location;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
+import org.mockito.internal.invocation.InvocationMarker;
 import org.mockito.internal.invocation.InvocationsFinder;
 
 public class NumberOfInvocationsChecker {
     
     private final Reporter reporter;
     private final InvocationsFinder finder;
+    private final InvocationMarker invocationMarker = new InvocationMarker();
 
     public NumberOfInvocationsChecker() {
         this(new Reporter(), new InvocationsFinder());
@@ -31,18 +34,16 @@ public class NumberOfInvocationsChecker {
         
         int actualCount = actualInvocations.size();
         if (wantedCount > actualCount) {
-            HasStackTrace lastInvocation = finder.getLastStackTrace(actualInvocations);
-            reporter.tooLittleActualInvocations(wantedCount, actualCount, wanted, lastInvocation);
+            Location lastInvocation = finder.getLastLocation(actualInvocations);
+            reporter.tooLittleActualInvocations(new Discrepancy(wantedCount, actualCount), wanted, lastInvocation);
         } else if (wantedCount == 0 && actualCount > 0) {
-            HasStackTrace firstUndesired = actualInvocations.get(wantedCount).getStackTrace();
+            Location firstUndesired = actualInvocations.get(wantedCount).getLocation();
             reporter.neverWantedButInvoked(wanted, firstUndesired); 
         } else if (wantedCount < actualCount) {
-            HasStackTrace firstUndesired = actualInvocations.get(wantedCount).getStackTrace();
+            Location firstUndesired = actualInvocations.get(wantedCount).getLocation();
             reporter.tooManyActualInvocations(wantedCount, actualCount, wanted, firstUndesired);
         }
         
-        for (Invocation i : actualInvocations) {
-            i.markVerified();
-        }
+        invocationMarker.markVerified(actualInvocations, wanted);
     }
 }

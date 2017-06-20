@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
-import net.sf.cglib.transform.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+import org.mockito.asm.Attribute;
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Label;
+import org.mockito.asm.MethodAdapter;
+import org.mockito.asm.MethodVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
+import org.mockito.cglib.transform.*;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
@@ -30,9 +30,9 @@ import org.objectweb.asm.Type;
 public class InterceptFieldTransformer extends ClassEmitterTransformer {
     private static final String CALLBACK_FIELD = "$CGLIB_READ_WRITE_CALLBACK";
     private static final Type CALLBACK =
-      TypeUtils.parseType("net.sf.cglib.transform.impl.InterceptFieldCallback");
+      TypeUtils.parseType("org.mockito.cglib.transform.impl.InterceptFieldCallback");
     private static final Type ENABLED =
-      TypeUtils.parseType("net.sf.cglib.transform.impl.InterceptFieldEnabled");
+      TypeUtils.parseType("org.mockito.cglib.transform.impl.InterceptFieldEnabled");
     private static final Signature ENABLED_SET =
       new Signature("setInterceptFieldCallback", Type.VOID_TYPE, new Type[]{ CALLBACK });
     private static final Signature ENABLED_GET =

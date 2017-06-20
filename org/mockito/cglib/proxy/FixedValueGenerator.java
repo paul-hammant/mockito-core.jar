@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.proxy;
+package org.mockito.cglib.proxy;
 
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 class FixedValueGenerator implements CallbackGenerator {
     public static final FixedValueGenerator INSTANCE = new FixedValueGenerator();
     private static final Type FIXED_VALUE =
-      TypeUtils.parseType("net.sf.cglib.proxy.FixedValue");
+      TypeUtils.parseType("org.mockito.cglib.proxy.FixedValue");
     private static final Signature LOAD_OBJECT =
       TypeUtils.parseSignature("Object loadObject()");
 

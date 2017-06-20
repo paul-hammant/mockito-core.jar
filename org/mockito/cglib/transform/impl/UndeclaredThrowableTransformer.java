@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
 import java.lang.reflect.Constructor;
-import net.sf.cglib.core.*;
-import net.sf.cglib.transform.*;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.ClassVisitor;
+
+import org.mockito.asm.Attribute;
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
+import org.mockito.cglib.transform.*;
 
 public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
     private Type wrapper;

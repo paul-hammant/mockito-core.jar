@@ -8,7 +8,6 @@ import org.mockito.internal.debugging.DebuggingInfo;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.verification.api.VerificationMode;
 
-@SuppressWarnings("unchecked")
 public class ThreadSafeMockingProgress implements MockingProgress {
     
     private static ThreadLocal<MockingProgress> mockingProgress = new ThreadLocal<MockingProgress>();
@@ -20,11 +19,11 @@ public class ThreadSafeMockingProgress implements MockingProgress {
         return mockingProgress.get();
     }
     
-    public void reportOngoingStubbing(OngoingStubbing ongoingStubbing) {
-        threadSafely().reportOngoingStubbing(ongoingStubbing);
+    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
+        threadSafely().reportOngoingStubbing(iOngoingStubbing);
     }
 
-    public OngoingStubbing pullOngoingStubbing() {
+    public IOngoingStubbing pullOngoingStubbing() {
         return threadSafely().pullOngoingStubbing();
     }
     

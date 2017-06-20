@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.reflect;
+package org.mockito.cglib.reflect;
 
 import java.lang.reflect.*;
-import net.sf.cglib.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.*;
+import org.mockito.cglib.core.*;
 
 // TODO: don't require exact match for return type
 
@@ -149,7 +150,7 @@ abstract public class MethodDelegate {
     public static class Generator extends AbstractClassGenerator {
         private static final Source SOURCE = new Source(MethodDelegate.class.getName());
         private static final Type METHOD_DELEGATE =
-          TypeUtils.parseType("net.sf.cglib.reflect.MethodDelegate");
+          TypeUtils.parseType("org.mockito.cglib.reflect.MethodDelegate");
         private static final Signature NEW_INSTANCE =
           new Signature("newInstance", METHOD_DELEGATE, new Type[]{ Constants.TYPE_OBJECT });
         

@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.beans;
+package org.mockito.cglib.beans;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
     
 class BulkBeanEmitter extends ClassEmitter {
     private static final Signature GET_PROPERTY_VALUES =
@@ -31,9 +32,9 @@ class BulkBeanEmitter extends ClassEmitter {
     private static final Signature CSTRUCT_EXCEPTION =
       TypeUtils.parseConstructor("Throwable, int");
     private static final Type BULK_BEAN =
-      TypeUtils.parseType("net.sf.cglib.beans.BulkBean");
+      TypeUtils.parseType("org.mockito.cglib.beans.BulkBean");
     private static final Type BULK_BEAN_EXCEPTION =
-      TypeUtils.parseType("net.sf.cglib.beans.BulkBeanException");
+      TypeUtils.parseType("org.mockito.cglib.beans.BulkBeanException");
         
     public BulkBeanEmitter(ClassVisitor v,
                            String className,

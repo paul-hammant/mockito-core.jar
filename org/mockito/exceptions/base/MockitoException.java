@@ -4,8 +4,10 @@
  */
 package org.mockito.exceptions.base;
 
+import org.mockito.internal.exceptions.base.ConditionalStackTraceFilter;
 
-public class MockitoException extends RuntimeException implements HasStackTrace {
+
+public class MockitoException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,8 +26,8 @@ public class MockitoException extends RuntimeException implements HasStackTrace 
     private void filterStackTrace() {
         unfilteredStackTrace = getStackTrace();
         
-        StackTraceFilter filter = new StackTraceFilter();
-        filter.filterStackTrace(this);
+        ConditionalStackTraceFilter filter = new ConditionalStackTraceFilter();
+        filter.filter(this);
     }
 
     public StackTraceElement[] getUnfilteredStackTrace() {

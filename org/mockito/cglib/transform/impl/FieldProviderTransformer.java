@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
-import net.sf.cglib.transform.*;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Attribute;
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
+import org.mockito.cglib.transform.*;
 
 public class FieldProviderTransformer extends ClassEmitterTransformer {
     
@@ -28,7 +29,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     private static final String FIELD_TYPES = "CGLIB$FIELD_TYPES";
     
     private static final Type FIELD_PROVIDER =
-      TypeUtils.parseType("net.sf.cglib.transform.impl.FieldProvider");
+      TypeUtils.parseType("org.mockito.cglib.transform.impl.FieldProvider");
     private static final Type ILLEGAL_ARGUMENT_EXCEPTION =
       TypeUtils.parseType("IllegalArgumentException");
     private static final Signature PROVIDER_GET =

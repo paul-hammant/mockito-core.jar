@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.reflect;
+package org.mockito.cglib.reflect;
 
 import java.lang.reflect.*;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.MethodVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 abstract public class MulticastDelegate implements Cloneable {
     protected Object[] targets = {};
@@ -66,7 +67,7 @@ abstract public class MulticastDelegate implements Cloneable {
     public static class Generator extends AbstractClassGenerator {
         private static final Source SOURCE = new Source(MulticastDelegate.class.getName());
         private static final Type MULTICAST_DELEGATE =
-          TypeUtils.parseType("net.sf.cglib.reflect.MulticastDelegate");
+          TypeUtils.parseType("org.mockito.cglib.reflect.MulticastDelegate");
         private static final Signature NEW_INSTANCE =
           new Signature("newInstance", MULTICAST_DELEGATE, new Type[0]);
         private static final Signature ADD_DELEGATE =

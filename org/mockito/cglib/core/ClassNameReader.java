@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
-import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassReader;
+import org.mockito.asm.ClassAdapter;
+import org.mockito.asm.ClassReader;
+
 import java.util.*;
 
 // TODO: optimize (ClassReader buffers entire class before accept)

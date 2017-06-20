@@ -4,15 +4,13 @@
  */
 package org.mockito.exceptions;
 
+import static org.mockito.exceptions.Pluralizer.*;
 import static org.mockito.internal.util.StringJoiner.*;
 
-import org.mockito.exceptions.base.HasStackTrace;
+import java.util.List;
+
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.exceptions.cause.ActualArgumentsAreDifferent;
-import org.mockito.exceptions.cause.TooLittleInvocations;
-import org.mockito.exceptions.cause.UndesiredInvocation;
-import org.mockito.exceptions.cause.WantedAnywhereAfterFollowingInteraction;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.exceptions.misusing.MissingMethodInvocationException;
 import org.mockito.exceptions.misusing.NotAMockException;
@@ -23,11 +21,13 @@ import org.mockito.exceptions.misusing.WrongTypeOfReturnValue;
 import org.mockito.exceptions.verification.ArgumentsAreDifferent;
 import org.mockito.exceptions.verification.NeverWantedButInvoked;
 import org.mockito.exceptions.verification.NoInteractionsWanted;
+import org.mockito.exceptions.verification.SmartNullPointerException;
 import org.mockito.exceptions.verification.TooLittleActualInvocations;
 import org.mockito.exceptions.verification.TooManyActualInvocations;
-import org.mockito.exceptions.verification.VerifcationInOrderFailure;
+import org.mockito.exceptions.verification.VerificationInOrderFailure;
 import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.mockito.exceptions.verification.junit.JUnitTool;
+import org.mockito.internal.debugging.Location;
 
 /**
  * Reports verification and misusing errors.
@@ -41,10 +41,6 @@ import org.mockito.exceptions.verification.junit.JUnitTool;
  * read (xunit plugins take only fraction of screen on modern IDEs).
  */
 public class Reporter {
-
-    private String pluralize(int number) {
-        return number == 1 ? "1 time" : number + " times";
-    }
 
     public void checkedExceptionInvalid(Throwable t) {
         throw new MockitoException(join(
@@ -60,15 +56,20 @@ public class Reporter {
 
     }
     
-    public void unfinishedStubbing() {
+    public void unfinishedStubbing(Location location) {
         throw new UnfinishedStubbingException(join(
-                "Unifinished stubbing detected!",
-                "E.g. toReturn() may be missing.",
+                "Unfinished stubbing detected here:",
+                location,
+                "",
+                "E.g. thenReturn() may be missing.",
                 "Examples of correct stubbing:",
                 "    when(mock.isOk()).thenReturn(true);",
                 "    when(mock.isOk()).thenThrow(exception);",
                 "    doThrow(exception).when(mock).someVoidMethod();",
-                "Also make sure the method is not final - you cannot stub final methods."
+                "Hints:",
+                " 1. missing thenReturn()",
+                " 2. although stubbed methods may return mocks, you cannot inline mock creation (mock()) call inside a thenReturn method (see issue 53)",
+                ""
         ));
     }
 
@@ -77,17 +78,27 @@ public class Reporter {
                 "when() requires an argument which has to be a method call on a mock.",
                 "For example:",
                 "    when(mock.getArticles()).thenReturn(articles);",
-                "Also make sure the method is not final - you cannot stub final methods."
+                "",
+                "Also, this error might show up because you stub final/private/equals() or hashCode() method.",
+                "Those methods *cannot* be stubbed/verified.",
+                ""
         ));
     }
 
-    public void unfinishedVerificationException() {
-        throw new UnfinishedVerificationException(join(
-                "Previous verify(mock) doesn't have a method call!",
+    public void unfinishedVerificationException(Location location) {
+        UnfinishedVerificationException exception = new UnfinishedVerificationException(join(
+                "Missing method call for verify(mock) here:",
+                location,
+                "",
                 "Example of correct verification:",
                 "    verify(mock).doSomething()",
-                "Also make sure the method is not final - you cannot verify final methods."
+                "",
+                "Also, this error might show up because you verify final/private/equals() or hashCode() method.",
+                "Those methods *cannot* be stubbed/verified.",
+                ""
         ));
+        
+        throw exception;
     }
     
     public void notAMockPassedToVerify() {
@@ -207,119 +218,138 @@ public class Reporter {
         ));
     }    
 
-    public void argumentsAreDifferent(PrintableInvocation wanted, PrintableInvocation actual, HasStackTrace actualStackTrace) {
-        ActualArgumentsAreDifferent cause = new ActualArgumentsAreDifferent(join(
+    public void argumentsAreDifferent(String wanted, String actual, Location actualLocation) {
+        String message = join("Argument(s) are different! Wanted:", 
+                wanted,
+                new Location(),
                 "Actual invocation has different arguments:",
-                actual.toString()
-            ));
-        
-        cause.setStackTrace(actualStackTrace.getStackTrace());
+                actual,
+                actualLocation,
+                ""
+                );
         
         if (JUnitTool.hasJUnit()) {
-            throw JUnitTool.createArgumentsAreDifferentException(
-                    join("Argument(s) are different! Wanted:", wanted.toString()),
-                    cause,
-                    wanted.toString(),
-                    actual.toString());
+            throw JUnitTool.createArgumentsAreDifferentException(message, wanted, actual);
         } else {
-            throw new ArgumentsAreDifferent(join(
-                    "Argument(s) are different! Wanted:",
-                    wanted.toString()
-                ), cause);
+            throw new ArgumentsAreDifferent(message);
         }
     }
     
     public void wantedButNotInvoked(PrintableInvocation wanted) {
-        throw new WantedButNotInvoked(join(
-                    "Wanted but not invoked:",
-                    wanted.toString()
-        ));
+        throw new WantedButNotInvoked(createWantedButNotInvokedMessage(wanted));
+    }
+
+    public void wantedButNotInvoked(PrintableInvocation wanted, List<? extends PrintableInvocation> invocations) {
+        String allInvocations;
+        if (invocations.isEmpty()) {
+            allInvocations = "Actually, there were zero interactions with this mock.\n";
+        } else {
+            StringBuilder sb = new StringBuilder("\nHowever, there were other interactions with this mock:\n");
+            for (PrintableInvocation i : invocations) {
+                 sb.append(i.getLocation());
+                 sb.append("\n");
+            }
+            allInvocations = sb.toString();
+        }
+        
+        String message = createWantedButNotInvokedMessage(wanted);
+        throw new WantedButNotInvoked(message + allInvocations);
+    }
+
+    private String createWantedButNotInvokedMessage(PrintableInvocation wanted) {
+        return join(
+                "Wanted but not invoked:",
+                wanted.toString(),
+                new Location(),
+                ""
+        );
     }
     
-    public void wantedButNotInvokedInOrder(PrintableInvocation wanted, PrintableInvocation previous, HasStackTrace previousStackTrace) {
-        WantedAnywhereAfterFollowingInteraction cause = new WantedAnywhereAfterFollowingInteraction(join(
-                        "Wanted anywhere AFTER following interaction:",
-                        previous.toString()));
-        cause.setStackTrace(previousStackTrace.getStackTrace());
-        
-        throw new VerifcationInOrderFailure(join(
+    public void wantedButNotInvokedInOrder(PrintableInvocation wanted, PrintableInvocation previous) {
+        throw new VerificationInOrderFailure(join(
                     "Verification in order failure",
                     "Wanted but not invoked:",
-                    wanted.toString()
-        ), cause);
+                    wanted.toString(),
+                    new Location(),
+                    "Wanted anywhere AFTER following interaction:",
+                    previous.toString(),
+                    previous.getLocation(),
+                    ""
+        ));
     }
 
-    public void tooManyActualInvocations(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace firstUndesired) {
-        UndesiredInvocation cause = createUndesiredInvocationCause(firstUndesired);
+    public void tooManyActualInvocations(int wantedCount, int actualCount, PrintableInvocation wanted, Location firstUndesired) {
+        String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
+        throw new TooManyActualInvocations(message);
+    }
 
-        throw new TooManyActualInvocations(join(
+    private String createTooManyInvocationsMessage(int wantedCount, int actualCount, PrintableInvocation wanted,
+            Location firstUndesired) {
+        return join(
                 wanted.toString(),
-                "Wanted " + pluralize(wantedCount) + " but was " + actualCount
-        ), cause);
+                "Wanted " + Pluralizer.pluralize(wantedCount) + ":",
+                new Location(),
+                "But was " + pluralize(actualCount) + ". Undesired invocation:",
+                firstUndesired,
+                ""
+        );
     }
     
-    public void neverWantedButInvoked(PrintableInvocation wanted, HasStackTrace firstUndesired) {
-        UndesiredInvocation cause = createUndesiredInvocationCause(firstUndesired);
-
+    public void neverWantedButInvoked(PrintableInvocation wanted, Location firstUndesired) {
         throw new NeverWantedButInvoked(join(
                 wanted.toString(),
-                "Never wanted but invoked!"
-        ), cause);
-    }    
-    
-    public void tooManyActualInvocationsInOrder(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace firstUndesired) {
-        UndesiredInvocation cause = createUndesiredInvocationCause(firstUndesired);
-
-        throw new VerifcationInOrderFailure(join(
-                "Verification in order failure",
-                wanted.toString(),
-                "Wanted " + pluralize(wantedCount) + " but was " + actualCount
-        ), cause);
-    }
-
-    private UndesiredInvocation createUndesiredInvocationCause(HasStackTrace firstUndesired) {
-        UndesiredInvocation cause = new UndesiredInvocation(join("Undesired invocation:"));
-        cause.setStackTrace(firstUndesired.getStackTrace());
-        return cause;
-    }    
-
-    public void tooLittleActualInvocations(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace lastActualInvocationStackTrace) {
-        TooLittleInvocations cause = createTooLittleInvocationsCause(lastActualInvocationStackTrace);
-
-        throw new TooLittleActualInvocations(join(
-                wanted.toString(),
-                "Wanted " + pluralize(wantedCount) + " but was " + actualCount
-        ), cause);
-    }
-
-    
-    public void tooLittleActualInvocationsInOrder(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace lastActualStackTrace) {
-        TooLittleInvocations cause = createTooLittleInvocationsCause(lastActualStackTrace);
-
-        throw new VerifcationInOrderFailure(join(
-                "Verification in order failure",
-                wanted.toString(),
-                "Wanted " + pluralize(wantedCount) + " but was " + actualCount
-        ), cause);
-    }
-    
-    private TooLittleInvocations createTooLittleInvocationsCause(HasStackTrace lastActualInvocationStackTrace) {
-        TooLittleInvocations cause = null;
-        if (lastActualInvocationStackTrace != null) {
-            cause = new TooLittleInvocations(join("Too little invocations:"));
-            cause.setStackTrace(lastActualInvocationStackTrace.getStackTrace());
-        }
-        return cause;
-    }
-
-    public void noMoreInteractionsWanted(PrintableInvocation undesired, HasStackTrace actualInvocationStackTrace) {
-        UndesiredInvocation cause = new UndesiredInvocation(join(
-                "Undesired invocation:", 
-                undesired.toString()
+                "Never wanted here:",
+                new Location(),
+                "But invoked here:",
+                firstUndesired,
+                ""
         ));
+    }    
+    
+    public void tooManyActualInvocationsInOrder(int wantedCount, int actualCount, PrintableInvocation wanted, Location firstUndesired) {
+        String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
+        throw new VerificationInOrderFailure(join(
+                "Verification in order failure:" + message
+                ));
+    }
+
+    private String createTooLittleInvocationsMessage(Discrepancy discrepancy, PrintableInvocation wanted,
+            Location lastActualInvocation) {
+        String ending = 
+            (lastActualInvocation != null)? lastActualInvocation + "\n" : "\n";
+            
+            String message = join(
+                    wanted.toString(),
+                    "Wanted " + discrepancy.getPluralizedWantedCount() + ":",
+                    new Location(),
+                    "But was " + discrepancy.getPluralizedActualCount() + ":", 
+                    ending
+            );
+            return message;
+    }
+   
+    public void tooLittleActualInvocations(Discrepancy discrepancy, PrintableInvocation wanted, Location lastActualLocation) {
+        String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
         
-        cause.setStackTrace(actualInvocationStackTrace.getStackTrace());
-        throw new NoInteractionsWanted(join("No interactions wanted"), cause);
+        throw new TooLittleActualInvocations(message);
+    }
+    
+    public void tooLittleActualInvocationsInOrder(Discrepancy discrepancy, PrintableInvocation wanted, Location lastActualLocation) {
+        String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
+        
+        throw new VerificationInOrderFailure(join(
+                "Verification in order failure:" + message
+                ));
+    }
+    
+    public void noMoreInteractionsWanted(PrintableInvocation undesired) {
+        throw new NoInteractionsWanted(join(
+                "No interactions wanted here:",
+                new Location(),
+                "But found this interaction:",
+                undesired.getLocation(),
+                ""
+                ));
     }
     
     public void cannotMockFinalClass(Class<?> clazz) {
@@ -352,29 +382,10 @@ public class Reporter {
              ));
     }
 
-    public void tooLittleActualInvocationsInAtLeastMode(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace lastActualInvocationStackTrace) {        
-        TooLittleInvocations cause = createTooLittleInvocationsCause(lastActualInvocationStackTrace);
-
-        throw new TooLittleActualInvocations(join(
-            wanted.toString(),
-            "Wanted at least " + pluralize(wantedCount) + " but was " + actualCount
-        ), cause);
-    }
-    
-    public void tooLittleActualInvocationsInOrderInAtLeastMode(int wantedCount, int actualCount, PrintableInvocation wanted, HasStackTrace lastActualStackTrace) {
-        TooLittleInvocations cause = createTooLittleInvocationsCause(lastActualStackTrace);
-
-        throw new VerifcationInOrderFailure(join(
-                "Verification in order failure",
-                wanted.toString(),
-                "Wanted at least " + pluralize(wantedCount) + " but was " + actualCount
-        ), cause);
-    }
-
-    public void wrongTypeOfReturnValue(String expectedType, String actualType, String method) {
+    public void wrongTypeOfReturnValue(String expectedType, String actualType, String methodName) {
         throw new WrongTypeOfReturnValue(join(
-                actualType + " cannot be returned by " + method,
-                method + " should return " + expectedType
+                actualType + " cannot be returned by " + methodName + "()",
+                methodName + "() should return " + expectedType
                 ));
     }
 
@@ -382,15 +393,72 @@ public class Reporter {
         throw new MockitoAssertionError(join("Wanted at most " + pluralize(maxNumberOfInvocations) + " but was " + foundSize));
     }
 
-    public void misplacedArgumentMatcher() {
+    public void misplacedArgumentMatcher(Location location) {
         throw new InvalidUseOfMatchersException(join(
-                "Misplaced argument matcher detected!",
-                "Somewhere before this line you probably misused Mockito argument matchers.",
-                "For example you might have used anyObject() argument matcher outside of verification or stubbing.",
-                "Here are examples of correct usage of argument matchers:",
+                "Misplaced argument matcher detected here:",
+                location,
+                "",
+                "You cannot use argument matchers outside of verification or stubbing.",
+                "Examples of correct usage of argument matchers:",
                 "    when(mock.get(anyInt())).thenReturn(null);",
                 "    doThrow(new RuntimeException()).when(mock).someVoidMethod(anyObject());",
-                "    verify(mock).someMethod(contains(\"foo\"));"
+                "    verify(mock).someMethod(contains(\"foo\"))",
+                "",
+                "Also, this error might show up because you use argument matchers with methods that cannot be mocked.",
+                "Following methods *cannot* be stubbed/verified: final/private/equals()/hashCode() methods.",                
+                ""
                 ));
+    }
+
+    public void smartNullPointerException(Location location) {
+        throw new SmartNullPointerException(join(
+                "You have a NullPointerException here:",
+                new Location(),
+                "Because this method was *not* stubbed correctly:",
+                location,
+                ""
+                ));
+    }
+
+    public void noArgumentValueWasCaptured() {
+        throw new MockitoException(join(
+                "No argument value was captured!",
+                "You might have forgotten to use argument.capture() in verify()...",
+                "...or you used capture() in stubbing but stubbed method was not called.",
+                "Be aware that it is recommended to use capture() only with verify()",
+                "",
+                "Examples of correct argument capturing:",
+                "    Argument<Person> argument = new Argument<Person>();",
+                "    verify(mock).doSomething(argument.capture());",
+                "    assertEquals(\"John\", argument.getValue().getName());",
+                ""
+                ));
+    }
+
+    public void extraInterfacesDoesNotAcceptNullParameters() {
+        throw new MockitoException(join(
+                "extraInterfaces() does not accept null parameters."
+                ));
+    }
+
+    public void extraInterfacesAcceptsOnlyInterfaces(Class<?> wrongType) {
+        throw new MockitoException(join(
+                "extraInterfaces() accepts only interfaces.",
+                "You passed following type: " + wrongType.getSimpleName() + " which is not an interface."
+        ));
+    }
+
+    public void extraInterfacesCannotContainMockedType(Class<?> wrongType) {
+        throw new MockitoException(join(
+                "extraInterfaces() does not accept the same type as the mocked type.",
+                "You mocked following type: " + wrongType.getSimpleName(), 
+                "and you passed the same very interface to the extraInterfaces()"
+        ));
+    }
+
+    public void extraInterfacesRequiresAtLeastOneInterface() {
+        throw new MockitoException(join(
+                "extraInterfaces() requires at least one interface."
+        ));
     }
 }

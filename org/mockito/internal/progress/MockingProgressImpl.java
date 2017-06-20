@@ -7,6 +7,8 @@ package org.mockito.internal.progress;
 import org.mockito.exceptions.Reporter;
 import org.mockito.internal.configuration.GlobalConfiguration;
 import org.mockito.internal.debugging.DebuggingInfo;
+import org.mockito.internal.debugging.Localized;
+import org.mockito.internal.debugging.Location;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.verification.api.VerificationMode;
 
@@ -18,42 +20,46 @@ public class MockingProgressImpl implements MockingProgress {
     
     private final DebuggingInfo debuggingInfo = new DebuggingInfo();
 
-    OngoingStubbing ongoingStubbing;
-    private VerificationMode verificationMode;
-    private boolean stubbingInProgress = false;
+    IOngoingStubbing iOngoingStubbing;
+    private Localized<VerificationMode> verificationMode;
+    private Location stubbingInProgress = null;
 
-    public void reportOngoingStubbing(OngoingStubbing ongoingStubbing) {
-        this.ongoingStubbing = ongoingStubbing;
+    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
+        this.iOngoingStubbing = iOngoingStubbing;
     }
 
-    public OngoingStubbing pullOngoingStubbing() {
-        OngoingStubbing temp = ongoingStubbing;
-        ongoingStubbing = null;
+    public IOngoingStubbing pullOngoingStubbing() {
+        IOngoingStubbing temp = iOngoingStubbing;
+        iOngoingStubbing = null;
         return temp;
     }
     
     public void verificationStarted(VerificationMode verify) {
         validateState();
         resetOngoingStubbing();
-        verificationMode = (VerificationMode) verify;
+        verificationMode = new Localized(verify);
     }
 
     /* (non-Javadoc)
      * @see org.mockito.internal.progress.MockingProgress#resetOngoingStubbing()
      */
     public void resetOngoingStubbing() {
-        ongoingStubbing = null;
+        iOngoingStubbing = null;
     }
 
     public VerificationMode pullVerificationMode() {
-        VerificationMode temp = verificationMode;
+        if (verificationMode == null) {
+            return null;
+        }
+        
+        VerificationMode temp = verificationMode.getObject();
         verificationMode = null;
         return temp;
     }
 
     public void stubbingStarted() {
         validateState();
-        stubbingInProgress = true;
+        stubbingInProgress = new Location();
     }
 
     public void validateState() {
@@ -62,13 +68,15 @@ public class MockingProgressImpl implements MockingProgress {
         GlobalConfiguration.validate();
         
         if (verificationMode != null) {
+            Location location = verificationMode.getLocation();
             verificationMode = null;
-            reporter.unfinishedVerificationException();
+            reporter.unfinishedVerificationException(location);
         }
         
-        if (stubbingInProgress) {
-            stubbingInProgress = false;
-            reporter.unfinishedStubbing();
+        if (stubbingInProgress != null) {
+            Location temp = stubbingInProgress;
+            stubbingInProgress = null;
+            reporter.unfinishedStubbing(temp);
         }
       
         getArgumentMatcherStorage().validateState();
@@ -76,17 +84,17 @@ public class MockingProgressImpl implements MockingProgress {
 
     public void stubbingCompleted(Invocation invocation) {
         debuggingInfo.addStubbedInvocation(invocation);        
-        stubbingInProgress = false;
+        stubbingInProgress = null;
     }
     
     public String toString() {
-        return  "ongoingStubbing: " + ongoingStubbing + 
+        return  "iOngoingStubbing: " + iOngoingStubbing + 
         ", verificationMode: " + verificationMode +
         ", stubbingInProgress: " + stubbingInProgress;
     }
 
     public void reset() {
-        stubbingInProgress = false;
+        stubbingInProgress = null;
         verificationMode = null;
         getArgumentMatcherStorage().reset();
     }

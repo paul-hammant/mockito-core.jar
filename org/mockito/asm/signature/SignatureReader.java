@@ -27,7 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.signature;
+package org.mockito.asm.signature;
 
 /**
  * A type signature parser to make a signature visitor visit an existing
@@ -60,10 +60,10 @@ public class SignatureReader {
      * method is intended to be called on a {@link SignatureReader} that was
      * created using a <i>ClassSignature</i> (such as the
      * <code>signature</code> parameter of the
-     * {@link org.objectweb.asm.ClassVisitor#visit ClassVisitor.visit} method)
+     * {@link org.mockito.asm.ClassVisitor#visit ClassVisitor.visit} method)
      * or a <i>MethodTypeSignature</i> (such as the <code>signature</code>
      * parameter of the
-     * {@link org.objectweb.asm.ClassVisitor#visitMethod ClassVisitor.visitMethod}
+     * {@link org.mockito.asm.ClassVisitor#visitMethod ClassVisitor.visitMethod}
      * method).
      * 
      * @param v the visitor that must visit this signature.
@@ -118,9 +118,9 @@ public class SignatureReader {
      * method is intended to be called on a {@link SignatureReader} that was
      * created using a <i>FieldTypeSignature</i>, such as the
      * <code>signature</code> parameter of the
-     * {@link org.objectweb.asm.ClassVisitor#visitField 
+     * {@link org.mockito.asm.ClassVisitor#visitField 
      * ClassVisitor.visitField} or {@link 
-     * org.objectweb.asm.MethodVisitor#visitLocalVariable
+     * org.mockito.asm.MethodVisitor#visitLocalVariable
      * MethodVisitor.visitLocalVariable} methods.
      * 
      * @param v the visitor that must visit this signature.

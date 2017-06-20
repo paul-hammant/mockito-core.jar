@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform;
+package org.mockito.cglib.transform;
 
-import net.sf.cglib.core.CodeGenerationException;
-import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassVisitor;
+import org.mockito.asm.ClassAdapter;
+import org.mockito.asm.ClassVisitor;
+import org.mockito.cglib.core.CodeGenerationException;
 
 abstract public class AbstractClassTransformer extends ClassAdapter implements ClassTransformer {
     protected AbstractClassTransformer() {

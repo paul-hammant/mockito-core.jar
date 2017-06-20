@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.beans;
+package org.mockito.cglib.beans;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
+
 import java.util.*;
 
 /**
@@ -30,9 +32,9 @@ abstract public class BeanCopier
     private static final BeanCopierKey KEY_FACTORY =
       (BeanCopierKey)KeyFactory.create(BeanCopierKey.class);
     private static final Type CONVERTER =
-      TypeUtils.parseType("net.sf.cglib.core.Converter");
+      TypeUtils.parseType("org.mockito.cglib.core.Converter");
     private static final Type BEAN_COPIER =
-      TypeUtils.parseType("net.sf.cglib.beans.BeanCopier");
+      TypeUtils.parseType("org.mockito.cglib.beans.BeanCopier");
     private static final Signature COPY =
       new Signature("copy", Type.VOID_TYPE, new Type[]{ Constants.TYPE_OBJECT, Constants.TYPE_OBJECT, CONVERTER });
     private static final Signature CONVERT =

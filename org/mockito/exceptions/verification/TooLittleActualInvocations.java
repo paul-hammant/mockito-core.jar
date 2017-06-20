@@ -10,7 +10,7 @@ public class TooLittleActualInvocations extends MockitoAssertionError {
 
     private static final long serialVersionUID = 1L;
     
-    public TooLittleActualInvocations(String message, Throwable cause) {
-        super(message, cause);
+    public TooLittleActualInvocations(String message) {
+        super(message);
     }
 }

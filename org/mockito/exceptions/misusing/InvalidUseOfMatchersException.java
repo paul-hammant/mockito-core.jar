@@ -14,7 +14,7 @@ public class InvalidUseOfMatchersException extends MockitoException {
         super(message);
     }
 
-    public InvalidUseOfMatchersException(String message, MockitoException lastMatcherLocation) {
-        super(message, lastMatcherLocation);
+    public InvalidUseOfMatchersException() {
+        super("");
     }
 }

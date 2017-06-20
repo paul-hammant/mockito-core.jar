@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
-import net.sf.cglib.core.*;
-import net.sf.cglib.transform.*;
-import org.objectweb.asm.Attribute;
+import org.mockito.asm.Attribute;
+import org.mockito.cglib.core.*;
+import org.mockito.cglib.transform.*;
 
 /**
- * A {@link GeneratorStrategy} suitable for use with {@link net.sf.cglib.Enhancer} which
+ * A {@link GeneratorStrategy} suitable for use with {@link org.mockito.cglib.Enhancer} which
  * causes all undeclared exceptions thrown from within a proxied method to be wrapped
  * in an alternative exception of your choice.
  */

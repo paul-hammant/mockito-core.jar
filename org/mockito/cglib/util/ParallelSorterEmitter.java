@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.util;
+package org.mockito.cglib.util;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
 
 class ParallelSorterEmitter extends ClassEmitter {
     private static final Type PARALLEL_SORTER =
-      TypeUtils.parseType("net.sf.cglib.util.ParallelSorter");
+      TypeUtils.parseType("org.mockito.cglib.util.ParallelSorter");
     private static final Signature CSTRUCT_OBJECT_ARRAY =
       TypeUtils.parseConstructor("Object[]");
     private static final Signature NEW_INSTANCE =

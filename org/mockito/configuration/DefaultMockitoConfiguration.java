@@ -6,7 +6,8 @@ package org.mockito.configuration;
 
 import org.mockito.ReturnValues;
 import org.mockito.internal.configuration.DefaultAnnotationEngine;
-import org.mockito.internal.returnvalues.EmptyReturnValues;
+import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
+import org.mockito.stubbing.Answer;
 
 /**
  * DefaultConfiguration of Mockito framework
@@ -15,13 +16,20 @@ import org.mockito.internal.returnvalues.EmptyReturnValues;
  * <p>
  * See javadocs for {@link IMockitoConfiguration} on info how to configure Mockito
  */
+@SuppressWarnings("deprecation")//supressed until ReturnValues are removed
 public class DefaultMockitoConfiguration implements IMockitoConfiguration {
     
     /* (non-Javadoc)
      * @see org.mockito.IMockitoConfiguration#getReturnValues()
      */
+    @Deprecated
     public ReturnValues getReturnValues() {
-        return new EmptyReturnValues();
+        throw new RuntimeException("\n" + "This method should not be used by the framework because it was deprecated"
+                + "\n" + "Please report the failure to the Mockito mailing list");
+    }
+
+    public Answer<Object> getDefaultAnswer() {
+        return new ReturnsEmptyValues();
     }
     
     /* (non-Javadoc)
@@ -29,5 +37,12 @@ public class DefaultMockitoConfiguration implements IMockitoConfiguration {
      */
     public AnnotationEngine getAnnotationEngine() {
         return new DefaultAnnotationEngine();
+    }
+
+    /* (non-Javadoc)
+     * @see org.mockito.configuration.IMockitoConfiguration#cleansStackTrace()
+     */
+    public boolean cleansStackTrace() {
+        return true;
     }
 }

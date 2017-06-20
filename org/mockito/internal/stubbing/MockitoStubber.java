@@ -11,6 +11,7 @@ import java.util.List;
 import org.mockito.internal.invocation.Invocation;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.progress.MockingProgress;
+import org.mockito.internal.stubbing.answers.AnswersValidator;
 import org.mockito.stubbing.Answer;
 
 @SuppressWarnings("unchecked")
@@ -55,7 +56,7 @@ public class MockitoStubber {
         return findAnswerFor(invocation).answer(invocation);
     }
 
-    public Answer<?> findAnswerFor(Invocation invocation) {
+    public StubbedInvocationMatcher findAnswerFor(Invocation invocation) {
         for (StubbedInvocationMatcher s : stubbed) {
             if (s.matches(invocation)) {
                 return s;

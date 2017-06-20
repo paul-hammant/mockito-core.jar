@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.core;
+package org.mockito.cglib.core;
 
 import java.lang.reflect.*;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.Type;
 
 public class VisibilityPredicate implements Predicate {
     private boolean protectedOk;

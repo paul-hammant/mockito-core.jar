@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.reflect;
+package org.mockito.cglib.reflect;
 
 import java.lang.reflect.*;
 import java.util.*;
-import net.sf.cglib.core.*;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Type;
+
+import org.mockito.asm.ClassVisitor;
+import org.mockito.asm.Label;
+import org.mockito.asm.Type;
+import org.mockito.cglib.core.*;
     
 class FastClassEmitter extends ClassEmitter {
     private static final Signature CSTRUCT_CLASS =
@@ -42,7 +43,7 @@ class FastClassEmitter extends ClassEmitter {
     private static final Signature GET_SIGNATURE_WITHOUT_RETURN_TYPE =
       TypeUtils.parseSignature("String getSignatureWithoutReturnType(String, Class[])");
     private static final Type FAST_CLASS =
-      TypeUtils.parseType("net.sf.cglib.reflect.FastClass");
+      TypeUtils.parseType("org.mockito.cglib.reflect.FastClass");
     private static final Type ILLEGAL_ARGUMENT_EXCEPTION =
       TypeUtils.parseType("IllegalArgumentException");
     private static final Type INVOCATION_TARGET_EXCEPTION =

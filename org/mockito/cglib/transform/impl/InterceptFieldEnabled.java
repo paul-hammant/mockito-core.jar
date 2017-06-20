@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.cglib.transform.impl;
+package org.mockito.cglib.transform.impl;
 
 public interface InterceptFieldEnabled {
     void setInterceptFieldCallback(InterceptFieldCallback callback);
