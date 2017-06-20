@@ -1,9 +1,12 @@
 package org.mockito.internal.creation.bytebuddy;
 
+import org.mockito.exceptions.base.MockitoException;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
@@ -12,24 +15,24 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-class TypeCachingBytecodeGenerator extends ReferenceQueue<ClassLoader> implements BytecodeGenerator {
+import static org.mockito.internal.util.StringJoiner.join;
+
+class CachingMockBytecodeGenerator extends ReferenceQueue<ClassLoader> {
 
     private static final ClassLoader BOOT_LOADER = new URLClassLoader(new URL[0], null);
 
     final ConcurrentMap<Key, CachedBytecodeGenerator> avoidingClassLeakageCache = new ConcurrentHashMap<Key, CachedBytecodeGenerator>();
 
-    private final BytecodeGenerator bytecodeGenerator;
+    private final MockBytecodeGenerator mockBytecodeGenerator = new MockBytecodeGenerator();
 
     private final boolean weak;
 
-    public TypeCachingBytecodeGenerator(BytecodeGenerator bytecodeGenerator, boolean weak) {
-        this.bytecodeGenerator = bytecodeGenerator;
+    public CachingMockBytecodeGenerator(boolean weak) {
         this.weak = weak;
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public <T> Class<T> mockClass(MockFeatures<T> params) {
+    public <T> Class<T> get(MockFeatures<T> params) {
         cleanUpCachesForObsoleteClassLoaders();
         return (Class<T>) mockCachePerClassLoaderOf(params.mockedType.getClassLoader()).getOrGenerateMockClass(params);
     }
@@ -46,7 +49,7 @@ class TypeCachingBytecodeGenerator extends ReferenceQueue<ClassLoader> implement
         classLoader = classLoader == null ? BOOT_LOADER : classLoader;
         CachedBytecodeGenerator generator = avoidingClassLeakageCache.get(new LookupKey(classLoader));
         if (generator == null) {
-            CachedBytecodeGenerator newGenerator = new CachedBytecodeGenerator(bytecodeGenerator, weak);
+            CachedBytecodeGenerator newGenerator = new CachedBytecodeGenerator(mockBytecodeGenerator, weak);
             generator = avoidingClassLeakageCache.putIfAbsent(new WeakKey(classLoader, this), newGenerator);
             if (generator == null) {
                 generator = newGenerator;
@@ -59,18 +62,17 @@ class TypeCachingBytecodeGenerator extends ReferenceQueue<ClassLoader> implement
 
         private ConcurrentHashMap<MockKey, Reference<Class<?>>> generatedClassCache = new ConcurrentHashMap<MockKey, Reference<Class<?>>>();
 
-        private BytecodeGenerator bytecodeGenerator;
-
+        private final MockBytecodeGenerator generator;
         private final boolean weak;
 
-        private CachedBytecodeGenerator(BytecodeGenerator bytecodeGenerator, boolean weak) {
-            this.bytecodeGenerator = bytecodeGenerator;
+        private CachedBytecodeGenerator(MockBytecodeGenerator generator, boolean weak) {
+            this.generator = generator;
             this.weak = weak;
         }
 
         private Class<?> getMockClass(MockKey<?> mockKey) {
             Reference<Class<?>> classReference = generatedClassCache.get(mockKey);
-            if (classReference != null) {
+            if(classReference != null) {
                 return classReference.get();
             } else {
                 return null;
@@ -83,8 +85,8 @@ class TypeCachingBytecodeGenerator extends ReferenceQueue<ClassLoader> implement
             if (generatedMockClass == null) {
                 synchronized (features.mockedType) {
                     generatedMockClass = getMockClass(mockKey);
-                    if (generatedMockClass == null) {
-                        generatedMockClass = bytecodeGenerator.mockClass(features);
+                    if(generatedMockClass == null) {
+                        generatedMockClass = generate(features);
                         generatedClassCache.put(mockKey, weak ? new WeakReference<Class<?>>(generatedMockClass) : new SoftReference<Class<?>>(generatedMockClass));
                     }
                 }
@@ -92,11 +94,36 @@ class TypeCachingBytecodeGenerator extends ReferenceQueue<ClassLoader> implement
             return generatedMockClass;
         }
 
+        private <T> Class<? extends T> generate(MockFeatures<T> mockFeatures) {
+            try {
+                return generator.generateMockClass(mockFeatures);
+            } catch (Exception bytecodeGenerationFailed) {
+                throw prettifyFailure(mockFeatures, bytecodeGenerationFailed);
+            }
+        }
+
+        private RuntimeException prettifyFailure(MockFeatures<?> mockFeatures, Exception generationFailed) {
+            if (Modifier.isPrivate(mockFeatures.mockedType.getModifiers())) {
+                throw new MockitoException(join(
+                        "Mockito cannot mock this class: " + mockFeatures.mockedType + ".",
+                        "Most likely it is a private class that is not visible by Mockito",
+                        ""
+                ), generationFailed);
+            }
+            throw new MockitoException(join(
+                    "Mockito cannot mock this class: " + mockFeatures.mockedType,
+                    "",
+                    "Mockito can only mock visible & non-final classes.",
+                    "If you're not sure why you're getting this error, please report to the mailing list.",
+                    "",
+                    "Underlying exception : " + generationFailed),
+                    generationFailed
+            );
+        }
+
         // should be stored as a weak reference
         private static class MockKey<T> {
-
             private final String mockedType;
-
             private final Set<String> types;
 
             private MockKey(Class<T> mockedType, Set<Class<?>> interfaces) {
