@@ -9,7 +9,9 @@ import java.io.Serializable;
 
 public class LessOrEqual<T extends Comparable<T>> extends CompareTo<T> implements Serializable {
 
-    public LessOrEqual(T value) {
+    private static final long serialVersionUID = -6648773374429103565L;
+
+    public LessOrEqual(Comparable<T> value) {
         super(value);
     }
 

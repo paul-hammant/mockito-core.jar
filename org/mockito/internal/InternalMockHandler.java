@@ -10,12 +10,16 @@ import org.mockito.internal.stubbing.InvocationContainer;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.VoidMethodStubbable;
 
+@SuppressWarnings("unchecked")
 public interface InternalMockHandler<T> extends MockHandler {
 
-    MockCreationSettings<T> getMockSettings();
+    MockCreationSettings getMockSettings();
 
-    void setAnswersForStubbing(List<Answer<?>> answers);
+    VoidMethodStubbable<T> voidMethodStubbable(T mock);
+    
+    void setAnswersForStubbing(List<Answer> answers);
 
     InvocationContainer getInvocationContainer();
 

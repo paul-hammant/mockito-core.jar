@@ -9,7 +9,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -59,7 +58,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @see MockitoAnnotations#initMocks(Object)
  * @see org.mockito.runners.MockitoJUnitRunner
  */
-@Target({FIELD, PARAMETER})
+@Target(FIELD)
 @Retention(RUNTIME)
 @Documented
 public @interface Mock {

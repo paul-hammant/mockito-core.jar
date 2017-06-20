@@ -186,9 +186,9 @@ class EqualsBuilder {
      * @param reflectUpToClass  the superclass to reflect up to (inclusive),
      *  may be <code>null</code>
      * @return <code>true</code> if the two Objects have tested equals.
-     * @since 2.0.0
+     * @since 2.0
      */
-    public static boolean reflectionEquals(Object lhs, Object rhs, boolean testTransients, Class<?> reflectUpToClass) {
+    public static boolean reflectionEquals(Object lhs, Object rhs, boolean testTransients, Class reflectUpToClass) {
         return reflectionEquals(lhs, rhs, testTransients, reflectUpToClass, null);
     }
 
@@ -216,9 +216,9 @@ class EqualsBuilder {
      *  may be <code>null</code>
      * @param excludeFields  array of field names to exclude from testing
      * @return <code>true</code> if the two Objects have tested equals.
-     * @since 2.0.0
+     * @since 2.0
      */
-    public static boolean reflectionEquals(Object lhs, Object rhs, boolean testTransients, Class<?> reflectUpToClass,
+    public static boolean reflectionEquals(Object lhs, Object rhs, boolean testTransients, Class reflectUpToClass,
             String[] excludeFields) {
         if (lhs == rhs) {
             return true;
@@ -230,9 +230,9 @@ class EqualsBuilder {
         // class or in classes between the leaf and root.
         // If we are not testing transients or a subclass has no ivars, 
         // then a subclass can test equals to a superclass.
-        Class<?> lhsClass = lhs.getClass();
-        Class<?> rhsClass = rhs.getClass();
-        Class<?> testClass;
+        Class lhsClass = lhs.getClass();
+        Class rhsClass = rhs.getClass();
+        Class testClass;
         if (lhsClass.isInstance(rhs)) {
             testClass = lhsClass;
             if (!rhsClass.isInstance(lhs)) {
@@ -281,12 +281,12 @@ class EqualsBuilder {
     private static void reflectionAppend(
         Object lhs,
         Object rhs,
-        Class<?> clazz,
+        Class clazz,
         EqualsBuilder builder,
         boolean useTransients,
         String[] excludeFields) {
         Field[] fields = clazz.getDeclaredFields();
-        List<String> excludedFieldList = excludeFields != null ? Arrays.asList(excludeFields) : Collections.<String>emptyList();
+        List excludedFieldList = excludeFields != null ? Arrays.asList(excludeFields) : Collections.EMPTY_LIST;
         AccessibleObject.setAccessible(fields, true);
         for (int i = 0; i < fields.length && builder.isEquals; i++) {
             Field f = fields[i];
@@ -312,7 +312,7 @@ class EqualsBuilder {
      *
      * @param superEquals  the result of calling <code>super.equals()</code>
      * @return EqualsBuilder - used to chain calls.
-     * @since 2.0.0
+     * @since 2.0
      */
     public EqualsBuilder appendSuper(boolean superEquals) {
         isEquals &= superEquals;
@@ -340,7 +340,7 @@ class EqualsBuilder {
             this.setEquals(false);
             return this;
         }
-        Class<?> lhsClass = lhs.getClass();
+        Class lhsClass = lhs.getClass();
         if (!lhsClass.isArray()) {
             if (lhs instanceof java.math.BigDecimal && rhs instanceof java.math.BigDecimal) {
                 isEquals = (((java.math.BigDecimal) lhs).compareTo((java.math.BigDecimal) rhs) == 0);

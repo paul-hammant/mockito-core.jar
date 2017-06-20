@@ -5,12 +5,12 @@
 
 package org.mockito.internal.invocation;
 
+import org.mockito.exceptions.Reporter;
+import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.exceptions.VerificationAwareInvocation;
 import org.mockito.internal.invocation.realmethod.RealMethod;
 import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.invocation.*;
-
-import static org.mockito.internal.exceptions.Reporter.cannotCallAbstractRealMethod;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -40,15 +40,14 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
     final RealMethod realMethod;
     private StubInfo stubInfo;
 
-    public InvocationImpl(Object mock, MockitoMethod mockitoMethod, Object[] args, int sequenceNumber,
-                          RealMethod realMethod, Location location) {
+    public InvocationImpl(Object mock, MockitoMethod mockitoMethod, Object[] args, int sequenceNumber, RealMethod realMethod) {
         this.method = mockitoMethod;
         this.mock = mock;
         this.realMethod = realMethod;
         this.arguments = ArgumentsProcessor.expandVarArgs(mockitoMethod.isVarArgs(), args);
         this.rawArguments = args;
         this.sequenceNumber = sequenceNumber;
-        this.location = location;
+        this.location = new LocationImpl();
     }
 
     public Object getMock() {
@@ -63,8 +62,8 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
         return arguments;
     }
 
-    public <T> T getArgument(int index) {
-        return (T)arguments[index];
+    public <T> T getArgumentAt(int index, Class<T> clazz) {
+        return (T) arguments[index];
     }
 
     public boolean isVerified() {
@@ -106,13 +105,9 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
         return this.rawArguments;
     }
 
-    public Class<?> getRawReturnType() {
-        return method.getReturnType();
-    }
-
     public Object callRealMethod() throws Throwable {
         if (method.isAbstract()) {
-            throw cannotCallAbstractRealMethod();
+            new Reporter().cannotCallAbstractRealMethod();
         }
         return realMethod.invoke(mock, rawArguments);
     }

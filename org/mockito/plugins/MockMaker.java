@@ -4,17 +4,16 @@
  */
 package org.mockito.plugins;
 
-import org.mockito.Incubating;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
 
 /**
  * The facility to create mocks.
  *
- * <p>By default, an internal byte-buddy/asm/objenesis based implementation is used.</p>
+ * <p>By default, an internal cglib/asm/objenesis based implementation is used.</p>
  *
  * <p>{@code MockMaker} is an extension point that makes it possible to use custom dynamic proxies
- * and avoid using the default byte-buddy/asm/objenesis implementation.
+ * and avoid using the default cglib/asm/objenesis implementation.
  * For example, the android users can use a MockMaker that can work with Dalvik virtual machine
  * and hence bring Mockito to android apps developers.</p>
  *
@@ -23,17 +22,10 @@ import org.mockito.mock.MockCreationSettings;
  * <p>Suppose you wrote an extension to create mocks with some <em>Awesome</em> library, in order to tell
  * Mockito to use it you need to put in your <strong>classpath</strong>:
  * <ol style="list-style-type: lower-alpha">
- *     <li>
- *         The implementation itself, for example <code>org.awesome.mockito.AwesomeMockMaker</code> that
- *         extends the <code>MockMaker</code>.
- *     </li>
- *     <li>
- *         A file "<code>mockito-extensions/org.mockito.plugins.MockMaker</code>". The content of this file is
- *         exactly a <strong>one</strong> line with the qualified name:
- *         <code>org.awesome.mockito.AwesomeMockMaker</code>.
-*      </li>
- * </ol>
- * </p>
+ *     <li>The implementation itself, for example <code>org.awesome.mockito.AwesomeMockMaker</code> that extends the <code>MockMaker</code>.</li>
+ *     <li>A file "<code>mockito-extensions/org.mockito.plugins.MockMaker</code>". The content of this file is
+ *     exactly a <strong>one</strong> line with the qualified name: <code>org.awesome.mockito.AwesomeMockMaker</code>.</li>
+ * </ol></p>
  *
  * <p>Note that if several <code>mockito-extensions/org.mockito.plugins.MockMaker</code> files exists in the classpath
  * Mockito will only use the first returned by the standard {@link ClassLoader#getResource} mechanism.
@@ -56,7 +48,7 @@ public interface MockMaker {
      *     </li>
      * </ul>
      *
-     * @param settings Mock creation settings like type to mock, extra interfaces and so on.
+     * @param settings - mock creation settings like type to mock, extra interfaces and so on.
      * @param handler See {@link org.mockito.invocation.MockHandler}.
      *                <b>Do not</b> provide your own implementation at this time. Make sure your implementation of
      *                {@link #getHandler(Object)} will return this instance.
@@ -75,7 +67,7 @@ public interface MockMaker {
      * Use the instance provided to you by Mockito at {@link #createMock} or {@link #resetMock}.
      *
      * @param mock The mock instance.
-     * @return The mock handler, but may return null - it means that there is no handler attached to provided object.
+     * @return may return null - it means that there is no handler attached to provided object.
      *   This means the passed object is not really a Mockito mock.
      * @since 1.9.5
      */
@@ -100,36 +92,4 @@ public interface MockMaker {
             MockHandler newHandler,
             MockCreationSettings settings
     );
-
-    /**
-     * Indicates if the given type can be mocked by this mockmaker.
-     *
-     * <p>Mockmaker may have different capabilities in term of mocking, typically
-     * Mockito 1.x's internal mockmaker cannot mock final types. Other implementations, may
-     * have different limitations.</p>
-     *
-     * @param type The type inspected for mockability.
-     * @return object that carries the information about mockability of given type.
-     * @since 2.0.0
-     */
-    @Incubating
-    TypeMockability isTypeMockable(Class<?> type);
-
-    /**
-     * Carries the mockability information
-     *
-     * @since 2.0.0
-     */
-    @Incubating
-    interface TypeMockability {
-        /**
-         * informs if type is mockable
-         */
-        boolean mockable();
-
-        /**
-         * informs why type is not mockable
-         */
-        String nonMockableReason();
-    }
 }

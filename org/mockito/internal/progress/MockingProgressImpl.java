@@ -5,53 +5,34 @@
 
 package org.mockito.internal.progress;
 
+import org.mockito.exceptions.Reporter;
 import org.mockito.internal.configuration.GlobalConfiguration;
 import org.mockito.internal.debugging.Localized;
 import org.mockito.internal.debugging.LocationImpl;
+import org.mockito.internal.listeners.MockingProgressListener;
+import org.mockito.internal.listeners.MockingStartedListener;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
-import org.mockito.listeners.MockCreationListener;
-import org.mockito.listeners.MockitoListener;
-import org.mockito.mock.MockCreationSettings;
-import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.verification.VerificationMode;
-import org.mockito.verification.VerificationStrategy;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import static org.mockito.internal.exceptions.Reporter.unfinishedStubbing;
-import static org.mockito.internal.exceptions.Reporter.unfinishedVerificationException;
 
 @SuppressWarnings("unchecked")
 public class MockingProgressImpl implements MockingProgress {
     
+    private final Reporter reporter = new Reporter();
     private final ArgumentMatcherStorage argumentMatcherStorage = new ArgumentMatcherStorageImpl();
     
-    private OngoingStubbing<?> ongoingStubbing;
+    IOngoingStubbing iOngoingStubbing;
     private Localized<VerificationMode> verificationMode;
     private Location stubbingInProgress = null;
-    private VerificationStrategy verificationStrategy;
-    private final Set<MockitoListener> listeners = new LinkedHashSet<MockitoListener>();
+    private MockingProgressListener listener;
 
-    public MockingProgressImpl() {
-        this.verificationStrategy = getDefaultVerificationStrategy();
+    public void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing) {
+        this.iOngoingStubbing = iOngoingStubbing;
     }
 
-    public static VerificationStrategy getDefaultVerificationStrategy() {
-        return new VerificationStrategy() {
-            public VerificationMode maybeVerifyLazily(VerificationMode mode) {
-                return mode;
-            }
-        };
-    }
-    public void reportOngoingStubbing(OngoingStubbing iOngoingStubbing) {
-        this.ongoingStubbing = iOngoingStubbing;
-    }
-
-    public OngoingStubbing<?> pullOngoingStubbing() {
-        OngoingStubbing<?> temp = ongoingStubbing;
-        ongoingStubbing = null;
+    public IOngoingStubbing pullOngoingStubbing() {
+        IOngoingStubbing temp = iOngoingStubbing;
+        iOngoingStubbing = null;
         return temp;
     }
     
@@ -65,7 +46,7 @@ public class MockingProgressImpl implements MockingProgress {
      * @see org.mockito.internal.progress.MockingProgress#resetOngoingStubbing()
      */
     public void resetOngoingStubbing() {
-        ongoingStubbing = null;
+        iOngoingStubbing = null;
     }
 
     public VerificationMode pullVerificationMode() {
@@ -90,7 +71,7 @@ public class MockingProgressImpl implements MockingProgress {
         if (stubbingInProgress != null) {
             Location temp = stubbingInProgress;
             stubbingInProgress = null;
-            throw unfinishedStubbing(temp);
+            reporter.unfinishedStubbing(temp);
         }
     }
 
@@ -102,7 +83,7 @@ public class MockingProgressImpl implements MockingProgress {
         if (verificationMode != null) {
             Location location = verificationMode.getLocation();
             verificationMode = null;
-            throw unfinishedVerificationException(location);
+            reporter.unfinishedVerificationException(location);
         }
 
         getArgumentMatcherStorage().validateState();
@@ -111,9 +92,9 @@ public class MockingProgressImpl implements MockingProgress {
     public void stubbingCompleted(Invocation invocation) {
         stubbingInProgress = null;
     }
-
+    
     public String toString() {
-        return  "iOngoingStubbing: " + ongoingStubbing + 
+        return  "iOngoingStubbing: " + iOngoingStubbing + 
         ", verificationMode: " + verificationMode +
         ", stubbingInProgress: " + stubbingInProgress;
     }
@@ -128,39 +109,14 @@ public class MockingProgressImpl implements MockingProgress {
         return argumentMatcherStorage;
     }
 
-    public void mockingStarted(Object mock, MockCreationSettings settings) {
-        for (MockitoListener listener : listeners) {
-            if (listener instanceof MockCreationListener) {
-                ((MockCreationListener) listener).onMockCreated(mock, settings);
-            }
+    public void mockingStarted(Object mock, Class classToMock) {
+        if (listener instanceof MockingStartedListener) {
+            ((MockingStartedListener) listener).mockingStarted(mock, classToMock);
         }
         validateMostStuff();
     }
 
-    public void addListener(MockitoListener listener) {
-        this.listeners.add(listener);
+    public void setListener(MockingProgressListener listener) {
+        this.listener = listener;
     }
-
-    public void removeListener(MockitoListener listener) {
-        this.listeners.remove(listener);
-    }
-
-    public void setVerificationStrategy(VerificationStrategy strategy) {
-        this.verificationStrategy = strategy;
-    }
-
-    public VerificationMode maybeVerifyLazily(VerificationMode mode) {
-        return this.verificationStrategy.maybeVerifyLazily(mode);
-    }
-
-     /*
-
-     //TODO 545 thread safety of all mockito
-
-     use cases:
-        - single threaded execution throughout
-        - single threaded mock creation, stubbing & verification, multi-threaded interaction with mock
-        - thread per test case
-
-     */
 }
