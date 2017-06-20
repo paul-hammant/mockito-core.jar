@@ -8,7 +8,11 @@ package org.mockito.internal.matchers;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+import org.hamcrest.Description;
+
 public class ArrayEquals extends Equals {
+
+    private static final long serialVersionUID = -7167812844261087583L;
 
     public ArrayEquals(Object wanted) {
         super(wanted);
@@ -40,25 +44,23 @@ public class ArrayEquals extends Equals {
         return false;
     }
 
-    public String toString() {
+    public void describeTo(Description description) {
         if (getWanted() != null && getWanted().getClass().isArray()) {
-            return appendArray(createObjectArray(getWanted()));
+            appendArray(createObjectArray(getWanted()), description);
         } else {
-            return super.toString();
+            super.describeTo(description);
         }
     }
 
-    private String appendArray(Object[] array) {
-        //TODO SF overlap with ValuePrinter
-        StringBuilder out = new StringBuilder("[");
+    private void appendArray(Object[] array, Description description) {
+        description.appendText("[");
         for (int i = 0; i < array.length; i++) {
-            out.append(new Equals(array[i]).toString());
+            new Equals(array[i]).describeTo(description);
             if (i != array.length - 1) {
-                out.append(", ");
+                description.appendText(", ");
             }
         }
-        out.append("]");
-        return out.toString();
+        description.appendText("]");
     }
 
     public static Object[] createObjectArray(Object array) {

@@ -8,10 +8,12 @@ package org.mockito.internal.matchers;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
+import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-public class Find implements ArgumentMatcher<String>, Serializable {
+public class Find extends ArgumentMatcher<String> implements Serializable {
 
+    private static final long serialVersionUID = 8895781429480404872L;
     private final String regex;
 
     public Find(String regex) {
@@ -22,7 +24,7 @@ public class Find implements ArgumentMatcher<String>, Serializable {
         return actual != null && Pattern.compile(regex).matcher((String) actual).find();
     }
 
-    public String toString() {
-        return "find(\"" + regex.replaceAll("\\\\", "\\\\\\\\") + "\")";
+    public void describeTo(Description description) {
+        description.appendText("find(\"" + regex.replaceAll("\\\\", "\\\\\\\\") + "\")");
     }
 }

@@ -5,7 +5,6 @@
 package org.mockito;
 
 import org.mockito.internal.stubbing.answers.CallsRealMethods;
-import org.mockito.internal.stubbing.defaultanswers.TriesToReturnSelf;
 import org.mockito.internal.stubbing.defaultanswers.GloballyConfiguredAnswer;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsMocks;
@@ -69,21 +68,12 @@ public enum Answers implements Answer<Object>{
      *
      * @see org.mockito.Mockito#CALLS_REAL_METHODS
      */
-    CALLS_REAL_METHODS(new CallsRealMethods()),
-
-    /**
-     * An answer that tries to return itself. This is useful for mocking {@code Builders}.
-     *
-     * <p>Please see the {@link org.mockito.Mockito#RETURNS_SELF} documentation for more details.</p>
-     *
-     * @see org.mockito.Mockito#RETURNS_SELF
-     */
-    RETURNS_SELF(new TriesToReturnSelf())
+    CALLS_REAL_METHODS(new CallsRealMethods())
     ;
 
     private final Answer<Object> implementation;
 
-    Answers(Answer<Object> implementation) {
+    private Answers(Answer<Object> implementation) {
         this.implementation = implementation;
     }
 
@@ -96,9 +86,9 @@ public enum Answers implements Answer<Object>{
         return this;
     }
 
-    public Object answer(InvocationOnMock invocation) throws Throwable {
-        return implementation.answer(invocation);
-    }
+	public Object answer(InvocationOnMock invocation) throws Throwable {
+		return implementation.answer(invocation);
+	}
 
    
 }

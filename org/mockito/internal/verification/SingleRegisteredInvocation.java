@@ -27,10 +27,6 @@ public class SingleRegisteredInvocation implements RegisteredInvocations, Serial
         return Collections.emptyList();
     }
 
-    public void clear() {
-        invocation = null;
-    }
-
     public boolean isEmpty() {
         return invocation == null;
     }

@@ -5,13 +5,15 @@
 
 package org.mockito.internal.matchers;
 
-import org.mockito.ArgumentMatcher;
-
 import java.io.Serializable;
 
+import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 
-public class InstanceOf implements ArgumentMatcher<Object>, Serializable {
 
+public class InstanceOf extends ArgumentMatcher<Object> implements Serializable {
+
+    private static final long serialVersionUID = 517358915876138366L;
     private final Class<?> clazz;
 
     public InstanceOf(Class<?> clazz) {
@@ -22,7 +24,7 @@ public class InstanceOf implements ArgumentMatcher<Object>, Serializable {
         return (actual != null) && clazz.isAssignableFrom(actual.getClass());
     }
 
-    public String toString() {
-        return "isA(" + clazz.getName() + ")";
+    public void describeTo(Description description) {
+        description.appendText("isA(" + clazz.getName() + ")");
     }
 }

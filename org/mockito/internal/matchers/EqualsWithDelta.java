@@ -5,13 +5,17 @@
 
 package org.mockito.internal.matchers;
 
+import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
 import java.io.Serializable;
 
-public class EqualsWithDelta implements ArgumentMatcher<Number>, Serializable {
+
+public class EqualsWithDelta extends ArgumentMatcher<Number> implements Serializable {
+    private static final long serialVersionUID = 5066980489920383664L;
 
     private final Number wanted;
+
     private final Number delta;
 
     public EqualsWithDelta(Number value, Number delta) {
@@ -19,8 +23,8 @@ public class EqualsWithDelta implements ArgumentMatcher<Number>, Serializable {
         this.delta = delta;
     }
 
-    public boolean matches(Object object) {
-        Number actual = (Number) object;
+    public boolean matches(Object actual) {
+        Number actualNumber = (Number) actual;
         if (wanted == null ^ actual == null) {
             return false;
         }
@@ -29,12 +33,12 @@ public class EqualsWithDelta implements ArgumentMatcher<Number>, Serializable {
             return true;
         }
 
-        return wanted.doubleValue() - delta.doubleValue() <= actual.doubleValue()
-                && actual.doubleValue() <= wanted.doubleValue()
+        return wanted.doubleValue() - delta.doubleValue() <= actualNumber.doubleValue()
+                && actualNumber.doubleValue() <= wanted.doubleValue()
                         + delta.doubleValue();
     }
 
-    public String toString() {
-        return "eq(" + wanted + ", " + delta + ")";
+    public void describeTo(Description description) {
+        description.appendText("eq(" + wanted + ", " + delta + ")");
     }
 }

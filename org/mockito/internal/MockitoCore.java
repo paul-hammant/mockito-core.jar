@@ -4,6 +4,9 @@
  */
 package org.mockito.internal;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.mockito.InOrder;
 import org.mockito.MockSettings;
 import org.mockito.MockingDetails;
@@ -27,11 +30,12 @@ import org.mockito.internal.verification.api.VerificationDataInOrder;
 import org.mockito.internal.verification.api.VerificationDataInOrderImpl;
 import org.mockito.invocation.Invocation;
 import org.mockito.mock.MockCreationSettings;
-import org.mockito.stubbing.*;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.DeprecatedOngoingStubbing;
+import org.mockito.stubbing.OngoingStubbing;
+import org.mockito.stubbing.Stubber;
+import org.mockito.stubbing.VoidMethodStubbable;
 import org.mockito.verification.VerificationMode;
-
-import java.util.Arrays;
-import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class MockitoCore {
@@ -41,7 +45,7 @@ public class MockitoCore {
     private final MockingProgress mockingProgress = new ThreadSafeMockingProgress();
 
     public boolean isTypeMockable(Class<?> typeToMock) {
-        return mockUtil.typeMockabilityOf(typeToMock).mockable();
+        return mockUtil.isTypeMockable(typeToMock);
     }
 
     public <T> T mock(Class<T> typeToMock, MockSettings settings) {
@@ -95,16 +99,6 @@ public class MockitoCore {
             mockUtil.resetMock(m);
         }
     }
-
-    public <T> void clearInvocations(T ... mocks) {
-        mockingProgress.validateState();
-        mockingProgress.reset();
-        mockingProgress.resetOngoingStubbing();
-
-        for (T m : mocks) {
-            mockUtil.getMockHandler(m).getInvocationContainer().clearInvocations();
-        }
-    }
     
     public void verifyNoMoreInteractions(Object... mocks) {
         assertMocksNotEmpty(mocks);
@@ -150,10 +144,10 @@ public class MockitoCore {
         return new InOrderImpl(Arrays.asList(mocks));
     }
     
-    public Stubber stubber() {
+    public Stubber doAnswer(Answer answer) {
         mockingProgress.stubbingStarted();
         mockingProgress.resetOngoingStubbing();
-        return new StubberImpl();
+        return new StubberImpl().doAnswer(answer);
     }
     
     public <T> VoidMethodStubbable<T> stubVoid(T mock) {
@@ -192,5 +186,4 @@ public class MockitoCore {
     public MockingDetails mockingDetails(Object toInspect) {
         return new DefaultMockingDetails(toInspect, new MockUtil());
     }
-
 }

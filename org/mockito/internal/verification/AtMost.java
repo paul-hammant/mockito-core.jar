@@ -41,9 +41,4 @@ public class AtMost implements VerificationMode {
         
         invocationMarker.markVerified(found, wanted);
     }
-
-    @Override
-    public VerificationMode description(String description) {
-        return VerificationModeFactory.description(this, description);
-    }
 }
